@@ -1,5 +1,2 @@
-quarkus:
-  azure-functions:
-    app-name: "minha-carteira-1725592519132"
 greeting:
   message: "hello"
