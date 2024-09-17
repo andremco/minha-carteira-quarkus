@@ -8,5 +8,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class SetorRequest {
+    private Integer id;
     private String descricao;
 }
