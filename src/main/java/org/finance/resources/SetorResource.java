@@ -6,6 +6,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.finance.models.data.Setor;
 import org.finance.models.request.SetorRequest;
+import org.finance.models.response.ResponseApi;
 import org.finance.services.SetorService;
 
 import java.time.LocalDateTime;
@@ -27,8 +28,8 @@ public class SetorResource {
     @PUT
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
-    public Setor editar(SetorRequest request) {
-        return setorService.editar(request);
+    public ResponseApi<Setor> editar(SetorRequest request) {
+        return new ResponseApi<>(setorService.editar(request), "", true);
     }
 
     @GET

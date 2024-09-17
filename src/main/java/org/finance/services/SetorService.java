@@ -2,6 +2,7 @@ package org.finance.services;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.finance.exceptions.NegocioException;
 import org.finance.mappers.SetorMapper;
 import org.finance.models.data.Setor;
 import org.finance.models.request.SetorRequest;
@@ -18,10 +19,10 @@ public class SetorService {
     @Inject
     SetorMapper setorMapper;
 
-    public Setor salvar(SetorRequest setorRequest) {
+    public Setor salvar(SetorRequest setorRequest) throws NegocioException {
 
-        if (setorRequest == null)
-            return null;
+        if (setorRequest == null || setorRequest.getDescricao() == null)
+            throw new NegocioException("Request não informado!");
 
         setorMapper.toSetor(setorRequest);
 
@@ -31,15 +32,15 @@ public class SetorService {
         return setor;
     }
 
-    public Setor editar(SetorRequest setorRequest) {
+    public Setor editar(SetorRequest setorRequest) throws NegocioException{
 
         if (setorRequest == null || setorRequest.getId() == null)
-            return null;
+            throw new NegocioException("Request não informado!");
 
         Setor entidadeSetor = setorRepository.findById(setorRequest.getId().longValue());
 
         if (entidadeSetor == null)
-            return null;
+            throw new NegocioException("Setor não encontrado");
 
         Setor setor = setorMapper.toSetor(setorRequest);
         setorRepository.persist(setor);
