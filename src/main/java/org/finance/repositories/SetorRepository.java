@@ -5,4 +5,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.finance.models.data.Setor;
 
 @ApplicationScoped
-public class SetorRepository implements PanacheRepository<Setor> {}
+public class SetorRepository implements PanacheRepository<Setor> {
+    public Setor findByDescricao(String descricao){
+        return find("descricao", descricao).firstResult();
+    }
+}
+
