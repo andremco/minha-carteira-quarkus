@@ -54,11 +54,4 @@ public class SetorResource {
     public ResponseApi<Paginado<SetorResponse>> filtrar(@HeaderParam("pagina") int pagina, @HeaderParam("tamanho") int tamanho) {
         return new ResponseApi<>(setorService.filtrarSetores(pagina, tamanho), new String[] {operacaoSucesso}, true);
     }
-
-    @GET
-    @Path("/todos")
-    @Produces(MediaType.APPLICATION_JSON)
-    public ResponseApi<List<SetorResponse>> setores() {
-        return new ResponseApi<>(setorService.todos(), new String[] {operacaoSucesso}, true);
-    }
 }
