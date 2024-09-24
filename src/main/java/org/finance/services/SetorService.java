@@ -5,6 +5,8 @@ import jakarta.inject.Inject;
 import org.finance.exceptions.NegocioException;
 import org.finance.mappers.SetorMapper;
 import org.finance.models.data.Setor;
+import org.finance.models.dto.PaginadoDto;
+import org.finance.models.dto.setor.SetorDto;
 import org.finance.models.request.setor.EditarSetorRequest;
 import org.finance.models.request.setor.SalvarSetorRequest;
 import org.finance.repositories.SetorRepository;
@@ -24,7 +26,7 @@ public class SetorService {
     public static final String SETOR_JA_EXISTE = "Setor informado já existe!";
     public static final String SETOR_NAO_PODE_SER_EXCLUIDO = "Este setor possui vínculo não pode ser alterado!";
 
-    public Setor salvar(SalvarSetorRequest request){
+    public SetorDto salvar(SalvarSetorRequest request) throws NegocioException {
 
         if(setorRepository.count("descricao", request.getDescricao()) != 0)
             throw new NegocioException(SETOR_JA_EXISTE);
@@ -32,10 +34,10 @@ public class SetorService {
         Setor setor = setorMapper.toSetor(request);
         setorRepository.persist(setor);
 
-        return setor;
+        return setorMapper.toSetor(setor);
     }
 
-    public Setor editar(EditarSetorRequest request) throws NegocioException{
+    public SetorDto editar(EditarSetorRequest request) throws NegocioException {
 
         Setor setor = setorRepository.findById(request.getId().longValue());
 
@@ -51,10 +53,10 @@ public class SetorService {
         setor.setDescricao(request.getDescricao());
         setorRepository.persist(setor);
 
-        return setor;
+        return setorMapper.toSetor(setor);
     }
 
-    public void excluir(Integer id){
+    public void excluir(Integer id) throws NegocioException {
         Setor setor = setorRepository.findById(id.longValue());
 
         if (setor == null)
@@ -65,7 +67,22 @@ public class SetorService {
         setorRepository.delete(setor);
     }
 
-    public List<Setor> all(){
-        return setorRepository.listAll();
+    public PaginadoDto<SetorDto> filtrarSetores(Integer pagina, Integer tamanho){
+        long totalSetores = total();
+        PaginadoDto<SetorDto> paginadoDto = PaginadoDto.<SetorDto>builder()
+                .pagina(pagina)
+                .tamanho(tamanho)
+                .total(totalSetores)
+                .itens(setorMapper.toSetores(setorRepository.findSetoresPaged(pagina, tamanho)))
+                .build();
+        return paginadoDto;
+    }
+
+    public long total(){
+        return setorRepository.count();
+    }
+
+    public List<SetorDto> todos(){
+        return setorMapper.toSetores(setorRepository.listAll());
     }
 }
