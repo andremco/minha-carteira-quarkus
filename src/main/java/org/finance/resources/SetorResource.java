@@ -1,17 +1,16 @@
 package org.finance.resources;
 
-import com.arjuna.ats.jta.exceptions.NotImplementedException;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import org.finance.models.data.Setor;
-import org.finance.models.dto.PaginadoDto;
-import org.finance.models.dto.setor.SetorDto;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.finance.models.request.setor.EditarSetorRequest;
 import org.finance.models.request.setor.SalvarSetorRequest;
+import org.finance.models.response.Paginado;
 import org.finance.models.response.ResponseApi;
+import org.finance.models.response.setor.SetorResponse;
 import org.finance.services.SetorService;
 
 import java.util.List;
@@ -23,42 +22,43 @@ public class SetorResource {
     @Inject
     SetorService setorService;
 
-    public static final String OPERACAO_REALIZADO_COM_SUCESSO = "Operação realizado com sucesso!";
+    @ConfigProperty(name = "operacao.realizado.com.sucesso")
+    String operacaoSucesso;
 
     @POST
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
-    public ResponseApi<SetorDto> salvar(@Valid SalvarSetorRequest request) {
-        return new ResponseApi<>(setorService.salvar(request), OPERACAO_REALIZADO_COM_SUCESSO, true);
+    public ResponseApi<SetorResponse> salvar(@Valid SalvarSetorRequest request) {
+        return new ResponseApi<>(setorService.salvar(request), new String[] {operacaoSucesso}, true);
     }
 
     @PUT
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
-    public ResponseApi<SetorDto> editar(@Valid EditarSetorRequest request) {
-        return new ResponseApi<>(setorService.editar(request), OPERACAO_REALIZADO_COM_SUCESSO, true);
+    public ResponseApi<SetorResponse> editar(@Valid EditarSetorRequest request) {
+        return new ResponseApi<>(setorService.editar(request), new String[] {operacaoSucesso}, true);
     }
 
     @DELETE
     @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ResponseApi<SetorDto> editar(@PathParam("id") Integer id) {
+    public ResponseApi<SetorResponse> editar(@PathParam("id") Integer id) {
         setorService.excluir(id);
-        return new ResponseApi<>(OPERACAO_REALIZADO_COM_SUCESSO, true);
+        return new ResponseApi<>(new String[] {operacaoSucesso}, true);
     }
 
     @GET
     @Path("/filtrar")
     @Produces(MediaType.APPLICATION_JSON)
-    public ResponseApi<PaginadoDto<SetorDto>> filtrar(@HeaderParam("pagina") int pagina, @HeaderParam("tamanho") int tamanho) {
-        return new ResponseApi<>(setorService.filtrarSetores(pagina, tamanho), OPERACAO_REALIZADO_COM_SUCESSO, true);
+    public ResponseApi<Paginado<SetorResponse>> filtrar(@HeaderParam("pagina") int pagina, @HeaderParam("tamanho") int tamanho) {
+        return new ResponseApi<>(setorService.filtrarSetores(pagina, tamanho), new String[] {operacaoSucesso}, true);
     }
 
     @GET
     @Path("/todos")
     @Produces(MediaType.APPLICATION_JSON)
-    public ResponseApi<List<SetorDto>> setores() {
-        return new ResponseApi<>(setorService.todos(), OPERACAO_REALIZADO_COM_SUCESSO, true);
+    public ResponseApi<List<SetorResponse>> setores() {
+        return new ResponseApi<>(setorService.todos(), new String[] {operacaoSucesso}, true);
     }
 }

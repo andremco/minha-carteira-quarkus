@@ -10,8 +10,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class EditarSetorRequest {
-    @NotNull(message = "Campo id não informado!")
+    @NotNull(message = "{campo.id.nao.informado}")
     private Integer id;
-    @NotBlank(message = "Campo descrição não informado!")
+    @NotBlank(message = "{campo.descricao.nao.informado}")
     private String descricao;
 }

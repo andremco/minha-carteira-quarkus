@@ -9,7 +9,7 @@ import org.finance.models.response.ResponseApi;
 public class ExceptionHandler implements ExceptionMapper<Exception> {
     @Override
     public Response toResponse(Exception e) {
-        var response = new ResponseApi<>(null, e.getMessage(), false);
+        var response = new ResponseApi<>(null, new String[] { e.getMessage() }, false);
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(response).build();
     }
 }

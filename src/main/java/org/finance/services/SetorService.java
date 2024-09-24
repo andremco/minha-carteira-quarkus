@@ -2,13 +2,14 @@ package org.finance.services;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.finance.exceptions.NegocioException;
 import org.finance.mappers.SetorMapper;
 import org.finance.models.data.Setor;
-import org.finance.models.dto.PaginadoDto;
-import org.finance.models.dto.setor.SetorDto;
 import org.finance.models.request.setor.EditarSetorRequest;
 import org.finance.models.request.setor.SalvarSetorRequest;
+import org.finance.models.response.Paginado;
+import org.finance.models.response.setor.SetorResponse;
 import org.finance.repositories.SetorRepository;
 
 import java.time.LocalDateTime;
@@ -22,67 +23,70 @@ public class SetorService {
     @Inject
     SetorMapper setorMapper;
 
-    public static final String SETOR_NAO_ENCONTRADO = "Setor não encontrado!";
-    public static final String SETOR_JA_EXISTE = "Setor informado já existe!";
-    public static final String SETOR_NAO_PODE_SER_EXCLUIDO = "Este setor possui vínculo não pode ser alterado!";
+    @ConfigProperty(name = "registro.nao.encontrado")
+    String registroNaoEncontrado;
+    @ConfigProperty(name = "registro.ja.existe")
+    String registroJaExiste;
+    @ConfigProperty(name = "setor.nao.pode.ser.excluido")
+    String setorNaoPodeSerExcluido;
 
-    public SetorDto salvar(SalvarSetorRequest request) throws NegocioException {
+    public SetorResponse salvar(SalvarSetorRequest request) throws NegocioException {
 
         if(setorRepository.count("descricao", request.getDescricao()) != 0)
-            throw new NegocioException(SETOR_JA_EXISTE);
+            throw new NegocioException(registroJaExiste);
 
         Setor setor = setorMapper.toSetor(request);
         setorRepository.persist(setor);
 
-        return setorMapper.toSetor(setor);
+        return setorMapper.toSetorResponse(setor);
     }
 
-    public SetorDto editar(EditarSetorRequest request) throws NegocioException {
+    public SetorResponse editar(EditarSetorRequest request) throws NegocioException {
 
         Setor setor = setorRepository.findById(request.getId().longValue());
 
         if (setor == null)
-            throw new NegocioException(SETOR_NAO_ENCONTRADO);
+            throw new NegocioException(registroNaoEncontrado);
 
         long totalPorDescricao = setorRepository.count("descricao", request.getDescricao());
 
         if (totalPorDescricao >= 1)
-            throw new NegocioException(SETOR_JA_EXISTE);
+            throw new NegocioException(registroJaExiste);
 
         setor.setDataRegistroEdicao(LocalDateTime.now());
         setor.setDescricao(request.getDescricao());
         setorRepository.persist(setor);
 
-        return setorMapper.toSetor(setor);
+        return setorMapper.toSetorResponse(setor);
     }
 
     public void excluir(Integer id) throws NegocioException {
         Setor setor = setorRepository.findById(id.longValue());
 
         if (setor == null)
-            throw new NegocioException(SETOR_NAO_ENCONTRADO);
+            throw new NegocioException(registroNaoEncontrado);
         if (!setor.getAcoes().isEmpty())
-            throw new NegocioException(SETOR_NAO_PODE_SER_EXCLUIDO);
+            throw new NegocioException(setorNaoPodeSerExcluido);
 
         setorRepository.delete(setor);
     }
 
-    public PaginadoDto<SetorDto> filtrarSetores(Integer pagina, Integer tamanho){
+    public Paginado<SetorResponse> filtrarSetores(Integer pagina, Integer tamanho){
         long totalSetores = total();
-        PaginadoDto<SetorDto> paginadoDto = PaginadoDto.<SetorDto>builder()
+        Paginado<SetorResponse> paginado = Paginado.<SetorResponse>builder()
                 .pagina(pagina)
                 .tamanho(tamanho)
                 .total(totalSetores)
-                .itens(setorMapper.toSetores(setorRepository.findSetoresPaged(pagina, tamanho)))
+                .itens(setorMapper.toSetoresResponse(setorRepository.findSetoresPaged(pagina, tamanho)))
                 .build();
-        return paginadoDto;
+        return paginado;
     }
 
     public long total(){
         return setorRepository.count();
     }
 
-    public List<SetorDto> todos(){
-        return setorMapper.toSetores(setorRepository.listAll());
+    public List<SetorResponse> todos(){
+        return setorMapper.toSetoresResponse(setorRepository.listAll());
     }
 }

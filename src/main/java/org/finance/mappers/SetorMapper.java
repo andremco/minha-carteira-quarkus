@@ -4,6 +4,7 @@ import org.finance.models.data.Setor;
 import org.finance.models.dto.setor.SetorDto;
 import org.finance.models.request.setor.EditarSetorRequest;
 import org.finance.models.request.setor.SalvarSetorRequest;
+import org.finance.models.response.setor.SetorResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import java.time.LocalDateTime;
@@ -19,4 +20,6 @@ public interface  SetorMapper {
     Setor toSetor(EditarSetorRequest request);
     SetorDto toSetor(Setor setor);
     List<SetorDto> toSetores(List<Setor> setor);
+    SetorResponse toSetorResponse(Setor setor);
+    List<SetorResponse> toSetoresResponse(List<Setor> setor);
 }

@@ -11,10 +11,10 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ResponseApi<T> {
     private T data;
-    private String message;
+    private String[] message;
     private Boolean success;
 
-    public ResponseApi(String message, Boolean success){
+    public ResponseApi(String[] message, Boolean success){
         this.message = message;
         this.success = success;
     }

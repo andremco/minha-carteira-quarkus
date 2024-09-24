@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class SalvarSetorRequest {
-    @NotBlank(message = "Campo descrição não informado!")
+    @NotBlank(message = "campo.descricao.nao.informado")
     private String descricao;
 }

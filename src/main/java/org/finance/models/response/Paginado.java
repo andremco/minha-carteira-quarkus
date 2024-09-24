@@ -1,4 +1,4 @@
-package org.finance.models.dto;
+package org.finance.models.response;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
-public class PaginadoDto<T> {
+public class Paginado<T> {
     private Integer pagina;
     private Integer tamanho;
     private Long total;

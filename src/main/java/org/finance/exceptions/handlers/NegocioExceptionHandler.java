@@ -10,7 +10,7 @@ import org.finance.models.response.ResponseApi;
 public class NegocioExceptionHandler implements ExceptionMapper<NegocioException> {
     @Override
     public Response toResponse(NegocioException e) {
-        var response = new ResponseApi<>(null, e.getMessage(), false);
+        var response = new ResponseApi<>(null, new String[] { e.getMessage() }, false);
 
         if (e.getStatus() == null)
             return Response.status(Response.Status.BAD_REQUEST).entity(response).build();
