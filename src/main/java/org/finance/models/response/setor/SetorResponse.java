@@ -12,4 +12,6 @@ import lombok.Setter;
 public class SetorResponse {
     private Integer id;
     private String descricao;
+    private String dataRegistro;
+    private Integer numAtivos;
 }

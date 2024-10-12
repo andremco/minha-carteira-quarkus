@@ -20,6 +20,8 @@ public interface  SetorMapper {
     Setor toSetor(EditarSetorRequest request);
     SetorDto toSetor(Setor setor);
     List<SetorDto> toSetores(List<Setor> setor);
+    @Mapping(target = "dataRegistro", source = "dataRegistroCriacao")
+    @Mapping(target = "numAtivos", expression = "java(setor.getAcoes().size())")
     SetorResponse toSetorResponse(Setor setor);
     List<SetorResponse> toSetoresResponse(List<Setor> setor);
 }

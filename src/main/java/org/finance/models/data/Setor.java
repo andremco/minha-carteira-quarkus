@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -23,5 +24,5 @@ public class Setor {
     private LocalDateTime dataRegistroCriacao;
     private LocalDateTime dataRegistroEdicao;
     @OneToMany(mappedBy = "setor")
-    private List<Acao> acoes;
+    private List<Acao> acoes = new ArrayList<>();
 }
