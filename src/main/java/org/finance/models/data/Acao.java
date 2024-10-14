@@ -21,7 +21,7 @@ public class Acao {
     @NotNull
     private String ticker;
     @NotNull
-    private Integer quantidade;
+    private Boolean ehFIIs;
     @NotNull
     private Integer nota;
     @NotNull
