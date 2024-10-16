@@ -1,7 +1,6 @@
 package org.finance.mappers;
 
 import org.finance.models.data.Setor;
-import org.finance.models.dto.setor.SetorDto;
 import org.finance.models.request.setor.EditarSetorRequest;
 import org.finance.models.request.setor.SalvarSetorRequest;
 import org.finance.models.response.setor.SetorResponse;
@@ -18,8 +17,6 @@ public interface  SetorMapper {
     @Mapping(target = "dataRegistroCriacao", ignore = true)
     @Mapping(target = "dataRegistroEdicao", expression = "java(LocalDateTime.now())")
     Setor toSetor(EditarSetorRequest request);
-    SetorDto toSetor(Setor setor);
-    List<SetorDto> toSetores(List<Setor> setor);
     @Mapping(target = "dataRegistro", source = "dataRegistroCriacao")
     @Mapping(target = "numAtivos", expression = "java(setor.getAcoes().size())")
     SetorResponse toSetorResponse(Setor setor);

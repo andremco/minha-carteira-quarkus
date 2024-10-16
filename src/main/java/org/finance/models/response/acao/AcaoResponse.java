@@ -20,6 +20,4 @@ public class AcaoResponse {
     private Boolean ehFIIs;
     private Integer nota;
     private String dataRegistroCriacao;
-    private String dataRegistroEdicao;
-    private String dataRegistroRemocao;
 }

@@ -3,6 +3,7 @@ package org.finance.services;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.finance.configs.ApiConfigProperty;
 import org.finance.exceptions.NegocioException;
 import org.finance.mappers.SetorMapper;
 import org.finance.models.data.Setor;
@@ -22,18 +23,13 @@ public class SetorService {
 
     @Inject
     SetorMapper setorMapper;
-
-    @ConfigProperty(name = "registro.nao.encontrado")
-    String registroNaoEncontrado;
-    @ConfigProperty(name = "registro.ja.existe")
-    String registroJaExiste;
-    @ConfigProperty(name = "setor.nao.pode.ser.excluido")
-    String setorNaoPodeSerExcluido;
+    @Inject
+    ApiConfigProperty apiConfigProperty;
 
     public SetorResponse salvar(SalvarSetorRequest request) throws NegocioException {
 
         if(setorRepository.count("descricao", request.getDescricao()) != 0)
-            throw new NegocioException(registroJaExiste);
+            throw new NegocioException(apiConfigProperty.getRegistroJaExiste());
 
         Setor setor = setorMapper.toSetor(request);
         setorRepository.persist(setor);
@@ -46,12 +42,12 @@ public class SetorService {
         Setor setor = setorRepository.findById(request.getId().longValue());
 
         if (setor == null)
-            throw new NegocioException(registroNaoEncontrado);
+            throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
         long totalPorDescricao = setorRepository.count("descricao", request.getDescricao());
 
         if (totalPorDescricao >= 1)
-            throw new NegocioException(registroJaExiste);
+            throw new NegocioException(apiConfigProperty.getRegistroJaExiste());
 
         setor.setDataRegistroEdicao(LocalDateTime.now());
         setor.setDescricao(request.getDescricao());
@@ -64,9 +60,9 @@ public class SetorService {
         Setor setor = setorRepository.findById(id.longValue());
 
         if (setor == null)
-            throw new NegocioException(registroNaoEncontrado);
+            throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
         if (!setor.getAcoes().isEmpty())
-            throw new NegocioException(setorNaoPodeSerExcluido);
+            throw new NegocioException(apiConfigProperty.getSetorNaoPodeSerExcluido());
 
         setorRepository.delete(setor);
     }

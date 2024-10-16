@@ -43,7 +43,7 @@ public class SetorResource {
     @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ResponseApi<SetorResponse> editar(@PathParam("id") Integer id) {
+    public ResponseApi<SetorResponse> deletar(@PathParam("id") Integer id) {
         setorService.excluir(id);
         return new ResponseApi<>(new String[] {operacaoSucesso}, true);
     }
