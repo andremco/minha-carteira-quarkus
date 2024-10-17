@@ -18,27 +18,22 @@ import java.util.List;
 @Path("/setor")
 @Consumes(MediaType.APPLICATION_JSON)
 public class SetorResource {
-
     @Inject
     SetorService setorService;
-
     @ConfigProperty(name = "operacao.realizado.com.sucesso")
     String operacaoSucesso;
-
     @POST
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     public ResponseApi<SetorResponse> salvar(@Valid SalvarSetorRequest request) {
         return new ResponseApi<>(setorService.salvar(request), new String[] {operacaoSucesso}, true);
     }
-
     @PUT
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     public ResponseApi<SetorResponse> editar(@Valid EditarSetorRequest request) {
         return new ResponseApi<>(setorService.editar(request), new String[] {operacaoSucesso}, true);
     }
-
     @DELETE
     @Transactional
     @Path("/{id}")
@@ -47,7 +42,6 @@ public class SetorResource {
         setorService.excluir(id);
         return new ResponseApi<>(new String[] {operacaoSucesso}, true);
     }
-
     @GET
     @Path("/filtrar")
     @Produces(MediaType.APPLICATION_JSON)

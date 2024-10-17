@@ -35,7 +35,6 @@ public class AcaoResource {
     public ResponseApi<AcaoResponse> editar(@Valid EditarAcaoRequest request) {
         return new ResponseApi<>(acaoService.editar(request), new String[] {operacaoSucesso}, true);
     }
-
     @DELETE
     @Transactional
     @Path("/{id}")
@@ -44,7 +43,6 @@ public class AcaoResource {
         acaoService.excluir(id);
         return new ResponseApi<>(new String[] {operacaoSucesso}, true);
     }
-
     @GET
     @Path("/filtrar")
     @Produces(MediaType.APPLICATION_JSON)
