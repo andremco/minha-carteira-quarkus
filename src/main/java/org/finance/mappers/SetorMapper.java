@@ -11,9 +11,12 @@ import java.util.List;
 
 @Mapper(componentModel = "cdi", imports = {LocalDateTime.class})
 public interface  SetorMapper {
-    @Mapping(target = "dataRegistroCriacao", expression = "java(LocalDateTime.now())")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "acoes", ignore = true)
     @Mapping(target = "dataRegistroEdicao", ignore = true)
+    @Mapping(target = "dataRegistroCriacao", expression = "java(LocalDateTime.now())")
     Setor toSetor(SalvarSetorRequest request);
+    @Mapping(target = "acoes", ignore = true)
     @Mapping(target = "dataRegistroCriacao", ignore = true)
     @Mapping(target = "dataRegistroEdicao", expression = "java(LocalDateTime.now())")
     Setor toSetor(EditarSetorRequest request);

@@ -10,6 +10,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.finance.models.request.acao.EditarAcaoRequest;
 import org.finance.models.request.acao.SalvarAcaoRequest;
 import org.finance.models.request.setor.EditarSetorRequest;
+import org.finance.models.response.Paginado;
 import org.finance.models.response.ResponseApi;
 import org.finance.models.response.acao.AcaoResponse;
 import org.finance.models.response.setor.SetorResponse;
@@ -39,8 +40,15 @@ public class AcaoResource {
     @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ResponseApi<SetorResponse> deletar(@PathParam("id") Integer id) {
+    public ResponseApi<AcaoResponse> deletar(@PathParam("id") Integer id) {
         acaoService.excluir(id);
         return new ResponseApi<>(new String[] {operacaoSucesso}, true);
+    }
+
+    @GET
+    @Path("/filtrar")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ResponseApi<Paginado<AcaoResponse>> filtrar(@HeaderParam("pagina") int pagina, @HeaderParam("tamanho") int tamanho) {
+        return new ResponseApi<>(acaoService.filtrarAcoes(pagina, tamanho), new String[] {operacaoSucesso}, true);
     }
 }

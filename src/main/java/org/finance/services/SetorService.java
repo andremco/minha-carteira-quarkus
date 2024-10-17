@@ -81,8 +81,4 @@ public class SetorService {
     public long total(){
         return setorRepository.count();
     }
-
-    public List<SetorResponse> todos(){
-        return setorMapper.toSetoresResponse(setorRepository.listAll());
-    }
 }
