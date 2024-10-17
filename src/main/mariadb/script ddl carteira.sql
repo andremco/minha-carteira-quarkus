@@ -18,7 +18,8 @@ CREATE TABLE Acao
 (
     Id INT NOT NULL AUTO_INCREMENT,
     SetorId INT NOT NULL,
-    RazaoSocial VARCHAR(100) NOT NULL,
+    RazaoSocial VARCHAR(100),
+    Descricao VARCHAR(100),
     Ticker VARCHAR(10) NOT NULL,
     EhFIIs BIT NOT NULL DEFAULT 0,
     Nota INT NOT NULL,
