@@ -14,10 +14,10 @@ public class SalvarAcaoRequest {
     private String razaoSocial;
     @NotNull(message = "{campo.setor.id.nao.informado}")
     private Integer setorId;
+    @NotNull(message = "campo.categoria.id.nao.informado")
+    private Integer categoriaId;
     @NotBlank(message = "{campo.ticker.nao.informado}")
     private String ticker;
-    @NotNull(message = "{campo.eh.fiis.nao.informado}")
-    private Boolean ehFIIs;
     @NotNull(message = "{campo.nota.nao.informado}")
     private Integer nota;
 }

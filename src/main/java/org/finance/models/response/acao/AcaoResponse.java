@@ -15,9 +15,10 @@ public class AcaoResponse {
     private Integer id;
     private Integer setorId;
     private String setorDescricao;
+    private Integer categoriaId;
+    private String categoriaDescricao;
     private String razaoSocial;
     private String ticker;
-    private Boolean ehFIIs;
     private Integer nota;
     private String dataRegistroCriacao;
 }

@@ -13,7 +13,7 @@ public class EditarAcaoRequest {
     private Integer id;
     private String razaoSocial;
     private Integer setorId;
+    private Integer categoriaId;
     private String ticker;
-    private Boolean ehFIIs;
     private Integer nota;
 }

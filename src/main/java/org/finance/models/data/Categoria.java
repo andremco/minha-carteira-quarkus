@@ -7,29 +7,21 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity(name = "Acao")
-public class Acao {
+@Entity(name = "Categoria")
+public class Categoria {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @NotNull
-    private String razaoSocial;
-    @NotNull
-    private String ticker;
-    @NotNull
-    private Integer nota;
+    private String descricao;
     @NotNull
     private LocalDateTime dataRegistroCriacao;
-    private LocalDateTime dataRegistroEdicao;
-    private LocalDateTime dataRegistroRemocao;
-    @ManyToOne
-    @JoinColumn(name = "SetorId")
-    private Setor setor;
-    @ManyToOne
-    @JoinColumn(name = "CategoriaId")
-    private Categoria categoria;
+    @OneToMany(mappedBy = "categoria")
+    private List<Acao> acoes = new ArrayList<>();
 }

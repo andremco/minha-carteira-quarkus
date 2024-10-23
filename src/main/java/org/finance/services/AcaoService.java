@@ -6,12 +6,14 @@ import org.finance.configs.ApiConfigProperty;
 import org.finance.exceptions.NegocioException;
 import org.finance.mappers.AcaoMapper;
 import org.finance.models.data.Acao;
+import org.finance.models.data.Categoria;
 import org.finance.models.data.Setor;
 import org.finance.models.request.acao.EditarAcaoRequest;
 import org.finance.models.request.acao.SalvarAcaoRequest;
 import org.finance.models.response.Paginado;
 import org.finance.models.response.acao.AcaoResponse;
 import org.finance.repositories.AcaoRepository;
+import org.finance.repositories.CategoriaRepository;
 import org.finance.repositories.SetorRepository;
 
 import java.time.LocalDateTime;
@@ -24,6 +26,8 @@ public class AcaoService {
     @Inject
     SetorRepository setorRepository;
     @Inject
+    CategoriaRepository categoriaRepository;
+    @Inject
     AcaoMapper acaoMapper;
     @Inject
     ApiConfigProperty apiConfigProperty;
@@ -34,19 +38,28 @@ public class AcaoService {
             throw new NegocioException(apiConfigProperty.getRegistroJaExiste());
 
         var setor = setorRepository.findById(request.getSetorId().longValue());
+        var categoria = categoriaRepository.findById(request.getCategoriaId().longValue());
 
-        if (setor == null)
+        if (setor == null || categoria == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
-        var acao = acaoMapper.toAcao(request, setor);
+        var acao = acaoMapper.toAcao(request, setor, categoria);
         acaoRepository.persist(acao);
 
-        return acaoMapper.toAcaoResponse(acao, setor);
+        return acaoMapper.toAcaoResponse(acao, setor, categoria);
     }
 
     public AcaoResponse editar(EditarAcaoRequest request) throws NegocioException {
-        var setor = setorRepository.findById(request.getSetorId().longValue());
-        if (setor == null)
+        Setor setor = new Setor();
+        Categoria categoria = new Categoria();
+
+        if (request.getSetorId() != null)
+            setor = setorRepository.findById(request.getSetorId().longValue());
+
+        if (request.getCategoriaId() != null)
+            categoria = categoriaRepository.findById(request.getCategoriaId().longValue());
+
+        if (categoria == null || setor == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
         Acao acao = acaoRepository.findById(request.getId().longValue());
@@ -63,17 +76,17 @@ public class AcaoService {
             acao.setRazaoSocial(request.getRazaoSocial());
         if (request.getSetorId() != null)
             acao.setSetor(setor);
+        if (request.getCategoriaId() != null)
+            acao.setCategoria(categoria);
         if (request.getTicker() != null)
             acao.setTicker(request.getTicker());
-        if (request.getEhFIIs() != null)
-            acao.setEhFIIs(request.getEhFIIs());
         if (request.getNota() != null)
             acao.setNota(request.getNota());
 
         acao.setDataRegistroEdicao(LocalDateTime.now());
         acaoRepository.persist(acao);
 
-        return acaoMapper.toAcaoResponse(acao, setor);
+        return acaoMapper.toAcaoResponse(acao, setor, categoria);
     }
 
     public void excluir(Integer id) throws NegocioException {
