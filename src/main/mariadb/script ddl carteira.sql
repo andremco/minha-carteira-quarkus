@@ -62,7 +62,7 @@ CREATE TABLE Aporte
 (
     Id INT NOT NULL AUTO_INCREMENT,
     AcaoId INT,
-    TituloPublico INT,
+    TituloPublicoId INT,
     Preco DECIMAL NOT NULL,
     Quantidade INT NOT NULL,
     Movimentacao CHAR(1) NOT NULL, -- C - Compra V - Venda
@@ -71,5 +71,5 @@ CREATE TABLE Aporte
     DataRegistroRemocao DATETIME NULL,
     PRIMARY KEY(Id),
     CONSTRAINT `FK_Aporte_Acao` FOREIGN KEY (AcaoId) REFERENCES Acao(Id),
-    CONSTRAINT `FK_Aporte_TituloPublico` FOREIGN KEY (TituloPublico) REFERENCES TituloPublico(Id)
+    CONSTRAINT `FK_Aporte_TituloPublico` FOREIGN KEY (TituloPublicoId) REFERENCES TituloPublico(Id)
 );

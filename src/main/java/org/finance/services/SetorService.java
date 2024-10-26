@@ -20,7 +20,6 @@ import java.util.List;
 public class SetorService {
     @Inject
     SetorRepository setorRepository;
-
     @Inject
     SetorMapper setorMapper;
     @Inject
