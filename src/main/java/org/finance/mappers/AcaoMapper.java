@@ -26,13 +26,14 @@ public interface AcaoMapper {
     @Mapping(target = "setorDescricao", source = "setor.descricao")
     @Mapping(target = "categoriaId", source = "categoria.id")
     @Mapping(target = "categoriaDescricao", source = "categoria.descricao")
-    @Mapping(target = "dataRegistroCriacao", source = "acao.dataRegistroCriacao")
+    @Mapping(target = "dataRegistro", source = "acao.dataRegistroCriacao")
     AcaoResponse toAcaoResponse(Acao acao, Setor setor, Categoria categoria);
 
     @Mapping(target = "setorId", source = "acao.setor.id")
     @Mapping(target = "setorDescricao", source = "acao.setor.descricao")
     @Mapping(target = "categoriaId", source = "acao.categoria.id")
     @Mapping(target = "categoriaDescricao", source = "acao.categoria.descricao")
+    @Mapping(target = "dataRegistro", source = "acao.dataRegistroCriacao")
     AcaoResponse toAcaoResponse(Acao acao);
 
     List<AcaoResponse> toAcoesResponse(List<Acao> acoes);

@@ -20,5 +20,5 @@ public class AcaoResponse {
     private String razaoSocial;
     private String ticker;
     private Integer nota;
-    private String dataRegistroCriacao;
+    private String dataRegistro;
 }
