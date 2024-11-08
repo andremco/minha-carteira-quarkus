@@ -1,8 +1,10 @@
 package org.finance.services;
 
+import io.quarkus.cache.CacheResult;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.GenericType;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.finance.configs.ApiConfigProperty;
@@ -21,10 +23,26 @@ public class TickerService {
     @Inject
     ApiConfigProperty apiConfigProperty;
 
+    @CacheResult(cacheName = "obter")
     public TickerResponse obter(String ticker){
-        var quote = apiClient.getQuote(ticker);
-        if (quote != null && quote.getResults() != null && !quote.getResults().isEmpty())
-            return tickerMapper.toTickerResponse(quote.getResults().getFirst());
+        try{
+            var quote = apiClient.getQuote(ticker);
+            if (quote != null && quote.getResults() != null && !quote.getResults().isEmpty())
+                return tickerMapper.toTickerResponse(quote.getResults().getFirst());
+        }
+        catch (WebApplicationException e){
+            if (e.getResponse().getStatus() == 404)
+                return null;
+            throw e;
+        }
+        return null;
+    }
+
+    @CacheResult(cacheName = "buscar")
+    public TickerResponse buscar(String ticker){
+        var quote = apiClient.listQuotes(ticker);
+        if (quote != null && quote.getStocks() != null && !quote.getStocks().isEmpty())
+            return tickerMapper.toTickerResponse(quote.getStocks().getFirst());
         return null;
     }
 }

@@ -10,6 +10,7 @@ import org.finance.models.dto.integration.response.ListQuoteResponse;
 
 @Path("/quote")
 @RegisterRestClient
+@Produces(MediaType.APPLICATION_JSON)
 @RegisterClientHeaders(BrapiHeadersAuthorization.class)
 public interface BrapiClient {
     @GET
@@ -18,5 +19,5 @@ public interface BrapiClient {
 
     @GET
     @Path("/list")
-    Response listQuotes(@QueryParam("search") String ticker);
+    ListQuoteResponse listQuotes(@QueryParam("search") String ticker);
 }

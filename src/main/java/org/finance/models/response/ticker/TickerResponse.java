@@ -14,4 +14,5 @@ public class TickerResponse {
     private String ticker;
     private double precoDinamico;
     private String logoUrl;
+    private String dataCotacao;
 }
