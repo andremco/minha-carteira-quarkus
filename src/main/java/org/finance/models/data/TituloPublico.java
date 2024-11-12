@@ -10,21 +10,27 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity(name = "Setor")
-public class Setor {
+@Entity(name = "TituloPublico")
+public class TituloPublico {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @NotNull
     private String descricao;
+    @NotNull
+    private double precoInicial;
+    @NotNull
+    private Integer nota;
+    @NotNull
     private LocalDateTime dataRegistroCriacao;
     private LocalDateTime dataRegistroEdicao;
-    @OneToMany(mappedBy = "setor")
-    private List<Acao> acoes = new ArrayList<>();
-    @OneToMany(mappedBy = "setor")
-    private List<TituloPublico> titulosPublico = new ArrayList<>();
+    private LocalDateTime dataRegistroRemocao;
+    @ManyToOne
+    @JoinColumn(name = "SetorId")
+    private Setor setor;
+    @OneToMany(mappedBy = "tituloPublico")
+    private List<Aporte> aportes = new ArrayList<>();
 }

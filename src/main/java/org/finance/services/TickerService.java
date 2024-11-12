@@ -23,7 +23,7 @@ public class TickerService {
     @Inject
     ApiConfigProperty apiConfigProperty;
 
-    @CacheResult(cacheName = "obter")
+    @CacheResult(cacheName = "obter-ticker")
     public TickerResponse obter(String ticker){
         try{
             var quote = apiClient.getQuote(ticker);
@@ -38,7 +38,7 @@ public class TickerService {
         return null;
     }
 
-    @CacheResult(cacheName = "buscar")
+    @CacheResult(cacheName = "buscar-ticker")
     public TickerResponse buscar(String ticker){
         var quote = apiClient.listQuotes(ticker);
         if (quote != null && quote.getStocks() != null && !quote.getStocks().isEmpty())

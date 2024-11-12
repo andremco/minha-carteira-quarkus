@@ -49,7 +49,7 @@ CREATE TABLE TituloPublico
     Id INT NOT NULL AUTO_INCREMENT,
     SetorId INT NOT NULL,
     Descricao VARCHAR(100) NOT NULL,
-    PrecoAjustado DECIMAL NOT NULL,
+    PrecoInicial DECIMAL NOT NULL,
     Nota INT NOT NULL,
     DataRegistroCriacao DATETIME NOT NULL,
     DataRegistroEdicao DATETIME NULL,

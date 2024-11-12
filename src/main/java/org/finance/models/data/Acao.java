@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -32,4 +34,6 @@ public class Acao {
     @ManyToOne
     @JoinColumn(name = "CategoriaId")
     private Categoria categoria;
+    @OneToMany(mappedBy = "acao")
+    private List<Aporte> aportes = new ArrayList<>();
 }
