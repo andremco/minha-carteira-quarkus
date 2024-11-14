@@ -1,6 +1,5 @@
 package org.finance.mappers;
 
-import org.finance.models.data.Acao;
 import org.finance.models.data.Setor;
 import org.finance.models.data.TituloPublico;
 import org.finance.models.request.tituloPublico.SalvarTituloPublicoRequest;
@@ -11,10 +10,9 @@ import org.mapstruct.Mapping;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Mapper(componentModel = "cdi", imports = LocalDateTime.class)
+@Mapper(componentModel = "cdi", imports = LocalDateTime.class, uses = {SetorMapper.class})
 public interface TituloPublicoMapper {
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "setor", source = "setor")
     @Mapping(target = "descricao", source = "request.descricao")
     @Mapping(target = "dataRegistroCriacao", expression = "java(LocalDateTime.now())")
     @Mapping(target = "dataRegistroEdicao", ignore = true)
@@ -24,13 +22,9 @@ public interface TituloPublicoMapper {
 
     @Mapping(target = "id", source = "tituloPublico.id")
     @Mapping(target = "descricao", source = "tituloPublico.descricao")
-    @Mapping(target = "setorId", source = "setor.id")
-    @Mapping(target = "setorDescricao", source = "setor.descricao")
     @Mapping(target = "dataRegistro", source = "tituloPublico.dataRegistroCriacao")
     TituloPublicoResponse toTituloPublicoResponse(TituloPublico tituloPublico, Setor setor);
 
-    @Mapping(target = "setorId", source = "tituloPublico.setor.id")
-    @Mapping(target = "setorDescricao", source = "tituloPublico.setor.descricao")
     @Mapping(target = "dataRegistro", source = "tituloPublico.dataRegistroCriacao")
     TituloPublicoResponse toTituloPublicoResponse(TituloPublico tituloPublico);
 
