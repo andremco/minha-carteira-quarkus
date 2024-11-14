@@ -11,28 +11,18 @@ import org.mapstruct.Mapping;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Mapper(componentModel = "cdi", imports = {LocalDateTime.class})
+@Mapper(componentModel = "jakarta-cdi", imports = {LocalDateTime.class}, uses = {SetorMapper.class, CategoriaMapper.class})
 public interface AcaoMapper {
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "setor", source = "setor")
-    @Mapping(target = "categoria", source = "categoria")
     @Mapping(target = "dataRegistroCriacao", expression = "java(LocalDateTime.now())")
     @Mapping(target = "dataRegistroEdicao", ignore = true)
     @Mapping(target = "dataRegistroRemocao", ignore = true)
     Acao toAcao(SalvarAcaoRequest request, Setor setor, Categoria categoria);
 
     @Mapping(target = "id", source = "acao.id")
-    @Mapping(target = "setorId", source = "setor.id")
-    @Mapping(target = "setorDescricao", source = "setor.descricao")
-    @Mapping(target = "categoriaId", source = "categoria.id")
-    @Mapping(target = "categoriaDescricao", source = "categoria.descricao")
     @Mapping(target = "dataRegistro", source = "acao.dataRegistroCriacao")
     AcaoResponse toAcaoResponse(Acao acao, Setor setor, Categoria categoria);
 
-    @Mapping(target = "setorId", source = "acao.setor.id")
-    @Mapping(target = "setorDescricao", source = "acao.setor.descricao")
-    @Mapping(target = "categoriaId", source = "acao.categoria.id")
-    @Mapping(target = "categoriaDescricao", source = "acao.categoria.descricao")
     @Mapping(target = "dataRegistro", source = "acao.dataRegistroCriacao")
     AcaoResponse toAcaoResponse(Acao acao);
 

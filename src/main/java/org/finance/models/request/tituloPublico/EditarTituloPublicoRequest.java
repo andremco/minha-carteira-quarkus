@@ -11,8 +11,8 @@ import lombok.Setter;
 public class EditarTituloPublicoRequest {
     @NotNull(message = "{campo.id.nao.informado}")
     private Integer id;
-    private Integer setorId;
     private String descricao;
-    private double precoInicial;
+    private Integer setorId;
+    private Double precoInicial;
     private Integer nota;
 }
