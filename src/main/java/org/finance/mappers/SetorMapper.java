@@ -13,15 +13,17 @@ import java.util.List;
 public interface  SetorMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "acoes", ignore = true)
+    @Mapping(target = "titulosPublico", ignore = true)
     @Mapping(target = "dataRegistroEdicao", ignore = true)
     @Mapping(target = "dataRegistroCriacao", expression = "java(LocalDateTime.now())")
     Setor toSetor(SalvarSetorRequest request);
     @Mapping(target = "acoes", ignore = true)
+    @Mapping(target = "titulosPublico", ignore = true)
     @Mapping(target = "dataRegistroCriacao", ignore = true)
     @Mapping(target = "dataRegistroEdicao", expression = "java(LocalDateTime.now())")
     Setor toSetor(EditarSetorRequest request);
     @Mapping(target = "dataRegistro", source = "dataRegistroCriacao")
-    @Mapping(target = "numAtivos", expression = "java(setor.getAcoes().size())")
+    @Mapping(target = "numAtivos", expression = "java(setor.getTotalAtivos())")
     SetorResponse toSetorResponse(Setor setor);
     List<SetorResponse> toSetoresResponse(List<Setor> setor);
 }

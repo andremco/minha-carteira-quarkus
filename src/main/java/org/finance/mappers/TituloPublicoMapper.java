@@ -10,7 +10,7 @@ import org.mapstruct.Mapping;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Mapper(componentModel = "cdi", imports = LocalDateTime.class, uses = {SetorMapper.class})
+@Mapper(componentModel = "jakarta-cdi", imports = LocalDateTime.class, uses = {SetorMapper.class})
 public interface TituloPublicoMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "descricao", source = "request.descricao")

@@ -4,6 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.finance.models.data.Acao;
+import org.finance.models.data.TituloPublico;
+import org.finance.models.response.acao.AcaoResponse;
+import org.finance.models.response.tituloPublico.TituloPublicoResponse;
 
 @Getter
 @Setter
@@ -11,12 +15,10 @@ import lombok.Setter;
 @AllArgsConstructor
 public class AporteResponse {
     private Integer id;
-    private Integer acaoId;
-    private String acaoRazaoSocial;
-    private Integer tituloPublicoId;
-    private String tituloPublicoDescricao;
+    private AcaoResponse acao;
+    private TituloPublicoResponse tituloPublico;
     private double preco;
-    private String ticker;
-    private Integer nota;
+    private Integer quantidade;
+    private char movimentacao;
     private String dataRegistro;
 }

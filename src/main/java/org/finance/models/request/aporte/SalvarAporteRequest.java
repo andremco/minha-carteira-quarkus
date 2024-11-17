@@ -11,9 +11,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class SalvarAporteRequest {
-    @NotNull(message = "{campo.acao.id.nao.informado}")
     private Integer acaoId;
-    @NotNull(message = "{campo.titulo.publico.id.nao.informado}")
     private Integer tituloPublicoId;
     @NotNull(message = "{campo.preco.nao.informado}")
     @Positive(message = "{campo.preco.valor.invalido}")

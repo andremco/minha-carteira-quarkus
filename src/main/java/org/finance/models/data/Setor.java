@@ -27,4 +27,12 @@ public class Setor {
     private List<Acao> acoes = new ArrayList<>();
     @OneToMany(mappedBy = "setor")
     private List<TituloPublico> titulosPublico = new ArrayList<>();
+
+    public Integer getTotalAtivos(){
+        if (!getAcoes().isEmpty())
+            return getAcoes().size();
+        if (!getTitulosPublico().isEmpty())
+            return titulosPublico.size();
+        return 0;
+    }
 }

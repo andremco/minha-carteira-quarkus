@@ -14,6 +14,7 @@ import java.util.List;
 @Mapper(componentModel = "jakarta-cdi", imports = {LocalDateTime.class}, uses = {SetorMapper.class, CategoriaMapper.class})
 public interface AcaoMapper {
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "aportes", ignore = true)
     @Mapping(target = "dataRegistroCriacao", expression = "java(LocalDateTime.now())")
     @Mapping(target = "dataRegistroEdicao", ignore = true)
     @Mapping(target = "dataRegistroRemocao", ignore = true)

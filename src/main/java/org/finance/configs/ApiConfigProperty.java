@@ -13,4 +13,6 @@ public class ApiConfigProperty {
     String registroJaExiste;
     @ConfigProperty(name = "setor.nao.pode.ser.excluido")
     String setorNaoPodeSerExcluido;
+    @ConfigProperty(name = "aporte.params.insuficiente")
+    String aporteParmasInsuficiente;
 }
