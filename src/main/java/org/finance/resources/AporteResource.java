@@ -7,12 +7,10 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.finance.models.request.acao.EditarAcaoRequest;
 import org.finance.models.request.aporte.EditarAporteRequest;
 import org.finance.models.request.aporte.SalvarAporteRequest;
 import org.finance.models.response.Paginado;
 import org.finance.models.response.ResponseApi;
-import org.finance.models.response.acao.AcaoResponse;
 import org.finance.models.response.aporte.AporteResponse;
 import org.finance.services.AporteService;
 
@@ -34,14 +32,6 @@ public class AporteResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ResponseApi<AporteResponse> editar(@Valid EditarAporteRequest request) {
         return new ResponseApi<>(service.editar(request), new String[] {operacaoSucesso}, true);
-    }
-    @DELETE
-    @Transactional
-    @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public ResponseApi<AporteResponse> deletar(@PathParam("id") Integer id) {
-        service.excluir(id);
-        return new ResponseApi<>(new String[] {operacaoSucesso}, true);
     }
     @GET
     @Path("/filtrar")

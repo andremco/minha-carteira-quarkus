@@ -17,6 +17,8 @@ import org.finance.repositories.AporteRepository;
 import org.finance.repositories.TituloPublicoRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @ApplicationScoped
 public class AporteService {
@@ -47,6 +49,18 @@ public class AporteService {
         if (acao == null && tituloPublico == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
+        //Validar venda para ativo de ação!!
+        if (acao != null && request.getMovimentacao().equalsIgnoreCase("V")){
+            var aportes = aporteRepository.find("acao.id", request.getAcaoId()).list();
+            validarVendasAportes(aportes, request.getQuantidade());
+        }
+
+        //Validar venda para ativo de título público!!
+        if (acao != null && request.getMovimentacao().equalsIgnoreCase("V")){
+            var aportes = aporteRepository.find("tituloPublico.id", request.getTituloPublicoId()).list();
+            validarVendasAportes(aportes, request.getQuantidade());
+        }
+
         var aporte = aporteMapper.toAporte(request, acao, tituloPublico);
         aporteRepository.persist(aporte);
 
@@ -56,16 +70,25 @@ public class AporteService {
     public AporteResponse editar(EditarAporteRequest request) throws NegocioException {
         Acao acao = new Acao();
         TituloPublico tituloPublico = new TituloPublico();
+        List<Aporte> aportes = new ArrayList<>();
 
         if (request.getAcaoId() == null && request.getTituloPublicoId() == null ||
                 request.getAcaoId() != null && request.getTituloPublicoId() != null)
             throw new NegocioException(apiConfigProperty.getAporteParmasInsuficiente());
 
-        if (request.getAcaoId() != null)
+        if (request.getAcaoId() != null){
             acao = acaoRepository.findById(request.getAcaoId().longValue());
+            //Validar venda para ativo de ação!!
+            aportes = aporteRepository.find("acao.id", request.getAcaoId()).list();
+            validarVendasAportes(aportes, request.getQuantidade());
+        }
 
-        if (request.getTituloPublicoId() != null)
+        if (request.getTituloPublicoId() != null){
             tituloPublico = tituloPublicoRepository.findById(request.getTituloPublicoId().longValue());
+            //Validar venda para ativo de título público!!
+            aportes = aporteRepository.find("tituloPublico.id", request.getTituloPublicoId()).list();
+            validarVendasAportes(aportes, request.getQuantidade());
+        }
 
         if (acao == null && tituloPublico == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
@@ -112,4 +135,17 @@ public class AporteService {
     }
 
     public long total(){ return aporteRepository.count(); }
+
+    public void validarVendasAportes(List<Aporte> aportes, int quantidadesAVender){
+        if (aportes == null || aportes.isEmpty())
+            return;
+        if (!aportes.isEmpty()){
+            var comprasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'C').mapToInt(Aporte::getQuantidade).sum();
+            var vendasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'V').mapToInt(Aporte::getQuantidade).sum();
+
+            if ((vendasRealizadas + quantidadesAVender) > comprasRealizadas){
+                throw new NegocioException(apiConfigProperty.getAporteVendaNaoPermitida());
+            }
+        }
+    }
 }
