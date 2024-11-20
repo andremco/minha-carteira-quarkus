@@ -11,5 +11,7 @@ import lombok.experimental.SuperBuilder;
 public class DetalharAcaoResponse extends AcaoResponse{
     private double precoDinamico;
     private double tenhoTotalPorAportes;
+    private double tenhoTotalPorPrecoAtual;
     private double carteiraIdeal;
+    private double carteiraTenho;
 }

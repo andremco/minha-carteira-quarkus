@@ -5,10 +5,7 @@ import jakarta.inject.Inject;
 import org.finance.configs.ApiConfigProperty;
 import org.finance.exceptions.NegocioException;
 import org.finance.mappers.AcaoMapper;
-import org.finance.models.data.Acao;
-import org.finance.models.data.Categoria;
-import org.finance.models.data.Setor;
-import org.finance.models.data.TituloPublico;
+import org.finance.models.data.*;
 import org.finance.models.request.acao.EditarAcaoRequest;
 import org.finance.models.request.acao.SalvarAcaoRequest;
 import org.finance.models.response.Paginado;
@@ -38,6 +35,8 @@ public class AcaoService {
     ApiConfigProperty apiConfigProperty;
     @Inject
     TickerService tickerService;
+    @Inject
+    AporteService aporteService;
 
     public AcaoResponse salvar(SalvarAcaoRequest request) {
         if(acaoRepository.count("razaoSocial", request.getRazaoSocial()) != 0 ||
@@ -53,7 +52,9 @@ public class AcaoService {
         var acao = acaoMapper.toAcao(request, setor, categoria);
         acaoRepository.persist(acao);
 
-        return acaoMapper.toAcaoResponse(acao, setor, categoria);
+        Integer quantidadeAportes = 0;
+
+        return acaoMapper.toAcaoResponse(acao, setor, categoria, quantidadeAportes);
     }
 
     public AcaoResponse editar(EditarAcaoRequest request) throws NegocioException {
@@ -93,7 +94,9 @@ public class AcaoService {
         acao.setDataRegistroEdicao(LocalDateTime.now());
         acaoRepository.persist(acao);
 
-        return acaoMapper.toAcaoResponse(acao, setor, categoria);
+        var quantidadeAportes = aporteService.calcularQuantidadeAportes(acao.getAportes());
+
+        return acaoMapper.toAcaoResponse(acao, setor, categoria, quantidadeAportes);
     }
 
     public DetalharAcaoResponse detalharAcao(Integer id){
@@ -105,7 +108,15 @@ public class AcaoService {
         if (ticker == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
-        return acaoMapper.toDetalharAcaoResponse(acao, ticker, somaTodasNotasCarteira());
+        var totalCarteiraCarteiraAportes = aporteService.calcularTotalCarteiraAportes();
+        var tenhoTotalPorAportes = aporteService.calcularQuantoTenhoTotalPorAportes(acao.getAportes());
+        var tenhoTotalPorPrecoAtual = aporteService.calcularQuantoTenhoTotalPorPrecoAtual(acao.getAportes(), ticker.getPrecoDinamico());
+        var quantidadeAportes = aporteService.calcularQuantidadeAportes(acao.getAportes());
+        var carteiraIdeal = calcularCarteiraIdeal(acao.getNota(), somaTodasNotasCarteira());
+        var carteiraTenho = calcularCarteiraTenho(tenhoTotalPorAportes, totalCarteiraCarteiraAportes);
+
+        return acaoMapper.toDetalharAcaoResponse(acao, ticker.getPrecoDinamico(), quantidadeAportes,
+                carteiraIdeal, carteiraTenho, tenhoTotalPorAportes, tenhoTotalPorPrecoAtual);
     }
 
     public Integer somaTodasNotasCarteira(){
@@ -136,4 +147,12 @@ public class AcaoService {
     }
 
     public long total(){ return acaoRepository.count(); }
+
+    public double calcularCarteiraIdeal(Integer nota, Integer somaTodasNotasCarteira){
+        return ((double)nota/somaTodasNotasCarteira);
+    }
+
+    public double calcularCarteiraTenho(double tenhoTotalPorAportes, double totalCarteiraCarteiraAportes){
+        return (tenhoTotalPorAportes/totalCarteiraCarteiraAportes);
+    }
 }

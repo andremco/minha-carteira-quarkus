@@ -1,5 +1,6 @@
 package org.finance.services;
 
+import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.finance.configs.ApiConfigProperty;
@@ -136,9 +137,15 @@ public class AporteService {
 
     public long total(){ return aporteRepository.count(); }
 
+    @CacheResult(cacheName = "buscar-total-carteira-aportes")
+    public double calcularTotalCarteiraAportes(){
+        return aporteRepository.findAll().stream().filter(a -> a.getMovimentacao() == 'C').mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
+    }
+
     public void validarVendasAportes(List<Aporte> aportes, int quantidadesAVender){
-        if (aportes == null || aportes.isEmpty())
-            return;
+        if ((aportes == null || aportes.isEmpty()) && quantidadesAVender > 0)
+            throw new NegocioException(apiConfigProperty.getAporteVendaNaoPermitida());
+
         var comprasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'C').mapToInt(Aporte::getQuantidade).sum();
         var vendasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'V').mapToInt(Aporte::getQuantidade).sum();
 
@@ -147,7 +154,7 @@ public class AporteService {
         }
     }
 
-    public static Integer calcularQuantidadeAportes(List<Aporte> aportes){
+    public Integer calcularQuantidadeAportes(List<Aporte> aportes){
         if(aportes.isEmpty())
             return 0;
         var comprasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'C').mapToInt(Aporte::getQuantidade).sum();
@@ -156,13 +163,19 @@ public class AporteService {
         return comprasRealizadas - vendasRealizadas;
     }
 
-    public static double calcularPrecoAportes(List<Aporte> aportes){
+    public double calcularMediaPrecoAportes(List<Aporte> aportes){
         if(aportes.isEmpty())
             return 0;
-        return aportes.stream().filter(a -> a.getMovimentacao() == 'C').mapToDouble(Aporte::getPreco).sum();
+        var somaValores = aportes.stream().filter(a -> a.getMovimentacao() == 'C').mapToDouble(Aporte::getPreco).sum();
+        var quantidadeValores = aportes.stream().filter(a -> a.getMovimentacao() == 'C').toList().size();
+        return somaValores / quantidadeValores;
     }
 
-    public static double calcularQuantoTenhoTotalPorAportes(List<Aporte> aportes){
-        return calcularQuantidadeAportes(aportes) * calcularPrecoAportes(aportes);
+    public double calcularQuantoTenhoTotalPorAportes(List<Aporte> aportes){
+        return calcularQuantidadeAportes(aportes) * calcularMediaPrecoAportes(aportes);
+    }
+
+    public double calcularQuantoTenhoTotalPorPrecoAtual(List<Aporte> aportes, double precoDinamico){
+        return calcularQuantidadeAportes(aportes) * precoDinamico;
     }
 }

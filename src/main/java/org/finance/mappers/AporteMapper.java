@@ -18,8 +18,8 @@ public interface AporteMapper {
     @Mapping(target = "dataRegistroRemocao", ignore = true)
     Aporte toAporte(SalvarAporteRequest request, Acao acao, TituloPublico tituloPublico);
 
-    @Mapping(target = "id", source = "acao.id")
-    @Mapping(target = "dataRegistro", source = "acao.dataRegistroCriacao")
+    @Mapping(target = "id", expression = "java(acao != null ? acao.getId() : tituloPublico.getId())")
+    @Mapping(target = "dataRegistro", expression = "java(acao != null ? acao.getDataRegistroCriacao().toString() : tituloPublico.getDataRegistroCriacao().toString())")
     AporteResponse toAporteResponse(Aporte aporte, Acao acao, TituloPublico tituloPublico);
 
     @Mapping(target = "dataRegistro", source = "aporte.dataRegistroCriacao")
