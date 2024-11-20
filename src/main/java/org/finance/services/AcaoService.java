@@ -8,13 +8,16 @@ import org.finance.mappers.AcaoMapper;
 import org.finance.models.data.Acao;
 import org.finance.models.data.Categoria;
 import org.finance.models.data.Setor;
+import org.finance.models.data.TituloPublico;
 import org.finance.models.request.acao.EditarAcaoRequest;
 import org.finance.models.request.acao.SalvarAcaoRequest;
 import org.finance.models.response.Paginado;
 import org.finance.models.response.acao.AcaoResponse;
+import org.finance.models.response.acao.DetalharAcaoResponse;
 import org.finance.repositories.AcaoRepository;
 import org.finance.repositories.CategoriaRepository;
 import org.finance.repositories.SetorRepository;
+import org.finance.repositories.TituloPublicoRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,6 +27,8 @@ public class AcaoService {
     @Inject
     AcaoRepository acaoRepository;
     @Inject
+    TituloPublicoRepository tituloPublicoRepository;
+    @Inject
     SetorRepository setorRepository;
     @Inject
     CategoriaRepository categoriaRepository;
@@ -31,6 +36,8 @@ public class AcaoService {
     AcaoMapper acaoMapper;
     @Inject
     ApiConfigProperty apiConfigProperty;
+    @Inject
+    TickerService tickerService;
 
     public AcaoResponse salvar(SalvarAcaoRequest request) {
         if(acaoRepository.count("razaoSocial", request.getRazaoSocial()) != 0 ||
@@ -87,6 +94,25 @@ public class AcaoService {
         acaoRepository.persist(acao);
 
         return acaoMapper.toAcaoResponse(acao, setor, categoria);
+    }
+
+    public DetalharAcaoResponse detalharAcao(Integer id){
+        Acao acao = acaoRepository.findById(id.longValue());
+        if (acao == null)
+            throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
+
+        var ticker = tickerService.obter(acao.getTicker());
+        if (ticker == null)
+            throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
+
+        return acaoMapper.toDetalharAcaoResponse(acao, ticker, somaTodasNotasCarteira());
+    }
+
+    public Integer somaTodasNotasCarteira(){
+        var notasAcao = acaoRepository.findAll().stream().mapToInt(Acao::getNota).sum();
+        var notasTituloPublico = tituloPublicoRepository.findAll().stream().mapToInt(TituloPublico::getNota).sum();
+
+        return notasAcao + notasTituloPublico;
     }
 
     public void excluir(Integer id) throws NegocioException {

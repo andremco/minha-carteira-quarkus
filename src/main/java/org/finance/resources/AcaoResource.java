@@ -13,6 +13,7 @@ import org.finance.models.request.setor.EditarSetorRequest;
 import org.finance.models.response.Paginado;
 import org.finance.models.response.ResponseApi;
 import org.finance.models.response.acao.AcaoResponse;
+import org.finance.models.response.acao.DetalharAcaoResponse;
 import org.finance.models.response.setor.SetorResponse;
 import org.finance.services.AcaoService;
 
@@ -34,6 +35,12 @@ public class AcaoResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ResponseApi<AcaoResponse> editar(@Valid EditarAcaoRequest request) {
         return new ResponseApi<>(acaoService.editar(request), new String[] {operacaoSucesso}, true);
+    }
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ResponseApi<DetalharAcaoResponse> obter(@PathParam("id") Integer id){
+        return new ResponseApi<>(acaoService.detalharAcao(id), new String[] {operacaoSucesso}, true);
     }
     @DELETE
     @Transactional

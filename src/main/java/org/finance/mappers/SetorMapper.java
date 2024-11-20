@@ -3,6 +3,7 @@ package org.finance.mappers;
 import org.finance.models.data.Setor;
 import org.finance.models.request.setor.EditarSetorRequest;
 import org.finance.models.request.setor.SalvarSetorRequest;
+import org.finance.models.response.dominio.DominioResponse;
 import org.finance.models.response.setor.SetorResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -25,5 +26,6 @@ public interface  SetorMapper {
     @Mapping(target = "dataRegistro", source = "dataRegistroCriacao")
     @Mapping(target = "numAtivos", expression = "java(setor.getTotalAtivos())")
     SetorResponse toSetorResponse(Setor setor);
+    DominioResponse toDominioResponse(Setor setor);
     List<SetorResponse> toSetoresResponse(List<Setor> setor);
 }
