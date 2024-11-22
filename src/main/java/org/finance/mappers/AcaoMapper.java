@@ -26,8 +26,8 @@ public interface AcaoMapper {
 
     @Mapping(target = "id", source = "acao.id")
     @Mapping(target = "dataRegistro", source = "acao.dataRegistroCriacao")
-    @Mapping(target = "quantidade", source = "quantidadeAportes")
-    AcaoResponse toAcaoResponse(Acao acao, Setor setor, Categoria categoria, Integer quantidadeAportes);
+    @Mapping(target = "quantidade", source = "quantidadeCompras")
+    AcaoResponse toAcaoResponse(Acao acao, Setor setor, Categoria categoria, Integer quantidadeCompras);
 
     @Mapping(target = "dataRegistro", source = "acao.dataRegistroCriacao")
     @Mapping(target = "quantidade", ignore = true)
@@ -36,10 +36,11 @@ public interface AcaoMapper {
     @Mapping(target = "razaoSocial", source = "acao.razaoSocial")
     @Mapping(target = "ticker", source = "acao.ticker")
     @Mapping(target = "dataRegistro", source = "acao.dataRegistroCriacao")
-    @Mapping(target = "quantidade", source = "quantidadeAportes")
-    DetalharAcaoResponse toDetalharAcaoResponse(Acao acao, Double precoDinamico, Integer quantidadeAportes,
-                                                Double carteiraIdeal, Double carteiraTenho,
-                                                Double tenhoTotalPorAportes, Double tenhoTotalPorPrecoAtual);
+    @Mapping(target = "quantidade", source = "quantidadeCompras")
+    DetalharAcaoResponse toDetalharAcaoResponse(Acao acao, Double precoDinamico, Integer quantidadeCompras,
+                                                Double carteiraIdealQuociente, Double carteiraTenhoQuociente,
+                                                Double valorTotalAtivo, Double valorTotalAtivoAtual,
+                                                Double quantoQueroTotal, Double quantoFaltaTotal, Double quantidadeQueFaltaTotal, String comprarOuAguardar);
 
     List<AcaoResponse> toAcoesResponse(List<Acao> acoes);
 }

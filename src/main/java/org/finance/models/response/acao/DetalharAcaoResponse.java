@@ -10,8 +10,12 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 public class DetalharAcaoResponse extends AcaoResponse{
     private double precoDinamico;
-    private double tenhoTotalPorAportes;
-    private double tenhoTotalPorPrecoAtual;
-    private double carteiraIdeal;
-    private double carteiraTenho;
+    private double valorTotalAtivo;
+    private double valorTotalAtivoAtual;
+    private double carteiraIdealQuociente;
+    private double carteiraTenhoQuociente;
+    private double quantoQueroTotal;
+    private double quantoFaltaTotal;
+    private double quantidadeQueFaltaTotal;
+    private String comprarOuAguardar;
 }

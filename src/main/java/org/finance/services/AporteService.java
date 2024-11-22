@@ -33,6 +33,8 @@ public class AporteService {
     AporteMapper aporteMapper;
     @Inject
     ApiConfigProperty apiConfigProperty;
+    @Inject
+    TickerService tickerService;
     public AporteResponse salvar(SalvarAporteRequest request) {
         if (request.getAcaoId() == null && request.getTituloPublicoId() == null ||
                 request.getAcaoId() != null && request.getTituloPublicoId() != null)
@@ -137,9 +139,26 @@ public class AporteService {
 
     public long total(){ return aporteRepository.count(); }
 
-    @CacheResult(cacheName = "buscar-total-carteira-aportes")
-    public double calcularTotalCarteiraAportes(){
+    @CacheResult(cacheName = "buscar-total-carteira")
+    public double calcularTotalCarteira(){
         return aporteRepository.findAll().stream().filter(a -> a.getMovimentacao() == 'C').mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
+    }
+
+    @CacheResult(cacheName = "buscar-total-carteira-atualizado")
+    public double calcularTotalCarteiraAtualizado(){
+        return aporteRepository.findAll().stream().filter(a -> a.getMovimentacao() == 'C').mapToDouble(a ->
+        {
+            Double preco;
+            if (a.getAcao() != null){
+                var ticker = a.getAcao().getTicker();
+                var response = tickerService.obter(ticker);
+                preco = response.getPrecoDinamico();
+            }
+            else{
+                preco = a.getPreco();
+            }
+            return a.getQuantidade() * preco;
+        }).sum();
     }
 
     public void validarVendasAportes(List<Aporte> aportes, int quantidadesAVender){
@@ -154,7 +173,7 @@ public class AporteService {
         }
     }
 
-    public Integer calcularQuantidadeAportes(List<Aporte> aportes){
+    public Integer calcularQuantidadeCompras(List<Aporte> aportes){
         if(aportes.isEmpty())
             return 0;
         var comprasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'C').mapToInt(Aporte::getQuantidade).sum();
@@ -171,11 +190,14 @@ public class AporteService {
         return somaValores / quantidadeValores;
     }
 
-    public double calcularQuantoTenhoTotalPorAportes(List<Aporte> aportes){
-        return calcularQuantidadeAportes(aportes) * calcularMediaPrecoAportes(aportes);
+    public double calcularValorTotalAtivo(List<Aporte> aportes){
+        if(aportes.isEmpty())
+            return 0;
+        var somaValoresPorAtivo = aportes.stream().filter(a -> a.getMovimentacao() == 'C').mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
+        return somaValoresPorAtivo;
     }
 
-    public double calcularQuantoTenhoTotalPorPrecoAtual(List<Aporte> aportes, double precoDinamico){
-        return calcularQuantidadeAportes(aportes) * precoDinamico;
+    public double calcularValorTotalAtivoAtual(List<Aporte> aportes, double precoDinamico){
+        return calcularQuantidadeCompras(aportes) * precoDinamico;
     }
 }
