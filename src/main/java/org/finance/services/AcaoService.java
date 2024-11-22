@@ -158,6 +158,8 @@ public class AcaoService {
     }
 
     public double calcularCarteiraTenhoQuociente(double valorTotalAtivo, double totalCarteira){
+        if(valorTotalAtivo == 0)
+            return 0;
         return (valorTotalAtivo/totalCarteira);
     }
 
