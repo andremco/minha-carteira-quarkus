@@ -173,7 +173,7 @@ public class AporteService {
         }
     }
 
-    public Integer calcularQuantidadeCompras(List<Aporte> aportes){
+    public static Integer calcularQuantidadeCompras(List<Aporte> aportes){
         if(aportes.isEmpty())
             return 0;
         var comprasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'C').mapToInt(Aporte::getQuantidade).sum();

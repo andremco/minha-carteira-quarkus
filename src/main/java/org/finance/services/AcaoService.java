@@ -15,8 +15,10 @@ import org.finance.repositories.AcaoRepository;
 import org.finance.repositories.CategoriaRepository;
 import org.finance.repositories.SetorRepository;
 import org.finance.repositories.TituloPublicoRepository;
+import org.finance.utils.Formatter;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @ApplicationScoped
@@ -109,19 +111,21 @@ public class AcaoService {
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
         var totalCarteira = aporteService.calcularTotalCarteira();
-        var quantidadeCompras = aporteService.calcularQuantidadeCompras(acao.getAportes());
+        var quantidadeCompras = AporteService.calcularQuantidadeCompras(acao.getAportes());
         var valorTotalAtivo = aporteService.calcularValorTotalAtivo(acao.getAportes());
         var valorTotalAtivoAtual = aporteService.calcularValorTotalAtivoAtual(acao.getAportes(), ticker.getPrecoDinamico());
-        var carteiraIdealQuociente = calcularCarteiraIdealQuociente(acao.getNota(), somaTodasNotasCarteira());
-        var carteiraTenhoQuociente = calcularCarteiraTenhoQuociente(valorTotalAtivo, totalCarteira);
-        var quantoQueroTotal = calcularQuantoQuero(carteiraIdealQuociente, totalCarteira);
+        var carteiraIdealPorcento = calcularCarteiraIdealQuociente(acao.getNota(), somaTodasNotasCarteira());
+        var carteiraTenhoPorcento = calcularCarteiraTenhoQuociente(valorTotalAtivo, totalCarteira);
+        var quantoQueroTotal = calcularQuantoQuero(carteiraIdealPorcento, totalCarteira);
         var quantoFaltaTotal = calcularQuantoFalta(quantoQueroTotal, valorTotalAtivo);
         var quantidadeQueFaltaTotal = calcularQuantidadeQueFalta(quantoFaltaTotal, ticker.getPrecoDinamico());
         var comprarOuAguardar = quantidadeQueFaltaTotal > 0 ? "Comprar" : "Aguardar";
+        var lucroOuPerda = calcularLucroOuPerda(valorTotalAtivo, valorTotalAtivoAtual);
 
-        return acaoMapper.toDetalharAcaoResponse(acao, ticker.getPrecoDinamico(), quantidadeCompras,
-                carteiraIdealQuociente, carteiraTenhoQuociente, valorTotalAtivo, valorTotalAtivoAtual,
-                quantoQueroTotal, quantoFaltaTotal, quantidadeQueFaltaTotal, comprarOuAguardar);
+        return acaoMapper.toDetalharAcaoResponse(acao, Formatter.doubleToReal(ticker.getPrecoDinamico()), quantidadeCompras,
+                carteiraIdealPorcento*100, carteiraTenhoPorcento*100, Formatter.doubleToReal(valorTotalAtivo),
+                Formatter.doubleToReal(valorTotalAtivoAtual), Formatter.doubleToReal(quantoQueroTotal), quantoFaltaTotal, quantidadeQueFaltaTotal,
+                comprarOuAguardar, Formatter.doubleToReal(lucroOuPerda));
     }
 
     public Integer somaTodasNotasCarteira(){
@@ -142,11 +146,13 @@ public class AcaoService {
 
     public Paginado<AcaoResponse> filtrarAcoes(Integer pagina, Integer tamanho){
         long totalAcoes = total();
+        var itens = acaoMapper.toAcoesResponse(acaoRepository.findAcoesPaged(pagina, tamanho));
+        itens.sort(Comparator.comparing(AcaoResponse::getQuantidade).reversed());
         Paginado<AcaoResponse> paginado = Paginado.<AcaoResponse>builder()
                 .pagina(pagina)
                 .tamanho(tamanho)
                 .total(totalAcoes)
-                .itens(acaoMapper.toAcoesResponse(acaoRepository.findAcoesPaged(pagina, tamanho)))
+                .itens(itens)
                 .build();
         return paginado;
     }
@@ -168,10 +174,16 @@ public class AcaoService {
     }
 
     public double calcularQuantoFalta(double quantoQuero, double valorTotalAtivo){
-        return quantoQuero-valorTotalAtivo;
+        var quantoFalta = quantoQuero-valorTotalAtivo;
+        return quantoFalta >= 0 ? quantoFalta : 0;
     }
 
     public double calcularQuantidadeQueFalta(double quantoFaltaTotal, double precoDinamico){
-        return quantoFaltaTotal/precoDinamico;
+        double quantidadeQueFalta = quantoFaltaTotal/precoDinamico;
+        return quantidadeQueFalta >= 0 ? quantidadeQueFalta : 0;
+    }
+
+    public double calcularLucroOuPerda(double valorTotalAtivo, double valorTotalAtivoAtual){
+        return valorTotalAtivoAtual-valorTotalAtivo;
     }
 }

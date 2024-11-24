@@ -9,12 +9,10 @@ import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.finance.models.request.acao.EditarAcaoRequest;
 import org.finance.models.request.acao.SalvarAcaoRequest;
-import org.finance.models.request.setor.EditarSetorRequest;
 import org.finance.models.response.Paginado;
 import org.finance.models.response.ResponseApi;
 import org.finance.models.response.acao.AcaoResponse;
 import org.finance.models.response.acao.DetalharAcaoResponse;
-import org.finance.models.response.setor.SetorResponse;
 import org.finance.services.AcaoService;
 
 @Path("/acao")
