@@ -12,11 +12,11 @@ public class DetalharAcaoResponse extends AcaoResponse{
     private String precoDinamico;
     private String valorTotalAtivo;
     private String valorTotalAtivoAtual;
-    private double carteiraIdealPorcento;
-    private double carteiraTenhoPorcento;
+    private String carteiraIdealPorcento;
+    private String carteiraTenhoPorcento;
     private String quantoQueroTotal;
-    private double quantoFaltaTotal;
-    private double quantidadeQueFaltaTotal;
+    private String quantoFaltaTotal;
+    private int quantidadeQueFaltaTotal;
     private String comprarOuAguardar;
     private String lucroOuPerda;
 }

@@ -9,4 +9,11 @@ public class Formatter {
         NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(brasil);
         return currencyFormatter.format(valor);
     }
+
+    public static String doubleToPorcento(double valor){
+        valor = (valor * 100);
+        String formatted = String.format("%.2f", valor);
+        formatted = formatted.replace('.', ',');
+        return formatted + "%";
+    }
 }

@@ -38,9 +38,9 @@ public interface AcaoMapper {
     @Mapping(target = "dataRegistro", source = "acao.dataRegistroCriacao")
     @Mapping(target = "quantidade", source = "quantidadeCompras")
     DetalharAcaoResponse toDetalharAcaoResponse(Acao acao, String precoDinamico, Integer quantidadeCompras,
-                                                Double carteiraIdealPorcento, Double carteiraTenhoPorcento,
+                                                String carteiraIdealPorcento, String carteiraTenhoPorcento,
                                                 String valorTotalAtivo, String valorTotalAtivoAtual,
-                                                String quantoQueroTotal, Double quantoFaltaTotal, Double quantidadeQueFaltaTotal,
+                                                String quantoQueroTotal, String quantoFaltaTotal, Integer quantidadeQueFaltaTotal,
                                                 String comprarOuAguardar, String lucroOuPerda);
 
     List<AcaoResponse> toAcoesResponse(List<Acao> acoes);
