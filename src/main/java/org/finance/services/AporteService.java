@@ -182,14 +182,6 @@ public class AporteService {
         return comprasRealizadas - vendasRealizadas;
     }
 
-    public double calcularMediaPrecoAportes(List<Aporte> aportes){
-        if(aportes.isEmpty())
-            return 0;
-        var somaValores = aportes.stream().filter(a -> a.getMovimentacao() == 'C').mapToDouble(Aporte::getPreco).sum();
-        var quantidadeValores = aportes.stream().filter(a -> a.getMovimentacao() == 'C').toList().size();
-        return somaValores / quantidadeValores;
-    }
-
     public double calcularValorTotalAtivo(List<Aporte> aportes){
         if(aportes.isEmpty())
             return 0;

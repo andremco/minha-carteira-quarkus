@@ -1,16 +1,21 @@
 package org.finance.mappers;
 
+import org.finance.models.data.Acao;
 import org.finance.models.data.Setor;
 import org.finance.models.data.TituloPublico;
 import org.finance.models.request.tituloPublico.SalvarTituloPublicoRequest;
+import org.finance.models.response.acao.DetalharAcaoResponse;
+import org.finance.models.response.tituloPublico.DetalharTituloPublicoResponse;
 import org.finance.models.response.tituloPublico.TituloPublicoResponse;
+import org.finance.services.AporteService;
+import org.finance.utils.Formatter;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Mapper(componentModel = "jakarta-cdi", imports = LocalDateTime.class, uses = {SetorMapper.class})
+@Mapper(componentModel = "jakarta-cdi", imports = { LocalDateTime.class, AporteService.class, Formatter.class }, uses = {SetorMapper.class})
 public interface TituloPublicoMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "descricao", source = "request.descricao")
@@ -23,10 +28,23 @@ public interface TituloPublicoMapper {
     @Mapping(target = "id", source = "tituloPublico.id")
     @Mapping(target = "descricao", source = "tituloPublico.descricao")
     @Mapping(target = "dataRegistro", source = "tituloPublico.dataRegistroCriacao")
+    @Mapping(target = "precoInicial", expression = "java(Formatter.doubleToReal(tituloPublico.getPrecoInicial()))")
+    @Mapping(target = "quantidade", expression = "java(AporteService.calcularQuantidadeCompras(tituloPublico.getAportes()))")
     TituloPublicoResponse toTituloPublicoResponse(TituloPublico tituloPublico, Setor setor);
 
     @Mapping(target = "dataRegistro", source = "tituloPublico.dataRegistroCriacao")
+    @Mapping(target = "precoInicial", expression = "java(Formatter.doubleToReal(tituloPublico.getPrecoInicial()))")
+    @Mapping(target = "quantidade", expression = "java(AporteService.calcularQuantidadeCompras(tituloPublico.getAportes()))")
     TituloPublicoResponse toTituloPublicoResponse(TituloPublico tituloPublico);
+
+    @Mapping(target = "descricao", source = "tituloPublico.descricao")
+    @Mapping(target = "dataRegistro", source = "tituloPublico.dataRegistroCriacao")
+    @Mapping(target = "precoInicial", expression = "java(Formatter.doubleToReal(tituloPublico.getPrecoInicial()))")
+    @Mapping(target = "quantidade", expression = "java(AporteService.calcularQuantidadeCompras(tituloPublico.getAportes()))")
+    DetalharTituloPublicoResponse toDetalharTituloPublicoResponse(TituloPublico tituloPublico, String precoMedio,
+                                                         String carteiraIdealPorcento, String carteiraTenhoPorcento,
+                                                         String valorTotalAtivo, String quantoQueroTotal, String quantoFaltaTotal,
+                                                         Integer quantidadeQueFaltaTotal, String comprarOuAguardar, String lucroOuPerda);
 
     List<TituloPublicoResponse> toTitulosPublicoResponse(List<TituloPublico> titulos);
 }

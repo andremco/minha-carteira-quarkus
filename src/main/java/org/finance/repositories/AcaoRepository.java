@@ -18,6 +18,6 @@ public class AcaoRepository implements PanacheRepository<Acao> {
         return find("ticker", ticker).firstResult();
     }
     public List<Acao> findAcoesPaged(Integer pagina, Integer tamanho){
-        return findAll(Sort.by("dataRegistroCriacao").descending()).page(Page.of(pagina, tamanho)).list();
+        return find("dataRegistroRemocao is null", Sort.by("dataRegistroCriacao").descending()).page(Page.of(pagina, tamanho)).list();
     }
 }

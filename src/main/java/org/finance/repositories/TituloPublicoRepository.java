@@ -11,7 +11,7 @@ import java.util.List;
 
 @ApplicationScoped
 public class TituloPublicoRepository implements PanacheRepository<TituloPublico> {
-    public List<TituloPublico> findAcoesPaged(Integer pagina, Integer tamanho){
-        return findAll(Sort.by("dataRegistroCriacao").descending()).page(Page.of(pagina, tamanho)).list();
+    public List<TituloPublico> findTitulosPaged(Integer pagina, Integer tamanho){
+        return find("dataRegistroRemocao is null", Sort.by("dataRegistroCriacao").descending()).page(Page.of(pagina, tamanho)).list();
     }
 }

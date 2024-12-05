@@ -17,4 +17,8 @@ public class ApiConfigProperty {
     String aporteParmasInsuficiente;
     @ConfigProperty(name = "aporte.venda.nao.permitida")
     String aporteVendaNaoPermitida;
+    @ConfigProperty(name = "acao.nao.pode.ser.excluido")
+    String acaoNaoPodeSerExcluido;
+    @ConfigProperty(name = "titulo.nao.pode.ser.excluido")
+    String tituloNaoPodeSerExcluido;
 }

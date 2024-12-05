@@ -1,5 +1,6 @@
 package org.finance.services;
 
+import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.finance.configs.ApiConfigProperty;
@@ -15,6 +16,7 @@ import org.finance.repositories.AcaoRepository;
 import org.finance.repositories.CategoriaRepository;
 import org.finance.repositories.SetorRepository;
 import org.finance.repositories.TituloPublicoRepository;
+import org.finance.utils.CalculosCarteira;
 import org.finance.utils.Formatter;
 
 import java.time.LocalDateTime;
@@ -40,10 +42,16 @@ public class AcaoService {
     TickerService tickerService;
     @Inject
     AporteService aporteService;
+    @Inject
+    CalculosCarteira calculosCarteira;
 
     public AcaoResponse salvar(SalvarAcaoRequest request) {
-        if(acaoRepository.count("razaoSocial", request.getRazaoSocial()) != 0 ||
-                acaoRepository.count("ticker", request.getTicker()) != 0)
+        var existePorRazaoSocial = acaoRepository.find("dataRegistroRemocao is null and razaoSocial = :razaoSocial",
+                Parameters.with("razaoSocial", request.getRazaoSocial())).count();
+        var existePorTicker = acaoRepository.find("dataRegistroRemocao is null and ticker = :ticker",
+                Parameters.with("ticker", request.getTicker())).count();
+
+        if(existePorRazaoSocial != 0 || existePorTicker != 0)
             throw new NegocioException(apiConfigProperty.getRegistroJaExiste());
 
         var setor = setorRepository.findById(request.getSetorId().longValue());
@@ -77,8 +85,10 @@ public class AcaoService {
         if (acao == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
-        var findPorRazaoSocial = acaoRepository.findByRazaoSocial(request.getRazaoSocial());
-        var findPorTicker = acaoRepository.findByTicker(request.getTicker());
+        var findPorRazaoSocial = acaoRepository.find("dataRegistroRemocao is null and razaoSocial = :razaoSocial",
+                Parameters.with("razaoSocial", request.getRazaoSocial())).firstResult();
+        var findPorTicker = acaoRepository.find("dataRegistroRemocao is null and ticker = :ticker",
+                Parameters.with("ticker", request.getTicker())).firstResult();
 
         if (findPorRazaoSocial != null && !Objects.equals(findPorRazaoSocial.getId(), request.getId()) ||
                 findPorTicker != null && !Objects.equals(findPorTicker.getId(), request.getId()))
@@ -112,17 +122,21 @@ public class AcaoService {
         if (ticker == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
+        var notasAcao = acaoRepository.findAll().stream().mapToInt(Acao::getNota).sum();
+        var notasTituloPublico = tituloPublicoRepository.findAll().stream().mapToInt(TituloPublico::getNota).sum();
+        var somaTodasNotasCarteira = notasAcao + notasTituloPublico;
+
         var totalCarteira = aporteService.calcularTotalCarteira();
         var quantidadeCompras = AporteService.calcularQuantidadeCompras(acao.getAportes());
         var valorTotalAtivo = aporteService.calcularValorTotalAtivo(acao.getAportes());
         var valorTotalAtivoAtual = aporteService.calcularValorTotalAtivoAtual(acao.getAportes(), ticker.getPrecoDinamico());
-        var carteiraIdealPorcento = calcularCarteiraIdealQuociente(acao.getNota(), somaTodasNotasCarteira());
-        var carteiraTenhoPorcento = calcularCarteiraTenhoQuociente(valorTotalAtivo, totalCarteira);
-        var quantoQueroTotal = calcularQuantoQuero(carteiraIdealPorcento, totalCarteira);
-        var quantoFaltaTotal = calcularQuantoFalta(quantoQueroTotal, valorTotalAtivo);
-        var quantidadeQueFaltaTotal = (int) Math.round(calcularQuantidadeQueFalta(quantoFaltaTotal, ticker.getPrecoDinamico()));
+        var carteiraIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(acao.getNota(), somaTodasNotasCarteira);
+        var carteiraTenhoPorcento = calculosCarteira.calcularCarteiraTenhoQuociente(valorTotalAtivo, totalCarteira);
+        var quantoQueroTotal = calculosCarteira.calcularQuantoQuero(carteiraIdealPorcento, totalCarteira);
+        var quantoFaltaTotal = calculosCarteira.calcularQuantoFalta(quantoQueroTotal, valorTotalAtivo);
+        var quantidadeQueFaltaTotal = (int) Math.round(calculosCarteira.calcularQuantidadeQueFalta(quantoFaltaTotal, ticker.getPrecoDinamico()));
         var comprarOuAguardar = quantidadeQueFaltaTotal > 0 ? "Comprar" : "Aguardar";
-        var lucroOuPerda = calcularLucroOuPerda(valorTotalAtivo, valorTotalAtivoAtual);
+        var lucroOuPerda = calculosCarteira.calcularLucroOuPerda(valorTotalAtivo, valorTotalAtivoAtual);
 
         return acaoMapper.toDetalharAcaoResponse(acao, Formatter.doubleToReal(ticker.getPrecoDinamico()), quantidadeCompras,
                 Formatter.doubleToPorcento(carteiraIdealPorcento), Formatter.doubleToPorcento(carteiraTenhoPorcento),
@@ -131,17 +145,15 @@ public class AcaoService {
                 comprarOuAguardar, Formatter.doubleToReal(lucroOuPerda));
     }
 
-    public Integer somaTodasNotasCarteira(){
-        var notasAcao = acaoRepository.findAll().stream().mapToInt(Acao::getNota).sum();
-        var notasTituloPublico = tituloPublicoRepository.findAll().stream().mapToInt(TituloPublico::getNota).sum();
-
-        return notasAcao + notasTituloPublico;
-    }
-
     public void excluir(Integer id) throws NegocioException {
         Acao acao = acaoRepository.findById(id.longValue());
         if (acao == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
+
+        var quantidade = AporteService.calcularQuantidadeCompras(acao.getAportes());
+
+        if (quantidade > 0)
+            throw new NegocioException(apiConfigProperty.getAcaoNaoPodeSerExcluido());
 
         acao.setDataRegistroRemocao(LocalDateTime.now());
         acaoRepository.persist(acao);
@@ -150,7 +162,6 @@ public class AcaoService {
     public Paginado<AcaoResponse> filtrarAcoes(Integer pagina, Integer tamanho){
         long totalAcoes = total();
         var itens = acaoMapper.toAcoesResponse(acaoRepository.findAcoesPaged(pagina, tamanho));
-        itens.sort(Comparator.comparing(AcaoResponse::getQuantidade).reversed());
         Paginado<AcaoResponse> paginado = Paginado.<AcaoResponse>builder()
                 .pagina(pagina)
                 .tamanho(tamanho)
@@ -160,35 +171,5 @@ public class AcaoService {
         return paginado;
     }
 
-    public long total(){ return acaoRepository.count(); }
-
-    public double calcularCarteiraIdealQuociente(Integer nota, Integer somaTodasNotasCarteira){
-        var carteiraIdeal = ((double)nota/somaTodasNotasCarteira);
-        return Math.round(carteiraIdeal * 100.0) / 100.0;
-    }
-
-    public double calcularCarteiraTenhoQuociente(double valorTotalAtivo, double totalCarteira){
-        if(valorTotalAtivo == 0)
-            return 0;
-        var carteiraTenho = (valorTotalAtivo/totalCarteira);
-        return Math.round(carteiraTenho * 100.0) / 100.0;
-    }
-
-    public double calcularQuantoQuero(double carteiraIdeal, double totalCarteira){
-        return carteiraIdeal*totalCarteira;
-    }
-
-    public double calcularQuantoFalta(double quantoQuero, double valorTotalAtivo){
-        var quantoFalta = quantoQuero-valorTotalAtivo;
-        return quantoFalta >= 0 ? quantoFalta : 0;
-    }
-
-    public double calcularQuantidadeQueFalta(double quantoFaltaTotal, double precoDinamico){
-        double quantidadeQueFalta = quantoFaltaTotal/precoDinamico;
-        return quantidadeQueFalta >= 0 ? quantidadeQueFalta : 0;
-    }
-
-    public double calcularLucroOuPerda(double valorTotalAtivo, double valorTotalAtivoAtual){
-        return valorTotalAtivoAtual-valorTotalAtivo;
-    }
+    public long total(){ return acaoRepository.find("dataRegistroRemocao is null").count(); }
 }
