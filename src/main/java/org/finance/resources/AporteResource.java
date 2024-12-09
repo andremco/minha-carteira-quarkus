@@ -4,6 +4,7 @@ import com.arjuna.ats.jta.exceptions.NotImplementedException;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -36,7 +37,8 @@ public class AporteResource {
     @GET
     @Path("/filtrar")
     @Produces(MediaType.APPLICATION_JSON)
-    public ResponseApi<Paginado<AporteResponse>> filtrar(@HeaderParam("pagina") int pagina, @HeaderParam("tamanho") int tamanho) {
+    public ResponseApi<Paginado<AporteResponse>> filtrar(@NotNull(message = "{campo.pagina.nao.informado}") @HeaderParam("pagina") Integer pagina,
+                                                         @NotNull(message = "{campo.tamanho.nao.informado}") @HeaderParam("tamanho") Integer tamanho) {
         return new ResponseApi<>(service.filtrarAportes(pagina, tamanho), new String[] {operacaoSucesso}, true);
     }
 }

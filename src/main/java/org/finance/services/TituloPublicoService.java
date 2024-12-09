@@ -136,16 +136,20 @@ public class TituloPublicoService {
         tituloPublicoRepository.persist(tituloPublico);
     }
 
-    public Paginado<TituloPublicoResponse> filtrarTitulos(Integer pagina, Integer tamanho){
-        long totalTitulos = total();
+    public Paginado<TituloPublicoResponse> filtrarTitulos(String descricao, Integer pagina, Integer tamanho){
+        long totalTitulos = total(descricao);
         Paginado<TituloPublicoResponse> paginado = Paginado.<TituloPublicoResponse>builder()
                 .pagina(pagina)
                 .tamanho(tamanho)
                 .total(totalTitulos)
-                .itens(tituloPublicoMapper.toTitulosPublicoResponse(tituloPublicoRepository.findTitulosPaged(pagina, tamanho)))
+                .itens(tituloPublicoMapper.toTitulosPublicoResponse(tituloPublicoRepository.findTitulosPaged(descricao, pagina, tamanho)))
                 .build();
         return paginado;
     }
 
-    public long total(){ return tituloPublicoRepository.find("dataRegistroRemocao is null").count(); }
+    public long total(String descricao){
+        if (descricao != null) {
+            return tituloPublicoRepository.find("1=1 and dataRegistroRemocao is null and descricao like '%" + descricao + "%'").count();
+        }
+        return tituloPublicoRepository.find("dataRegistroRemocao is null").count(); }
 }

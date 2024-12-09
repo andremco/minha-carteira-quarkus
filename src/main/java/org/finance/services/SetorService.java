@@ -26,7 +26,6 @@ public class SetorService {
     ApiConfigProperty apiConfigProperty;
 
     public SetorResponse salvar(SalvarSetorRequest request) throws NegocioException {
-
         if(setorRepository.count("descricao", request.getDescricao()) != 0)
             throw new NegocioException(apiConfigProperty.getRegistroJaExiste());
 
@@ -37,7 +36,6 @@ public class SetorService {
     }
 
     public SetorResponse editar(EditarSetorRequest request) throws NegocioException {
-
         Setor setor = setorRepository.findById(request.getId().longValue());
 
         if (setor == null)

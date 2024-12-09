@@ -159,9 +159,9 @@ public class AcaoService {
         acaoRepository.persist(acao);
     }
 
-    public Paginado<AcaoResponse> filtrarAcoes(Integer pagina, Integer tamanho){
-        long totalAcoes = total();
-        var itens = acaoMapper.toAcoesResponse(acaoRepository.findAcoesPaged(pagina, tamanho));
+    public Paginado<AcaoResponse> filtrarAcoes(String razaoSocial, Integer pagina, Integer tamanho){
+        long totalAcoes = total(razaoSocial);
+        var itens = acaoMapper.toAcoesResponse(acaoRepository.findAcoesPaged(razaoSocial, pagina, tamanho));
         Paginado<AcaoResponse> paginado = Paginado.<AcaoResponse>builder()
                 .pagina(pagina)
                 .tamanho(tamanho)
@@ -171,5 +171,10 @@ public class AcaoService {
         return paginado;
     }
 
-    public long total(){ return acaoRepository.find("dataRegistroRemocao is null").count(); }
+    public long total(String razaoSocial){
+        if (razaoSocial != null) {
+            return acaoRepository.find("1=1 and dataRegistroRemocao is null and razaoSocial like '%" + razaoSocial + "%'").count();
+        }
+        return acaoRepository.find("dataRegistroRemocao is null").count();
+    }
 }

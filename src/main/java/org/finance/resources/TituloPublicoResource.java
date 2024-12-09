@@ -3,6 +3,7 @@ package org.finance.resources;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -53,7 +54,9 @@ public class TituloPublicoResource {
     @GET
     @Path("/filtrar")
     @Produces(MediaType.APPLICATION_JSON)
-    public ResponseApi<Paginado<TituloPublicoResponse>> filtrar(@HeaderParam("pagina") int pagina, @HeaderParam("tamanho") int tamanho) {
-        return new ResponseApi<>(service.filtrarTitulos(pagina, tamanho), new String[] {operacaoSucesso}, true);
+    public ResponseApi<Paginado<TituloPublicoResponse>> filtrar(@HeaderParam("descricao") String descricao,
+                                                                @NotNull(message = "{campo.pagina.nao.informado}") @HeaderParam("pagina") Integer pagina,
+                                                                @NotNull(message = "{campo.tamanho.nao.informado}") @HeaderParam("tamanho") Integer tamanho) {
+        return new ResponseApi<>(service.filtrarTitulos(descricao, pagina, tamanho), new String[] {operacaoSucesso}, true);
     }
 }
