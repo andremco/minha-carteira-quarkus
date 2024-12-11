@@ -192,4 +192,8 @@ public class AporteService {
     public double calcularValorTotalAtivoAtual(List<Aporte> aportes, double precoDinamico){
         return calcularQuantidadeCompras(aportes) * precoDinamico;
     }
+
+    public static String sinalizarCompraOuVenda(char movimentacao){
+        return movimentacao == 'C' ? "Compra" : "Venda";
+    }
 }
