@@ -4,7 +4,7 @@ import com.arjuna.ats.jta.exceptions.NotImplementedException;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -37,8 +37,24 @@ public class AporteResource {
     @GET
     @Path("/filtrar")
     @Produces(MediaType.APPLICATION_JSON)
-    public ResponseApi<Paginado<AporteResponse>> filtrar(@NotNull(message = "{campo.pagina.nao.informado}") @HeaderParam("pagina") Integer pagina,
-                                                         @NotNull(message = "{campo.tamanho.nao.informado}") @HeaderParam("tamanho") Integer tamanho) {
-        return new ResponseApi<>(service.filtrarAportes(pagina, tamanho), new String[] {operacaoSucesso}, true);
+    public ResponseApi<Paginado<AporteResponse>> filtrar(@Min(value = 1, message = "{campo.tipo.ativo.informado.valor.range}")
+                                                         @Max(value = 2, message = "{campo.tipo.ativo.informado.valor.range}")
+                                                         @HeaderParam("tipoAtivo")
+                                                         Integer tipoAtivo,
+                                                         @HeaderParam("ativoId")
+                                                         Integer ativoId,
+                                                         @Pattern(regexp = "^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\\d{4}$", message = "{campo.data.invalido}")
+                                                         @HeaderParam("dataInicio")
+                                                         String dataInicio,
+                                                         @Pattern(regexp = "^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\\d{4}$", message = "{campo.data.invalido}")
+                                                         @HeaderParam("dataFim")
+                                                         String dataFim,
+                                                         @NotNull(message = "{campo.pagina.nao.informado}")
+                                                         @HeaderParam("pagina")
+                                                         Integer pagina,
+                                                         @NotNull(message = "{campo.tamanho.nao.informado}")
+                                                         @HeaderParam("tamanho")
+                                                         Integer tamanho) {
+        return new ResponseApi<>(service.filtrarAportes(tipoAtivo, ativoId, dataInicio, dataFim, pagina, tamanho), new String[] {operacaoSucesso}, true);
     }
 }

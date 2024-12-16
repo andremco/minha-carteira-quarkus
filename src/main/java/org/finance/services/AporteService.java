@@ -7,6 +7,7 @@ import org.finance.configs.ApiConfigProperty;
 import org.finance.exceptions.NegocioException;
 import org.finance.mappers.AporteMapper;
 import org.finance.models.data.*;
+import org.finance.models.enums.TipoAtivoEnum;
 import org.finance.models.request.acao.EditarAcaoRequest;
 import org.finance.models.request.aporte.EditarAporteRequest;
 import org.finance.models.request.aporte.SalvarAporteRequest;
@@ -16,8 +17,10 @@ import org.finance.models.response.aporte.AporteResponse;
 import org.finance.repositories.AcaoRepository;
 import org.finance.repositories.AporteRepository;
 import org.finance.repositories.TituloPublicoRepository;
+import org.finance.utils.Formatter;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -126,18 +129,35 @@ public class AporteService {
         aporteRepository.persist(aporte);
     }
 
-    public Paginado<AporteResponse> filtrarAportes(Integer pagina, Integer tamanho){
-        long totalAportes = total();
+    public Paginado<AporteResponse> filtrarAportes(Integer tipoAtivo, Integer ativoId, String dataInicio, String dataFim, Integer pagina, Integer tamanho){
+        TipoAtivoEnum tipoAtivoEnum = null;
+        LocalDateTime inicio = null;
+        LocalDateTime fim = null;
+
+        if (tipoAtivo != null)
+            tipoAtivoEnum = TipoAtivoEnum.getById(tipoAtivo);
+
+        if (dataInicio != null)
+            inicio = Formatter.stringToLocalDateTime(dataInicio);
+        if (dataFim != null)
+            fim = Formatter.stringToLocalDateTime(dataFim).withHour(23).withMinute(59);
+
+        if (inicio != null && fim != null && inicio.isAfter(fim))
+            throw new NegocioException(apiConfigProperty.getCampoDataInicioSuperiorDataFim());
+
+        long totalAportes = total(tipoAtivoEnum, ativoId, inicio, fim);
         Paginado<AporteResponse> paginado = Paginado.<AporteResponse>builder()
                 .pagina(pagina)
                 .tamanho(tamanho)
                 .total(totalAportes)
-                .itens(aporteMapper.toAportesResponse(aporteRepository.findAcoesPaged(pagina, tamanho)))
+                .itens(aporteMapper.toAportesResponse(aporteRepository.findAcoesPaged(tipoAtivoEnum, ativoId, inicio, fim, pagina, tamanho)))
                 .build();
         return paginado;
     }
 
-    public long total(){ return aporteRepository.count(); }
+    public long total(TipoAtivoEnum tipoAtivo, Integer ativoId, LocalDateTime dataInicio, LocalDateTime dataFim){
+        return aporteRepository.total(tipoAtivo, ativoId, dataInicio, dataFim);
+    }
 
     @CacheResult(cacheName = "buscar-total-carteira")
     public double calcularTotalCarteira(){

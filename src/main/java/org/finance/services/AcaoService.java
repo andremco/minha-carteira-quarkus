@@ -172,9 +172,6 @@ public class AcaoService {
     }
 
     public long total(String razaoSocial){
-        if (razaoSocial != null) {
-            return acaoRepository.find("1=1 and dataRegistroRemocao is null and razaoSocial like '%" + razaoSocial + "%'").count();
-        }
-        return acaoRepository.find("dataRegistroRemocao is null").count();
+        return acaoRepository.total(razaoSocial);
     }
 }

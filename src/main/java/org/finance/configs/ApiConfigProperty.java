@@ -21,4 +21,6 @@ public class ApiConfigProperty {
     String acaoNaoPodeSerExcluido;
     @ConfigProperty(name = "titulo.nao.pode.ser.excluido")
     String tituloNaoPodeSerExcluido;
+    @ConfigProperty(name = "data.inicio.superior.data.fim")
+    String campoDataInicioSuperiorDataFim;
 }

@@ -29,4 +29,11 @@ public class AcaoRepository implements PanacheRepository<Acao> {
         }
         return find(query.toString(), Sort.by("dataRegistroCriacao").descending(), params).page(Page.of(pagina, tamanho)).list();
     }
+
+    public long total(String razaoSocial){
+        if (razaoSocial != null) {
+            return find("1=1 and dataRegistroRemocao is null and razaoSocial like '%" + razaoSocial + "%'").count();
+        }
+        return find("dataRegistroRemocao is null").count();
+    }
 }
