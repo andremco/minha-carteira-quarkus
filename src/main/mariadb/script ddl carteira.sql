@@ -49,7 +49,7 @@ CREATE TABLE TituloPublico
     Id INT NOT NULL AUTO_INCREMENT,
     SetorId INT NOT NULL,
     Descricao VARCHAR(100) NOT NULL,
-    PrecoInicial DECIMAL NOT NULL,
+    PrecoInicial DECIMAL(10,2) NOT NULL,
     Nota INT NOT NULL,
     DataRegistroCriacao DATETIME NOT NULL,
     DataRegistroEdicao DATETIME NULL,
@@ -63,7 +63,7 @@ CREATE TABLE Aporte
     Id INT NOT NULL AUTO_INCREMENT,
     AcaoId INT,
     TituloPublicoId INT,
-    Preco DECIMAL NOT NULL,
+    Preco DECIMAL(10,2) NOT NULL,
     Quantidade INT NOT NULL,
     Movimentacao CHAR(1) NOT NULL, -- C - Compra V - Venda
     DataRegistroCriacao DATETIME NOT NULL,
