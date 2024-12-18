@@ -58,13 +58,13 @@ public class AporteService {
         //Validar venda para ativo de ação!!
         if (acao != null && request.getMovimentacao().equalsIgnoreCase("V")){
             var aportes = aporteRepository.find("acao.id", request.getAcaoId()).list();
-            validarVendasAportes(aportes, request.getQuantidade());
+            validarVendasAportes(aportes, request.getQuantidade(), request.getPreco());
         }
 
         //Validar venda para ativo de título público!!
-        if (acao != null && request.getMovimentacao().equalsIgnoreCase("V")){
+        if (tituloPublico != null && request.getMovimentacao().equalsIgnoreCase("V")){
             var aportes = aporteRepository.find("tituloPublico.id", request.getTituloPublicoId()).list();
-            validarVendasAportes(aportes, request.getQuantidade());
+            validarVendasAportes(aportes, request.getQuantidade(), request.getPreco());
         }
 
         var aporte = aporteMapper.toAporte(request, acao, tituloPublico);
@@ -86,14 +86,14 @@ public class AporteService {
             acao = acaoRepository.findById(request.getAcaoId().longValue());
             //Validar venda para ativo de ação!!
             aportes = aporteRepository.find("acao.id", request.getAcaoId()).list();
-            validarVendasAportes(aportes, request.getQuantidade());
+            validarVendasAportes(aportes, request.getQuantidade(), request.getPreco());
         }
 
         if (request.getTituloPublicoId() != null){
             tituloPublico = tituloPublicoRepository.findById(request.getTituloPublicoId().longValue());
             //Validar venda para ativo de título público!!
             aportes = aporteRepository.find("tituloPublico.id", request.getTituloPublicoId()).list();
-            validarVendasAportes(aportes, request.getQuantidade());
+            validarVendasAportes(aportes, request.getQuantidade(), request.getPreco());
         }
 
         if (acao == null && tituloPublico == null)
@@ -181,14 +181,15 @@ public class AporteService {
         }).sum();
     }
 
-    public void validarVendasAportes(List<Aporte> aportes, int quantidadesAVender){
-        if ((aportes == null || aportes.isEmpty()) && quantidadesAVender > 0)
+    public void validarVendasAportes(List<Aporte> aportes, int quantidadesAVender, double precoVenda){
+        var totalVenda = quantidadesAVender * precoVenda;
+        if ((aportes == null || aportes.isEmpty()) && totalVenda > 0)
             throw new NegocioException(apiConfigProperty.getAporteVendaNaoPermitida());
 
-        var comprasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'C').mapToInt(Aporte::getQuantidade).sum();
-        var vendasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'V').mapToInt(Aporte::getQuantidade).sum();
+        var comprasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'C' && a.getDataRegistroRemocao() == null).mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
+        var vendasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'V' && a.getDataRegistroRemocao() == null).mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
 
-        if ((vendasRealizadas + quantidadesAVender) > comprasRealizadas){
+        if ((vendasRealizadas + totalVenda) > comprasRealizadas){
             throw new NegocioException(apiConfigProperty.getAporteVendaNaoPermitida());
         }
     }
@@ -196,8 +197,8 @@ public class AporteService {
     public static Integer calcularQuantidadeCompras(List<Aporte> aportes){
         if(aportes.isEmpty())
             return 0;
-        var comprasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'C').mapToInt(Aporte::getQuantidade).sum();
-        var vendasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'V').mapToInt(Aporte::getQuantidade).sum();
+        var comprasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'C' && a.getDataRegistroRemocao() == null).mapToInt(Aporte::getQuantidade).sum();
+        var vendasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'V' && a.getDataRegistroRemocao() == null).mapToInt(Aporte::getQuantidade).sum();
 
         return comprasRealizadas - vendasRealizadas;
     }
@@ -205,7 +206,7 @@ public class AporteService {
     public double calcularValorTotalAtivo(List<Aporte> aportes){
         if(aportes.isEmpty())
             return 0;
-        var somaValoresPorAtivo = aportes.stream().filter(a -> a.getMovimentacao() == 'C').mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
+        var somaValoresPorAtivo = aportes.stream().filter(a -> a.getMovimentacao() == 'C' && a.getDataRegistroRemocao() == null).mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
         return somaValoresPorAtivo;
     }
 
