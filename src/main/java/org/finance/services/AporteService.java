@@ -76,7 +76,16 @@ public class AporteService {
     public AporteResponse editar(EditarAporteRequest request) throws NegocioException {
         Acao acao = new Acao();
         TituloPublico tituloPublico = new TituloPublico();
-        List<Aporte> aportes = new ArrayList<>();
+        List<Aporte> aportes;
+        var hoje = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
+
+        Aporte aporte = aporteRepository.findById(request.getId().longValue());
+        if (aporte == null)
+            throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
+
+        var dataOperacao = aporte.getDataRegistroCriacao().withHour(0).withMinute(0).withSecond(0);
+        if (!dataOperacao.isEqual(hoje))
+            throw new NegocioException(apiConfigProperty.getAporteDiaOperacaoNaoPermitida());
 
         if (request.getAcaoId() == null && request.getTituloPublicoId() == null ||
                 request.getAcaoId() != null && request.getTituloPublicoId() != null)
@@ -97,10 +106,6 @@ public class AporteService {
         }
 
         if (acao == null && tituloPublico == null)
-            throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
-
-        Aporte aporte = aporteRepository.findById(request.getId().longValue());
-        if (aporte == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
         if (request.getAcaoId() != null)

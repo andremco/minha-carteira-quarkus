@@ -23,4 +23,6 @@ public class ApiConfigProperty {
     String tituloNaoPodeSerExcluido;
     @ConfigProperty(name = "data.inicio.superior.data.fim")
     String campoDataInicioSuperiorDataFim;
+    @ConfigProperty(name = "aporte.dia.operacao.nao.permitida")
+    String aporteDiaOperacaoNaoPermitida;
 }
