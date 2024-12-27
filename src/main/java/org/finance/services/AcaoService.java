@@ -20,6 +20,7 @@ import org.finance.utils.CalculosCarteira;
 import org.finance.utils.Formatter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -161,12 +162,38 @@ public class AcaoService {
 
     public Paginado<AcaoResponse> filtrarAcoes(String razaoSocial, Integer pagina, Integer tamanho){
         long totalAcoes = total(razaoSocial);
-        var itens = acaoMapper.toAcoesResponse(acaoRepository.findAcoesPaged(razaoSocial, pagina, tamanho));
+        var acoes = acaoRepository.findAcoesPaged(razaoSocial, pagina, tamanho);
+
+        List<AcaoResponse> response = new ArrayList<>();
+        var totalCarteira = aporteService.calcularTotalCarteira();
+        var notasAcao = acaoRepository.findAll().stream().mapToInt(Acao::getNota).sum();
+        var notasTituloPublico = tituloPublicoRepository.findAll().stream().mapToInt(TituloPublico::getNota).sum();
+        var somaTodasNotasCarteira = notasAcao + notasTituloPublico;
+
+        acoes.forEach(acao -> {
+            var ticker = tickerService.obter(acao.getTicker());
+            if (ticker == null)
+                throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
+
+            var valorTotalAtivo = aporteService.calcularValorTotalAtivo(acao.getAportes());
+            var valorTotalAtivoAtual = aporteService.calcularValorTotalAtivoAtual(acao.getAportes(), ticker.getPrecoDinamico());
+            var lucroOuPerda = calculosCarteira.calcularLucroOuPerda(valorTotalAtivo, valorTotalAtivoAtual);
+            var carteiraIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(acao.getNota(), somaTodasNotasCarteira);
+            var quantoQueroTotal = calculosCarteira.calcularQuantoQuero(carteiraIdealPorcento, totalCarteira);
+            var quantoFaltaTotal = calculosCarteira.calcularQuantoFalta(quantoQueroTotal, valorTotalAtivo);
+            var quantidadeQueFaltaTotal = (int) Math.round(calculosCarteira.calcularQuantidadeQueFalta(quantoFaltaTotal, ticker.getPrecoDinamico()));
+            var comprarOuAguardar = quantidadeQueFaltaTotal > 0 ? "Comprar" : "Aguardar";
+
+            response.add(acaoMapper.toAcaoResponse(acao, Formatter.doubleToReal(ticker.getPrecoDinamico()),
+                    Formatter.doubleToReal(valorTotalAtivoAtual), comprarOuAguardar,
+                    Formatter.doubleToReal(lucroOuPerda)));
+        });
+
         Paginado<AcaoResponse> paginado = Paginado.<AcaoResponse>builder()
                 .pagina(pagina)
                 .tamanho(tamanho)
                 .total(totalAcoes)
-                .itens(itens)
+                .itens(response)
                 .build();
         return paginado;
     }

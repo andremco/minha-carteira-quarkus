@@ -166,7 +166,7 @@ public class AporteService {
 
     @CacheResult(cacheName = "buscar-total-carteira")
     public double calcularTotalCarteira(){
-        return aporteRepository.findAll().stream().filter(a -> a.getMovimentacao() == 'C').mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
+        return aporteRepository.findAll().stream().filter(a -> a.getMovimentacao() == 'C' && a.getDataRegistroRemocao() == null).mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
     }
 
     @CacheResult(cacheName = "buscar-total-carteira-atualizado")

@@ -33,6 +33,10 @@ public interface AcaoMapper {
     @Mapping(target = "quantidade", expression = "java(AporteService.calcularQuantidadeCompras(acao.getAportes()))")
     AcaoResponse toAcaoResponse(Acao acao);
 
+    @Mapping(target = "dataRegistro", source = "acao.dataRegistroCriacao")
+    @Mapping(target = "quantidade", expression = "java(AporteService.calcularQuantidadeCompras(acao.getAportes()))")
+    AcaoResponse toAcaoResponse(Acao acao, String precoDinamico, String valorTotalAtivoAtual, String comprarOuAguardar, String lucroOuPerda);
+
     @Mapping(target = "razaoSocial", source = "acao.razaoSocial")
     @Mapping(target = "ticker", source = "acao.ticker")
     @Mapping(target = "dataRegistro", source = "acao.dataRegistroCriacao")
