@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public enum TipoAtivoEnum {
-    ACAO(1, "Acao"), TITULOPUBLICO(2, "TituloPublico");
+    ACAO(1, "Ação"), TITULO_PUBLICO(2, "Título Público");
     private static HashMap<Integer, TipoAtivoEnum> enumById = new HashMap<>();
     static {
         Arrays.stream(values()).forEach(e -> enumById.put(e.getId(), e));

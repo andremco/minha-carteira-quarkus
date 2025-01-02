@@ -4,6 +4,8 @@ import com.arjuna.ats.jta.exceptions.NotImplementedException;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
@@ -53,9 +55,12 @@ public class AcaoResource {
     @GET
     @Path("/filtrar")
     @Produces(MediaType.APPLICATION_JSON)
-    public ResponseApi<Paginado<AcaoResponse>> filtrar(@HeaderParam("razaoSocial") String razaoSocial,
+    public ResponseApi<Paginado<AcaoResponse>> filtrar(@Min(value = 1, message = "{campo.categoria.informado.valor.range}")
+                                                       @Max(value = 3, message = "{campo.categoria.informado.valor.range}")
+                                                       @HeaderParam("categoria") Integer categoria,
+                                                       @HeaderParam("razaoSocial") String razaoSocial,
                                                        @NotNull(message = "{campo.pagina.nao.informado}") @HeaderParam("pagina") Integer pagina,
                                                        @NotNull(message = "{campo.tamanho.nao.informado}") @HeaderParam("tamanho") Integer tamanho) {
-        return new ResponseApi<>(acaoService.filtrarAcoes(razaoSocial, pagina, tamanho), new String[] {operacaoSucesso}, true);
+        return new ResponseApi<>(acaoService.filtrarAcoes(categoria, razaoSocial, pagina, tamanho), new String[] {operacaoSucesso}, true);
     }
 }

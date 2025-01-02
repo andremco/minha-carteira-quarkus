@@ -20,7 +20,7 @@ public class AporteRepository implements PanacheRepository<Aporte> {
             if (tipoAtivo == TipoAtivoEnum.ACAO){
                 query.append(" and acao.id is not null");
             }
-            if (tipoAtivo == TipoAtivoEnum.TITULOPUBLICO){
+            if (tipoAtivo == TipoAtivoEnum.TITULO_PUBLICO){
                 query.append(" and tituloPublico.id is not null");
             }
         }
@@ -28,7 +28,7 @@ public class AporteRepository implements PanacheRepository<Aporte> {
             if (tipoAtivo == TipoAtivoEnum.ACAO){
                 query.append(" and acao.id = :acaoId");
             }
-            if (tipoAtivo == TipoAtivoEnum.TITULOPUBLICO){
+            if (tipoAtivo == TipoAtivoEnum.TITULO_PUBLICO){
                 query.append(" and tituloPublico.id = :tituloPublicoId");
             }
         }
@@ -44,7 +44,7 @@ public class AporteRepository implements PanacheRepository<Aporte> {
             if (tipoAtivo == TipoAtivoEnum.ACAO){
                 params.put("acaoId", ativoId);
             }
-            if (tipoAtivo == TipoAtivoEnum.TITULOPUBLICO){
+            if (tipoAtivo == TipoAtivoEnum.TITULO_PUBLICO){
                 params.put("tituloPublicoId", ativoId);
             }
         }

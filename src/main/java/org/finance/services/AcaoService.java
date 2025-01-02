@@ -7,6 +7,7 @@ import org.finance.configs.ApiConfigProperty;
 import org.finance.exceptions.NegocioException;
 import org.finance.mappers.AcaoMapper;
 import org.finance.models.data.*;
+import org.finance.models.enums.CategoriaEnum;
 import org.finance.models.request.acao.EditarAcaoRequest;
 import org.finance.models.request.acao.SalvarAcaoRequest;
 import org.finance.models.response.Paginado;
@@ -160,9 +161,13 @@ public class AcaoService {
         acaoRepository.persist(acao);
     }
 
-    public Paginado<AcaoResponse> filtrarAcoes(String razaoSocial, Integer pagina, Integer tamanho){
-        long totalAcoes = total(razaoSocial);
-        var acoes = acaoRepository.findAcoesPaged(razaoSocial, pagina, tamanho);
+    public Paginado<AcaoResponse> filtrarAcoes(Integer categoria, String razaoSocial, Integer pagina, Integer tamanho){
+        CategoriaEnum categoriaEnum = null;
+        if (categoria != null)
+            categoriaEnum = CategoriaEnum.getById(categoria);
+
+        long totalAcoes = total(categoriaEnum, razaoSocial);
+        var acoes = acaoRepository.findAcoesPaged(categoriaEnum, razaoSocial, pagina, tamanho);
 
         List<AcaoResponse> response = new ArrayList<>();
         var totalCarteira = aporteService.calcularTotalCarteira();
@@ -198,7 +203,7 @@ public class AcaoService {
         return paginado;
     }
 
-    public long total(String razaoSocial){
-        return acaoRepository.total(razaoSocial);
+    public long total(CategoriaEnum categoria, String razaoSocial){
+        return acaoRepository.total(categoria, razaoSocial);
     }
 }
