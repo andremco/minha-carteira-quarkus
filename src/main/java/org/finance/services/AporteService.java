@@ -191,8 +191,8 @@ public class AporteService {
         if ((aportes == null || aportes.isEmpty()) && totalVenda > 0)
             throw new NegocioException(apiConfigProperty.getAporteVendaNaoPermitida());
 
-        var comprasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'C' && a.getDataRegistroRemocao() == null).mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
-        var vendasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'V' && a.getDataRegistroRemocao() == null).mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
+        var comprasRealizadas = comprasRealizadas(aportes);
+        var vendasRealizadas = vendasRealizadas(aportes);
 
         if ((vendasRealizadas + totalVenda) > comprasRealizadas){
             throw new NegocioException(apiConfigProperty.getAporteVendaNaoPermitida());
@@ -211,8 +211,15 @@ public class AporteService {
     public double calcularValorTotalAtivo(List<Aporte> aportes){
         if(aportes.isEmpty())
             return 0;
-        var somaValoresPorAtivo = aportes.stream().filter(a -> a.getMovimentacao() == 'C' && a.getDataRegistroRemocao() == null).mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
-        return somaValoresPorAtivo;
+        return comprasRealizadas(aportes)-vendasRealizadas(aportes);
+    }
+
+    private double comprasRealizadas(List<Aporte> aportes){
+        return aportes.stream().filter(a -> a.getMovimentacao() == 'C' && a.getDataRegistroRemocao() == null).mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
+    }
+
+    private double vendasRealizadas(List<Aporte> aportes){
+        return aportes.stream().filter(a -> a.getMovimentacao() == 'V' && a.getDataRegistroRemocao() == null).mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
     }
 
     public double calcularValorTotalAtivoAtual(List<Aporte> aportes, double precoDinamico){

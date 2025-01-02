@@ -1,10 +1,8 @@
 package org.finance.mappers;
 
-import org.finance.models.data.Acao;
 import org.finance.models.data.Setor;
 import org.finance.models.data.TituloPublico;
 import org.finance.models.request.tituloPublico.SalvarTituloPublicoRequest;
-import org.finance.models.response.acao.DetalharAcaoResponse;
 import org.finance.models.response.tituloPublico.DetalharTituloPublicoResponse;
 import org.finance.models.response.tituloPublico.TituloPublicoResponse;
 import org.finance.services.AporteService;
@@ -36,6 +34,12 @@ public interface TituloPublicoMapper {
     @Mapping(target = "precoInicial", expression = "java(Formatter.doubleToReal(tituloPublico.getPrecoInicial()))")
     @Mapping(target = "quantidade", expression = "java(AporteService.calcularQuantidadeCompras(tituloPublico.getAportes()))")
     TituloPublicoResponse toTituloPublicoResponse(TituloPublico tituloPublico);
+
+    @Mapping(target = "descricao", source = "tituloPublico.descricao")
+    @Mapping(target = "dataRegistro", source = "tituloPublico.dataRegistroCriacao")
+    @Mapping(target = "precoInicial", expression = "java(Formatter.doubleToReal(tituloPublico.getPrecoInicial()))")
+    @Mapping(target = "quantidade", expression = "java(AporteService.calcularQuantidadeCompras(tituloPublico.getAportes()))")
+    TituloPublicoResponse toTituloPublicoResponse(TituloPublico tituloPublico, String precoMedio, String valorTotalAtivo, String comprarOuAguardar, String lucroOuPerda);
 
     @Mapping(target = "descricao", source = "tituloPublico.descricao")
     @Mapping(target = "dataRegistro", source = "tituloPublico.dataRegistroCriacao")

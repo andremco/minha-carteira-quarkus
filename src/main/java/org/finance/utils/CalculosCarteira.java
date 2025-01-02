@@ -44,8 +44,8 @@ public class CalculosCarteira {
     public double calcularPrecoMedioAportes(List<Aporte> aportes){
         if (aportes == null || aportes.isEmpty())
             return 0;
-        var quantidadeAportes = aportes.size();
-        var somaValores = aportes.stream().mapToDouble(Aporte::getPreco).sum();
+        var quantidadeAportes = aportes.stream().filter(a -> a.getMovimentacao() == 'C' && a.getDataRegistroRemocao() == null).toList().size();
+        var somaValores = aportes.stream().filter(a -> a.getMovimentacao() == 'C' && a.getDataRegistroRemocao() == null).mapToDouble(Aporte::getPreco).sum();
         return somaValores/quantidadeAportes;
     }
 

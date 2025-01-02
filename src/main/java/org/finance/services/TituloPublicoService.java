@@ -13,6 +13,7 @@ import org.finance.models.data.TituloPublico;
 import org.finance.models.request.tituloPublico.EditarTituloPublicoRequest;
 import org.finance.models.request.tituloPublico.SalvarTituloPublicoRequest;
 import org.finance.models.response.Paginado;
+import org.finance.models.response.acao.AcaoResponse;
 import org.finance.models.response.acao.DetalharAcaoResponse;
 import org.finance.models.response.tituloPublico.DetalharTituloPublicoResponse;
 import org.finance.models.response.tituloPublico.TituloPublicoResponse;
@@ -23,6 +24,8 @@ import org.finance.utils.CalculosCarteira;
 import org.finance.utils.Formatter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -103,7 +106,8 @@ public class TituloPublicoService {
         var totalCarteira = aporteService.calcularTotalCarteira();
         var somaTodasNotasCarteira = calculosCarteira.somarNotasCarteira(acaoRepository, tituloPublicoRepository);
         var precoMedio = calculosCarteira.calcularPrecoMedioAportes(tituloPublico.getAportes());
-        var precoUltimoAporte = !tituloPublico.getAportes().isEmpty() ? tituloPublico.getAportes().getFirst().getPreco() : 0;
+        var precoUltimoAporte = !tituloPublico.getAportes().stream().filter(a -> a.getDataRegistroRemocao() == null).toList().isEmpty() ?
+                tituloPublico.getAportes().stream().filter(a -> a.getDataRegistroRemocao() == null).toList().getFirst().getPreco() : 0;
         var valorTotalAtivo = aporteService.calcularValorTotalAtivo(tituloPublico.getAportes());
         var carteiraIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(tituloPublico.getNota(), somaTodasNotasCarteira);
         var carteiraTenhoPorcento = calculosCarteira.calcularCarteiraTenhoQuociente(valorTotalAtivo, totalCarteira);
@@ -138,11 +142,42 @@ public class TituloPublicoService {
 
     public Paginado<TituloPublicoResponse> filtrarTitulos(String descricao, Integer pagina, Integer tamanho){
         long totalTitulos = total(descricao);
+
+        var titulos = tituloPublicoRepository.findTitulosPaged(descricao, pagina, tamanho);
+        List<TituloPublicoResponse> response = new ArrayList<>();
+        var totalCarteira = aporteService.calcularTotalCarteira();
+        var notasAcao = acaoRepository.findAll().stream().mapToInt(Acao::getNota).sum();
+        var notasTituloPublico = tituloPublicoRepository.findAll().stream().mapToInt(TituloPublico::getNota).sum();
+        var somaTodasNotasCarteira = notasAcao + notasTituloPublico;
+
+        titulos.forEach(titulo -> {
+            var valorTotalAtivo = aporteService.calcularValorTotalAtivo(titulo.getAportes());
+            var precoMedio = calculosCarteira.calcularPrecoMedioAportes(titulo.getAportes());
+            var aportesValidos = titulo.getAportes().stream().sorted(Comparator.comparing(Aporte::getId).reversed()).filter(a -> a.getDataRegistroRemocao() == null).toList();
+            double precoUltimoAporte = 0;
+            if (!aportesValidos.isEmpty())
+                precoUltimoAporte = aportesValidos.getFirst().getPreco();
+
+            var precoCalcularTotalAtivoAtual = precoUltimoAporte <= 0 ? titulo.getPrecoInicial() : precoUltimoAporte;
+            var valorTotalAtivoAtual = aporteService.calcularValorTotalAtivoAtual(titulo.getAportes(), precoMedio);
+            var carteiraIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(titulo.getNota(), somaTodasNotasCarteira);
+            var quantoQueroTotal = calculosCarteira.calcularQuantoQuero(carteiraIdealPorcento, totalCarteira);
+            var quantoFaltaTotal = calculosCarteira.calcularQuantoFalta(quantoQueroTotal, valorTotalAtivo);
+            var precoParaCalculoQuantoFalta = precoMedio == 0 ? titulo.getPrecoInicial() : precoMedio;
+            var quantidadeQueFaltaTotal = (int) Math.round(calculosCarteira.calcularQuantidadeQueFalta(quantoFaltaTotal, precoParaCalculoQuantoFalta));
+            var comprarOuAguardar = quantidadeQueFaltaTotal > 0 ? "Comprar" : "Aguardar";
+            var lucroOuPerda = calculosCarteira.calcularLucroOuPerda(valorTotalAtivo, valorTotalAtivoAtual);
+
+            response.add(tituloPublicoMapper.toTituloPublicoResponse(titulo,
+                    Formatter.doubleToReal(precoMedio), Formatter.doubleToReal(valorTotalAtivo),
+                    comprarOuAguardar, Formatter.doubleToReal(lucroOuPerda)));
+        });
+
         Paginado<TituloPublicoResponse> paginado = Paginado.<TituloPublicoResponse>builder()
                 .pagina(pagina)
                 .tamanho(tamanho)
                 .total(totalTitulos)
-                .itens(tituloPublicoMapper.toTitulosPublicoResponse(tituloPublicoRepository.findTitulosPaged(descricao, pagina, tamanho)))
+                .itens(response)
                 .build();
         return paginado;
     }
