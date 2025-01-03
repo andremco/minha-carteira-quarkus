@@ -3,36 +3,38 @@ USE Carteira;
 DROP TABLE IF EXISTS Aporte;
 DROP TABLE IF EXISTS TituloPublico;
 DROP TABLE IF EXISTS Acao;
-DROP TABLE IF EXISTS Categoria;
 DROP TABLE IF EXISTS Setor;
+DROP TABLE IF EXISTS TipoAtivo;
+
+CREATE TABLE TipoAtivo(
+                          Id INT NOT NULL AUTO_INCREMENT,
+                          Descricao VARCHAR(60) NOT NULL,
+                          DataRegistroCriacao DATETIME NOT NULL,
+                          PRIMARY KEY(Id)
+);
+
+INSERT INTO TipoAtivo (Descricao, DataRegistroCriacao)
+VALUES
+    ('Ação', '2024-10-23'),
+    ('Fundo Imobiliário', '2024-10-23'),
+    ('Brazilian Depositary Receipts', '2024-10-23'),
+    ('Título Público', '2024-10-23');
 
 CREATE TABLE Setor
 (
     Id INT NOT NULL AUTO_INCREMENT,
+    TipoAtivoId INT NOT NULL,
     Descricao VARCHAR(60) NOT NULL,
     DataRegistroCriacao DATETIME NOT NULL,
     DataRegistroEdicao DATETIME NULL,
-    PRIMARY KEY(Id)
+    PRIMARY KEY(Id),
+    CONSTRAINT `FK_Setor_TipoAtivo` FOREIGN KEY (TipoAtivoId) REFERENCES TipoAtivo(Id)
 );
-
-CREATE TABLE Categoria(
-  Id INT NOT NULL AUTO_INCREMENT,
-  Descricao VARCHAR(60) NOT NULL,
-  DataRegistroCriacao DATETIME NOT NULL,
-  PRIMARY KEY(Id)
-);
-
-INSERT INTO Categoria (Descricao, DataRegistroCriacao)
-VALUES
-    ('Ação', '2024-10-23'),
-    ('Fundo Imobiliário', '2024-10-23'),
-    ('Brazilian Depositary Receipts', '2024-10-23');
 
 CREATE TABLE Acao
 (
     Id INT NOT NULL AUTO_INCREMENT,
     SetorId INT NOT NULL,
-    CategoriaId INT NOT NULL,
     RazaoSocial VARCHAR(100),
     Ticker VARCHAR(10) NOT NULL,
     Nota INT NOT NULL,
@@ -40,8 +42,7 @@ CREATE TABLE Acao
     DataRegistroEdicao DATETIME NULL,
     DataRegistroRemocao DATETIME NULL,
     PRIMARY KEY(Id),
-    CONSTRAINT `FK_Acao_Setor` FOREIGN KEY (SetorId) REFERENCES Setor(Id),
-    CONSTRAINT `FK_Acao_Categoria` FOREIGN KEY (CategoriaId) REFERENCES Categoria(Id)
+    CONSTRAINT `FK_Acao_Setor` FOREIGN KEY (SetorId) REFERENCES Setor(Id)
 );
 
 CREATE TABLE TituloPublico

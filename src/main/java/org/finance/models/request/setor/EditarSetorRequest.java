@@ -1,7 +1,6 @@
 package org.finance.models.request.setor;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +11,7 @@ import lombok.Setter;
 public class EditarSetorRequest {
     @NotNull(message = "{campo.id.nao.informado}")
     private Integer id;
-    @NotBlank(message = "{campo.descricao.nao.informado}")
+    @Size(max = 60, message = "{ccampo.descricao.informado.chars.limite}")
     private String descricao;
+    private Integer tipoAtivoId;
 }

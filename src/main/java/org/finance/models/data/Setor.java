@@ -23,6 +23,9 @@ public class Setor {
     private String descricao;
     private LocalDateTime dataRegistroCriacao;
     private LocalDateTime dataRegistroEdicao;
+    @ManyToOne
+    @JoinColumn(name = "TipoAtivoId")
+    private TipoAtivo tipoAtivo;
     @OneToMany(mappedBy = "setor")
     private List<Acao> acoes = new ArrayList<>();
     @OneToMany(mappedBy = "setor")

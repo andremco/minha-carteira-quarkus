@@ -7,14 +7,14 @@ import org.finance.configs.ApiConfigProperty;
 import org.finance.exceptions.NegocioException;
 import org.finance.mappers.AcaoMapper;
 import org.finance.models.data.*;
-import org.finance.models.enums.CategoriaEnum;
+import org.finance.models.enums.TipoAtivoEnum;
 import org.finance.models.request.acao.EditarAcaoRequest;
 import org.finance.models.request.acao.SalvarAcaoRequest;
 import org.finance.models.response.Paginado;
 import org.finance.models.response.acao.AcaoResponse;
 import org.finance.models.response.acao.DetalharAcaoResponse;
 import org.finance.repositories.AcaoRepository;
-import org.finance.repositories.CategoriaRepository;
+import org.finance.repositories.TipoAtivoRepository;
 import org.finance.repositories.SetorRepository;
 import org.finance.repositories.TituloPublicoRepository;
 import org.finance.utils.CalculosCarteira;
@@ -22,7 +22,6 @@ import org.finance.utils.Formatter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -35,7 +34,7 @@ public class AcaoService {
     @Inject
     SetorRepository setorRepository;
     @Inject
-    CategoriaRepository categoriaRepository;
+    TipoAtivoRepository tipoAtivoRepository;
     @Inject
     AcaoMapper acaoMapper;
     @Inject
@@ -57,30 +56,25 @@ public class AcaoService {
             throw new NegocioException(apiConfigProperty.getRegistroJaExiste());
 
         var setor = setorRepository.findById(request.getSetorId().longValue());
-        var categoria = categoriaRepository.findById(request.getCategoriaId().longValue());
 
-        if (setor == null || categoria == null)
+        if (setor == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
-        var acao = acaoMapper.toAcao(request, setor, categoria);
+        var acao = acaoMapper.toAcao(request, setor);
         acaoRepository.persist(acao);
 
         Integer quantidadeAportes = 0;
 
-        return acaoMapper.toAcaoResponse(acao, setor, categoria, quantidadeAportes);
+        return acaoMapper.toAcaoResponse(acao, setor, quantidadeAportes);
     }
 
     public AcaoResponse editar(EditarAcaoRequest request) throws NegocioException {
         Setor setor = new Setor();
-        Categoria categoria = new Categoria();
 
         if (request.getSetorId() != null)
             setor = setorRepository.findById(request.getSetorId().longValue());
 
-        if (request.getCategoriaId() != null)
-            categoria = categoriaRepository.findById(request.getCategoriaId().longValue());
-
-        if (categoria == null || setor == null)
+        if (setor == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
         Acao acao = acaoRepository.findById(request.getId().longValue());
@@ -100,8 +94,6 @@ public class AcaoService {
             acao.setRazaoSocial(request.getRazaoSocial());
         if (request.getSetorId() != null)
             acao.setSetor(setor);
-        if (request.getCategoriaId() != null)
-            acao.setCategoria(categoria);
         if (request.getTicker() != null)
             acao.setTicker(request.getTicker());
         if (request.getNota() != null)
@@ -112,7 +104,7 @@ public class AcaoService {
 
         var quantidadeCompras = AporteService.calcularQuantidadeCompras(acao.getAportes());
 
-        return acaoMapper.toAcaoResponse(acao, setor, categoria, quantidadeCompras);
+        return acaoMapper.toAcaoResponse(acao, setor, quantidadeCompras);
     }
 
     public DetalharAcaoResponse detalharAcao(Integer id){
@@ -161,13 +153,13 @@ public class AcaoService {
         acaoRepository.persist(acao);
     }
 
-    public Paginado<AcaoResponse> filtrarAcoes(Integer categoria, String razaoSocial, Integer pagina, Integer tamanho){
-        CategoriaEnum categoriaEnum = null;
-        if (categoria != null)
-            categoriaEnum = CategoriaEnum.getById(categoria);
+    public Paginado<AcaoResponse> filtrarAcoes(Integer tipoAtivoId, String razaoSocial, Integer pagina, Integer tamanho){
+        TipoAtivoEnum tipoAtivoEnum = null;
+        if (tipoAtivoId != null)
+            tipoAtivoEnum = TipoAtivoEnum.getById(tipoAtivoId);
 
-        long totalAcoes = total(categoriaEnum, razaoSocial);
-        var acoes = acaoRepository.findAcoesPaged(categoriaEnum, razaoSocial, pagina, tamanho);
+        long totalAcoes = total(tipoAtivoEnum, razaoSocial);
+        var acoes = acaoRepository.findAcoesPaged(tipoAtivoEnum, razaoSocial, pagina, tamanho);
 
         List<AcaoResponse> response = new ArrayList<>();
         var totalCarteira = aporteService.calcularTotalCarteira();
@@ -203,7 +195,7 @@ public class AcaoService {
         return paginado;
     }
 
-    public long total(CategoriaEnum categoria, String razaoSocial){
-        return acaoRepository.total(categoria, razaoSocial);
+    public long total(TipoAtivoEnum tipoAtivo, String razaoSocial){
+        return acaoRepository.total(tipoAtivo, razaoSocial);
     }
 }

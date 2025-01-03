@@ -17,7 +17,6 @@ public class EditarAcaoRequest {
     @Size(max = 100, message = "{campo.razao.social.informado.chars.limite}")
     private String razaoSocial;
     private Integer setorId;
-    private Integer categoriaId;
     @Size(max = 10, message = "{campo.ticker.informado.chars.limite}")
     private String ticker;
     @Min(value = 0, message = "{campo.nota.informado.valor.range}")

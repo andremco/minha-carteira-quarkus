@@ -55,12 +55,12 @@ public class AcaoResource {
     @GET
     @Path("/filtrar")
     @Produces(MediaType.APPLICATION_JSON)
-    public ResponseApi<Paginado<AcaoResponse>> filtrar(@Min(value = 1, message = "{campo.categoria.informado.valor.range}")
-                                                       @Max(value = 3, message = "{campo.categoria.informado.valor.range}")
-                                                       @HeaderParam("categoria") Integer categoria,
+    public ResponseApi<Paginado<AcaoResponse>> filtrar(@Min(value = 1, message = "{campo.tipo.ativo.informado.valor.range}")
+                                                       @Max(value = 4, message = "{campo.tipo.ativo.informado.valor.range}")
+                                                       @HeaderParam("tipoAtivoId") Integer tipoAtivoId,
                                                        @HeaderParam("razaoSocial") String razaoSocial,
                                                        @NotNull(message = "{campo.pagina.nao.informado}") @HeaderParam("pagina") Integer pagina,
                                                        @NotNull(message = "{campo.tamanho.nao.informado}") @HeaderParam("tamanho") Integer tamanho) {
-        return new ResponseApi<>(acaoService.filtrarAcoes(categoria, razaoSocial, pagina, tamanho), new String[] {operacaoSucesso}, true);
+        return new ResponseApi<>(acaoService.filtrarAcoes(tipoAtivoId, razaoSocial, pagina, tamanho), new String[] {operacaoSucesso}, true);
     }
 }

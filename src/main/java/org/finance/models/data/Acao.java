@@ -31,9 +31,6 @@ public class Acao {
     @ManyToOne
     @JoinColumn(name = "SetorId")
     private Setor setor;
-    @ManyToOne
-    @JoinColumn(name = "CategoriaId")
-    private Categoria categoria;
     @OneToMany(mappedBy = "acao")
     private List<Aporte> aportes = new ArrayList<>();
 }

@@ -13,8 +13,8 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity(name = "Categoria")
-public class Categoria {
+@Entity(name = "TipoAtivo")
+public class TipoAtivo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -22,6 +22,6 @@ public class Categoria {
     private String descricao;
     @NotNull
     private LocalDateTime dataRegistroCriacao;
-    @OneToMany(mappedBy = "categoria")
-    private List<Acao> acoes = new ArrayList<>();
+    @OneToMany(mappedBy = "tipoAtivo")
+    private List<Setor> setores = new ArrayList<>();
 }

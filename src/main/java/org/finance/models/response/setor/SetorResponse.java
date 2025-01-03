@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.finance.models.response.dominio.DominioResponse;
 
 @Getter
 @Setter
@@ -14,4 +15,5 @@ public class SetorResponse {
     private String descricao;
     private String dataRegistro;
     private Integer numAtivos;
+    private DominioResponse tipoAtivo;
 }

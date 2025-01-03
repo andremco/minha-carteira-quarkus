@@ -1,53 +1,74 @@
 package org.finance.services;
 
+import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.finance.configs.ApiConfigProperty;
 import org.finance.exceptions.NegocioException;
 import org.finance.mappers.SetorMapper;
+import org.finance.models.data.TipoAtivo;
 import org.finance.models.data.Setor;
 import org.finance.models.request.setor.EditarSetorRequest;
 import org.finance.models.request.setor.SalvarSetorRequest;
 import org.finance.models.response.Paginado;
 import org.finance.models.response.setor.SetorResponse;
+import org.finance.repositories.TipoAtivoRepository;
 import org.finance.repositories.SetorRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @ApplicationScoped
 public class SetorService {
     @Inject
     SetorRepository setorRepository;
     @Inject
+    TipoAtivoRepository tipoAtivoRepository;
+    @Inject
     SetorMapper setorMapper;
     @Inject
     ApiConfigProperty apiConfigProperty;
 
     public SetorResponse salvar(SalvarSetorRequest request) throws NegocioException {
-        if(setorRepository.count("descricao", request.getDescricao()) != 0)
+        var tipoAtivo = tipoAtivoRepository.findById(request.getTipoAtivoId().longValue());
+
+        if (tipoAtivo == null)
+            throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
+
+        List<Setor> setores = setorRepository.findByDescricao(request.getDescricao());
+
+        if(setores != null && !setores.isEmpty() && setores.stream().anyMatch(s -> s.getTipoAtivo().getId().equals(request.getTipoAtivoId())))
             throw new NegocioException(apiConfigProperty.getRegistroJaExiste());
 
-        Setor setor = setorMapper.toSetor(request);
+        Setor setor = setorMapper.toSetor(request, tipoAtivo);
         setorRepository.persist(setor);
 
         return setorMapper.toSetorResponse(setor);
     }
 
     public SetorResponse editar(EditarSetorRequest request) throws NegocioException {
-        Setor setor = setorRepository.findById(request.getId().longValue());
+        if (request.getDescricao() == null && request.getTipoAtivoId() == null)
+            throw new NegocioException(apiConfigProperty.getSetorParamsInsuficiente());
 
+        Setor setor = setorRepository.findById(request.getId().longValue());
         if (setor == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
-        long totalPorDescricao = setorRepository.count("descricao", request.getDescricao());
+        TipoAtivo tipoAtivo = null;
+        if (request.getTipoAtivoId() != null)
+            tipoAtivo = tipoAtivoRepository.findById(request.getTipoAtivoId().longValue());
 
-        if (totalPorDescricao >= 1)
+        List<Setor> setores = setorRepository.findByDescricao(request.getDescricao());
+
+        if(setores != null && !setores.isEmpty() && setores.stream().anyMatch(s -> s.getTipoAtivo().getId().equals(request.getTipoAtivoId())))
             throw new NegocioException(apiConfigProperty.getRegistroJaExiste());
 
+        if (request.getDescricao() != null)
+            setor.setDescricao(request.getDescricao());
+        if (tipoAtivo != null)
+            setor.setTipoAtivo(tipoAtivo);
         setor.setDataRegistroEdicao(LocalDateTime.now());
-        setor.setDescricao(request.getDescricao());
         setorRepository.persist(setor);
 
         return setorMapper.toSetorResponse(setor);

@@ -1,4 +1,4 @@
-package org.finance.models.response.categoria;
+package org.finance.models.response.tipoAtivo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @Builder
 @AllArgsConstructor
-public class CategoriaResponse {
+public class TipoAtivoResponse {
     private Integer id;
     private String descricao;
 }

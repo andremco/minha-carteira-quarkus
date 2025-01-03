@@ -14,8 +14,6 @@ public class SalvarAcaoRequest {
     private String razaoSocial;
     @NotNull(message = "{campo.setor.id.nao.informado}")
     private Integer setorId;
-    @NotNull(message = "campo.categoria.id.nao.informado")
-    private Integer categoriaId;
     @NotBlank(message = "{campo.ticker.nao.informado}")
     @Size(max = 10, message = "{campo.ticker.informado.chars.limite}")
     private String ticker;
