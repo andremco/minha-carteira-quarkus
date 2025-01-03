@@ -21,6 +21,6 @@ public class TituloPublicoRepository implements PanacheRepository<TituloPublico>
             query.append(" and descricao like :descricao");
             params.put("descricao", "%" + descricao + "%");
         }
-        return find(query.toString(), Sort.by("dataRegistroCriacao").descending(), params).page(Page.of(pagina, tamanho)).list();
+        return find(query.toString(), Sort.by("descricao").ascending(), params).page(Page.of(pagina, tamanho)).list();
     }
 }

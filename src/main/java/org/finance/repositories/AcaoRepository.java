@@ -45,7 +45,7 @@ public class AcaoRepository implements PanacheRepository<Acao> {
     public List<Acao> findAcoesPaged(CategoriaEnum categoria, String razaoSocial, Integer pagina, Integer tamanho){
         StringBuilder query = montarQueryBuilder(categoria, razaoSocial);
         Map<String, Object> params = montarParamsQuery(categoria, razaoSocial);
-        return find(query.toString(), Sort.by("dataRegistroCriacao").descending(), params).page(Page.of(pagina, tamanho)).list();
+        return find(query.toString(), Sort.by("razaoSocial").ascending(), params).page(Page.of(pagina, tamanho)).list();
     }
     public long total(CategoriaEnum categoria, String razaoSocial){
         StringBuilder query = montarQueryBuilder(categoria, razaoSocial);
