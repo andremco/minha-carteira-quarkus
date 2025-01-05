@@ -34,8 +34,6 @@ public class AcaoService {
     @Inject
     SetorRepository setorRepository;
     @Inject
-    TipoAtivoRepository tipoAtivoRepository;
-    @Inject
     AcaoMapper acaoMapper;
     @Inject
     ApiConfigProperty apiConfigProperty;

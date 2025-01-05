@@ -166,11 +166,14 @@ public class AporteService {
 
     @CacheResult(cacheName = "buscar-total-carteira")
     public double calcularTotalCarteira(){
-        return aporteRepository.findAll().stream().filter(a -> a.getMovimentacao() == 'C' && a.getDataRegistroRemocao() == null).mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
+        var comprasRealizadas = aporteRepository.findAll().stream().filter(a -> a.getMovimentacao() == 'C' && a.getDataRegistroRemocao() == null).mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
+        var vendasRealizadas = aporteRepository.findAll().stream().filter(a -> a.getMovimentacao() == 'V' && a.getDataRegistroRemocao() == null).mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
+        return comprasRealizadas-vendasRealizadas;
     }
 
     @CacheResult(cacheName = "buscar-total-carteira-atualizado")
     public double calcularTotalCarteiraAtualizado(){
+        //TODO obter quantidade dos aportes (Venda-Compra) por cada ação e titulo e multiplicar por preco dinâmico ou preço inicial
         return aporteRepository.findAll().stream().filter(a -> a.getMovimentacao() == 'C').mapToDouble(a ->
         {
             Double preco;
@@ -202,10 +205,10 @@ public class AporteService {
     public static Integer calcularQuantidadeCompras(List<Aporte> aportes){
         if(aportes.isEmpty())
             return 0;
-        var comprasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'C' && a.getDataRegistroRemocao() == null).mapToInt(Aporte::getQuantidade).sum();
-        var vendasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'V' && a.getDataRegistroRemocao() == null).mapToInt(Aporte::getQuantidade).sum();
+        var quantidadeComprasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'C' && a.getDataRegistroRemocao() == null).mapToInt(Aporte::getQuantidade).sum();
+        var quantidadeVendasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'V' && a.getDataRegistroRemocao() == null).mapToInt(Aporte::getQuantidade).sum();
 
-        return comprasRealizadas - vendasRealizadas;
+        return quantidadeComprasRealizadas - quantidadeVendasRealizadas;
     }
 
     public double calcularValorTotalAtivo(List<Aporte> aportes){
