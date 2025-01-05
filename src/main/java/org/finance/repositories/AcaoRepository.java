@@ -35,7 +35,7 @@ public class AcaoRepository implements PanacheRepository<Acao> {
             params.put("tipoAtivoId", tipoAtivo.getId());
         }
         if (razaoSocial != null) {
-            params.put("razaoSocial", razaoSocial);
+            params.put("razaoSocial", "%" + razaoSocial + "%");
         }
         return params;
     }

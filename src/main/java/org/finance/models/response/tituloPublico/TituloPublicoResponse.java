@@ -11,7 +11,7 @@ import org.finance.models.response.setor.SetorResponse;
 @NoArgsConstructor
 public class TituloPublicoResponse {
     private Integer id;
-    private DominioResponse setor;
+    private SetorResponse setor;
     private String descricao;
     private String precoMedio;
     private String valorTotalAtivo;

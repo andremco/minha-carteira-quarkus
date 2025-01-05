@@ -134,13 +134,13 @@ public class AporteService {
         aporteRepository.persist(aporte);
     }
 
-    public Paginado<AporteResponse> filtrarAportes(Integer tipoAtivo, Integer ativoId, String dataInicio, String dataFim, Integer pagina, Integer tamanho){
+    public Paginado<AporteResponse> filtrarAportes(Integer tipoAtivoId, Integer ativoId, String dataInicio, String dataFim, Integer pagina, Integer tamanho){
         TipoAtivoEnum tipoAtivoEnum = null;
         LocalDateTime inicio = null;
         LocalDateTime fim = null;
 
-        if (tipoAtivo != null)
-            tipoAtivoEnum = TipoAtivoEnum.getById(tipoAtivo);
+        if (tipoAtivoId != null)
+            tipoAtivoEnum = TipoAtivoEnum.getById(tipoAtivoId);
 
         if (dataInicio != null)
             inicio = Formatter.stringToLocalDateTime(dataInicio);

@@ -153,12 +153,6 @@ public class TituloPublicoService {
         titulos.forEach(titulo -> {
             var valorTotalAtivo = aporteService.calcularValorTotalAtivo(titulo.getAportes());
             var precoMedio = calculosCarteira.calcularPrecoMedioAportes(titulo.getAportes());
-            var aportesValidos = titulo.getAportes().stream().sorted(Comparator.comparing(Aporte::getId).reversed()).filter(a -> a.getDataRegistroRemocao() == null).toList();
-            double precoUltimoAporte = 0;
-            if (!aportesValidos.isEmpty())
-                precoUltimoAporte = aportesValidos.getFirst().getPreco();
-
-            var precoCalcularTotalAtivoAtual = precoUltimoAporte <= 0 ? titulo.getPrecoInicial() : precoUltimoAporte;
             var valorTotalAtivoAtual = aporteService.calcularValorTotalAtivoAtual(titulo.getAportes(), precoMedio);
             var carteiraIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(titulo.getNota(), somaTodasNotasCarteira);
             var quantoQueroTotal = calculosCarteira.calcularQuantoQuero(carteiraIdealPorcento, totalCarteira);
