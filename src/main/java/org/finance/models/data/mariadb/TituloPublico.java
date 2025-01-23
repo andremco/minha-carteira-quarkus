@@ -1,4 +1,4 @@
-package org.finance.models.data;
+package org.finance.models.data.mariadb;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -13,15 +13,15 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity(name = "Acao")
-public class Acao {
+@Entity(name = "TituloPublico")
+public class TituloPublico {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @NotNull
-    private String razaoSocial;
+    private String descricao;
     @NotNull
-    private String ticker;
+    private double precoInicial;
     @NotNull
     private Integer nota;
     @NotNull
@@ -31,6 +31,6 @@ public class Acao {
     @ManyToOne
     @JoinColumn(name = "SetorId")
     private Setor setor;
-    @OneToMany(mappedBy = "acao")
+    @OneToMany(mappedBy = "tituloPublico")
     private List<Aporte> aportes = new ArrayList<>();
 }

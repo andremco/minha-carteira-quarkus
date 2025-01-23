@@ -4,11 +4,11 @@ import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.finance.mappers.DominioMapper;
-import org.finance.models.data.Setor;
+import org.finance.models.data.mariadb.Setor;
 import org.finance.models.enums.TipoAtivoEnum;
 import org.finance.models.response.dominio.DominioResponse;
-import org.finance.repositories.TipoAtivoRepository;
-import org.finance.repositories.SetorRepository;
+import org.finance.repositories.mariadb.TipoAtivoRepository;
+import org.finance.repositories.mariadb.SetorRepository;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,5 +1,6 @@
 package org.finance.mappers;
 
+import org.finance.models.data.mongo.Ticker;
 import org.finance.models.dto.integration.response.GetQuote;
 import org.finance.models.dto.integration.response.ListQuote;
 import org.finance.models.response.ticker.TickerResponse;
@@ -17,6 +18,14 @@ public interface TickerMapper {
     TickerResponse toTickerResponse(GetQuote quote);
 
     List<TickerResponse> toTickersResponse(List<GetQuote> quotes);
+
+    @Mapping(target = "dataCotacao", expression = "java(LocalDateTime.now())")
+    Ticker toTickerMongoResponse(GetQuote quote);
+
+    @Mapping(target = "razaoSocial", source = "companyName")
+    @Mapping(target = "precoDinamico", source = "dynamicPrice")
+    @Mapping(target = "dataCotacao", expression = "java(ticker.getDataCotacao().toString())")
+    TickerResponse toTickerResponse(Ticker ticker);
 
     @Mapping(target = "razaoSocial", ignore = true)
     @Mapping(target = "precoDinamico", source = "dynamicPrice")

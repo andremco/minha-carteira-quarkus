@@ -6,22 +6,20 @@ import jakarta.inject.Inject;
 import org.finance.configs.ApiConfigProperty;
 import org.finance.exceptions.NegocioException;
 import org.finance.mappers.AporteMapper;
-import org.finance.models.data.*;
+import org.finance.models.data.mariadb.Acao;
+import org.finance.models.data.mariadb.Aporte;
+import org.finance.models.data.mariadb.TituloPublico;
 import org.finance.models.enums.TipoAtivoEnum;
-import org.finance.models.request.acao.EditarAcaoRequest;
 import org.finance.models.request.aporte.EditarAporteRequest;
 import org.finance.models.request.aporte.SalvarAporteRequest;
 import org.finance.models.response.Paginado;
-import org.finance.models.response.acao.AcaoResponse;
 import org.finance.models.response.aporte.AporteResponse;
-import org.finance.repositories.AcaoRepository;
-import org.finance.repositories.AporteRepository;
-import org.finance.repositories.TituloPublicoRepository;
+import org.finance.repositories.mariadb.AcaoRepository;
+import org.finance.repositories.mariadb.AporteRepository;
+import org.finance.repositories.mariadb.TituloPublicoRepository;
 import org.finance.utils.Formatter;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
@@ -166,27 +164,37 @@ public class AporteService {
 
     @CacheResult(cacheName = "buscar-total-carteira")
     public double calcularTotalCarteira(){
-        var comprasRealizadas = aporteRepository.findAll().stream().filter(a -> a.getMovimentacao() == 'C' && a.getDataRegistroRemocao() == null).mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
-        var vendasRealizadas = aporteRepository.findAll().stream().filter(a -> a.getMovimentacao() == 'V' && a.getDataRegistroRemocao() == null).mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
+        var comprasRealizadas = aporteRepository.find("dataRegistroRemocao is null and movimentacao = 'C'").stream().mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
+        var vendasRealizadas = aporteRepository.find("dataRegistroRemocao is null and movimentacao = 'V'").stream().mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
         return comprasRealizadas-vendasRealizadas;
     }
 
     @CacheResult(cacheName = "buscar-total-carteira-atualizado")
     public double calcularTotalCarteiraAtualizado(){
-        //TODO obter quantidade dos aportes (Venda-Compra) por cada ação e titulo e multiplicar por preco dinâmico ou preço inicial
-        return aporteRepository.findAll().stream().filter(a -> a.getMovimentacao() == 'C').mapToDouble(a ->
-        {
-            Double preco;
-            if (a.getAcao() != null){
-                var ticker = a.getAcao().getTicker();
-                var response = tickerService.obter(ticker);
-                preco = response.getPrecoDinamico();
+        Double totalCarteiraAtualizado = 0.0;
+        var acoes = acaoRepository.find("dataRegistroRemocao is null").list();
+        var titulosPublicos = tituloPublicoRepository.find("dataRegistroRemocao is null").list();
+
+        if (!acoes.isEmpty())
+            for (Acao acao : acoes){
+                if (!acao.getAportes().isEmpty()){
+                    var ticker = acao.getTicker();
+                    var response = tickerService.obter(ticker);
+                    var precoDinamico = response.getPrecoDinamico();
+                    totalCarteiraAtualizado +=  calcularValorTotalAtivoAtual(acao.getAportes(), precoDinamico);
+                }
             }
-            else{
-                preco = a.getPreco();
+
+        if (!titulosPublicos.isEmpty())
+            for (TituloPublico tituloPublico : titulosPublicos){
+                if (!tituloPublico.getAportes().isEmpty()){
+                    var precoUltimoAporte = tituloPublico.getAportes().getFirst().getPreco();
+                    var precoCalcularTotalAtivoAtual = precoUltimoAporte == 0 ? tituloPublico.getPrecoInicial() : precoUltimoAporte;
+                    totalCarteiraAtualizado += calcularValorTotalAtivoAtual(tituloPublico.getAportes(), precoCalcularTotalAtivoAtual);
+                }
             }
-            return a.getQuantidade() * preco;
-        }).sum();
+
+        return totalCarteiraAtualizado;
     }
 
     public void validarVendasAportes(List<Aporte> aportes, int quantidadesAVender, double precoVenda){
@@ -225,8 +233,8 @@ public class AporteService {
         return aportes.stream().filter(a -> a.getMovimentacao() == 'V' && a.getDataRegistroRemocao() == null).mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
     }
 
-    public double calcularValorTotalAtivoAtual(List<Aporte> aportes, double precoDinamico){
-        return calcularQuantidadeCompras(aportes) * precoDinamico;
+    public double calcularValorTotalAtivoAtual(List<Aporte> aportes, double preco){
+        return calcularQuantidadeCompras(aportes) * preco;
     }
 
     public static String sinalizarCompraOuVenda(char movimentacao){

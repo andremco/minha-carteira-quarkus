@@ -12,4 +12,5 @@ import lombok.Setter;
 public class ValoresCarteiraResponse {
     String totalCarteira;
     String totalCarteiraAtualizado;
+    String lucroOuPerda;
 }

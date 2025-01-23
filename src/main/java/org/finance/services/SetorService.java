@@ -1,23 +1,21 @@
 package org.finance.services;
 
-import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.finance.configs.ApiConfigProperty;
 import org.finance.exceptions.NegocioException;
 import org.finance.mappers.SetorMapper;
-import org.finance.models.data.TipoAtivo;
-import org.finance.models.data.Setor;
+import org.finance.models.data.mariadb.TipoAtivo;
+import org.finance.models.data.mariadb.Setor;
 import org.finance.models.request.setor.EditarSetorRequest;
 import org.finance.models.request.setor.SalvarSetorRequest;
 import org.finance.models.response.Paginado;
 import org.finance.models.response.setor.SetorResponse;
-import org.finance.repositories.TipoAtivoRepository;
-import org.finance.repositories.SetorRepository;
+import org.finance.repositories.mariadb.TipoAtivoRepository;
+import org.finance.repositories.mariadb.SetorRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 @ApplicationScoped
 public class SetorService {

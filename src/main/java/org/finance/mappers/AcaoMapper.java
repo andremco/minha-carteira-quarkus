@@ -1,7 +1,7 @@
 package org.finance.mappers;
 
-import org.finance.models.data.Acao;
-import org.finance.models.data.Setor;
+import org.finance.models.data.mariadb.Acao;
+import org.finance.models.data.mariadb.Setor;
 import org.finance.models.request.acao.SalvarAcaoRequest;
 import org.finance.models.response.acao.AcaoResponse;
 import org.finance.models.response.acao.DetalharAcaoResponse;

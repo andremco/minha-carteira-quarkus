@@ -1,4 +1,4 @@
-package org.finance.models.data;
+package org.finance.models.data.mariadb;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

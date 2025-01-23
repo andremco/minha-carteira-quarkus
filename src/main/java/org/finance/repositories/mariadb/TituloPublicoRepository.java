@@ -1,11 +1,10 @@
-package org.finance.repositories;
+package org.finance.repositories.mariadb;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
-import org.finance.models.data.Acao;
-import org.finance.models.data.TituloPublico;
+import org.finance.models.data.mariadb.TituloPublico;
 
 import java.util.HashMap;
 import java.util.List;

@@ -18,6 +18,7 @@ public class DashboardResource {
     DashboardService service;
 
     @GET
+    @Path("/carteira/total")
     @Produces(MediaType.APPLICATION_JSON)
     public ResponseApi<ValoresCarteiraResponse> obterValoresCarteira(){
         return new ResponseApi<>(service.obterValoresCarteira(), new String[] {operacaoSucesso}, true);

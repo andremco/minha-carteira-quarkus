@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.finance.models.data.Acao;
-import org.finance.models.data.TituloPublico;
 import org.finance.models.response.acao.AcaoResponse;
 import org.finance.models.response.tituloPublico.TituloPublicoResponse;
 
