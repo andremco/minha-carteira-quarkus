@@ -2,7 +2,6 @@ package org.finance.models.data.mongo;
 
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import lombok.*;
-import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
 import java.time.LocalDateTime;

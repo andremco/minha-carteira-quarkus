@@ -9,9 +9,9 @@ import lombok.Setter;
 @Setter
 @Builder
 @AllArgsConstructor
-public class ValoresCarteiraResponse {
-    private String totalCarteira;
-    private String totalCarteiraAtualizado;
-    private String lucroOuPerda;
-    private Boolean balancoPositivo;
+public class AportesTotalResponse {
+    private double totalAcoes;
+    private double totalFIIs;
+    private double totalBDRs;
+    private double totalTituloPublico;
 }
