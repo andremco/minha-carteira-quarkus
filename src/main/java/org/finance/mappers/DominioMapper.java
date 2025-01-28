@@ -1,7 +1,7 @@
 package org.finance.mappers;
 
-import org.finance.models.data.mariadb.TipoAtivo;
-import org.finance.models.data.mariadb.Setor;
+import org.finance.models.data.mariadb.entities.TipoAtivo;
+import org.finance.models.data.mariadb.entities.Setor;
 import org.finance.models.response.dominio.DominioResponse;
 import org.mapstruct.Mapper;
 

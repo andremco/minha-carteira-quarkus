@@ -5,11 +5,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 public class AportesTipoAtivoMensalResponse {
     private String mes;
-    private double totalAportado;
+    private BigDecimal totalAportado;
 }

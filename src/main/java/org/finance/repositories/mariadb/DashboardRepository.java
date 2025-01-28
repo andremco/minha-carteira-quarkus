@@ -3,6 +3,7 @@ package org.finance.repositories.mariadb;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.finance.models.data.mariadb.queries.AportesTotalPorTipoAtivo;
 
 import java.time.LocalDateTime;
 
@@ -13,13 +14,13 @@ public class DashboardRepository {
     private StringBuilder montarQueryAportesTotal(LocalDateTime dataInicio, LocalDateTime dataFim){
         String sql = """
                 select
-                    CARTEIRA_1.TOTAL_ACAO,
+                    CARTEIRA_1.TOTAL_ACOES,
                     CARTEIRA_2.TOTAL_FIIS,
-                    CARTEIRA_3.TOTAL_BDR,
-                    CARTEIRA_4.TOTAL_TITULO
+                    CARTEIRA_3.TOTAL_BDRS,
+                    CARTEIRA_4.TOTAL_TITULOS
                 from
                     (select if(sum(aporte.Preco*aporte.Quantidade) is not null,
-                               sum(aporte.Preco*aporte.Quantidade), 0) AS TOTAL_ACAO,
+                               sum(aporte.Preco*aporte.Quantidade), 0) AS TOTAL_ACOES,
                          aporte.DataRegistroCriacao AS DATA
                      from Aporte aporte
                         inner join Acao acao ON  aporte.AcaoId = acao.Id
@@ -46,7 +47,7 @@ public class DashboardRepository {
                             and tipo.Id = 2 -- Fundo Imobiliário
                     ) CARTEIRA_2,
                     (select if(sum(aporte.Preco*aporte.Quantidade) is not null,
-                               sum(aporte.Preco*aporte.Quantidade), 0) AS TOTAL_BDR
+                               sum(aporte.Preco*aporte.Quantidade), 0) AS TOTAL_BDRS
                      from Aporte aporte
                         inner join Acao acao ON  aporte.AcaoId = acao.Id
                         inner join Setor setor ON acao.SetorId = setor.Id
@@ -59,7 +60,7 @@ public class DashboardRepository {
                             and tipo.Id = 3 -- Brazilian Depositary Receipts
                     ) CARTEIRA_3,
                     (select if(sum(aporte.Preco*aporte.Quantidade) is not null,
-                               sum(aporte.Preco*aporte.Quantidade), 0) AS TOTAL_TITULO
+                               sum(aporte.Preco*aporte.Quantidade), 0) AS TOTAL_TITULOS
                      from Aporte aporte
                         inner join TituloPublico titulo ON  aporte.TituloPublicoId = titulo.Id
                         inner join Setor setor ON titulo.SetorId = setor.Id
@@ -84,9 +85,9 @@ public class DashboardRepository {
         return new StringBuilder(sql);
     }
 
-    public Object obterAportesTotal(LocalDateTime dataInicio, LocalDateTime dataFim){
+    public AportesTotalPorTipoAtivo obterAportesTotal(LocalDateTime dataInicio, LocalDateTime dataFim){
         StringBuilder query = montarQueryAportesTotal(dataInicio, dataFim);
-        var result = entityManager.createNativeQuery(query.toString()).getResultList();
-        return result;
+        var result = entityManager.createNativeQuery(query.toString(), AportesTotalPorTipoAtivo.class).getResultList();
+        return (AportesTotalPorTipoAtivo)result.getFirst();
     }
 }

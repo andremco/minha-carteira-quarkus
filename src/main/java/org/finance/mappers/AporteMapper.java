@@ -1,8 +1,8 @@
 package org.finance.mappers;
 
-import org.finance.models.data.mariadb.Acao;
-import org.finance.models.data.mariadb.Aporte;
-import org.finance.models.data.mariadb.TituloPublico;
+import org.finance.models.data.mariadb.entities.Acao;
+import org.finance.models.data.mariadb.entities.Aporte;
+import org.finance.models.data.mariadb.entities.TituloPublico;
 import org.finance.models.request.aporte.SalvarAporteRequest;
 import org.finance.models.response.aporte.AporteResponse;
 import org.finance.services.AporteService;

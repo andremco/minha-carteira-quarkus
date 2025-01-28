@@ -4,7 +4,7 @@ import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
-import org.finance.models.data.mariadb.Acao;
+import org.finance.models.data.mariadb.entities.Acao;
 import org.finance.models.enums.TipoAtivoEnum;
 
 import java.util.HashMap;

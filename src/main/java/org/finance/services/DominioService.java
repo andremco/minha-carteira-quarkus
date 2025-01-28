@@ -4,7 +4,7 @@ import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.finance.mappers.DominioMapper;
-import org.finance.models.data.mariadb.Setor;
+import org.finance.models.data.mariadb.entities.Setor;
 import org.finance.models.enums.TipoAtivoEnum;
 import org.finance.models.response.dominio.DominioResponse;
 import org.finance.repositories.mariadb.TipoAtivoRepository;

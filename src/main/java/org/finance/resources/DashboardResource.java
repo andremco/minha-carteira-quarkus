@@ -9,6 +9,7 @@ import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.finance.models.response.ResponseApi;
 import org.finance.models.response.dashboard.AportesMensalResponse;
+import org.finance.models.response.dashboard.AportesTotalResponse;
 import org.finance.models.response.dashboard.ValoresCarteiraResponse;
 import org.finance.services.DashboardService;
 
@@ -45,8 +46,8 @@ public class DashboardResource {
     @GET
     @Path("/aportes/total")
     @Produces(MediaType.APPLICATION_JSON)
-    public void obterAportesTotal(){
-
+    public ResponseApi<AportesTotalResponse> obterAportesTotal(){
+        return new ResponseApi<>(service.obterAportesTotal(), new String[] {operacaoSucesso}, true);
     }
 
     @GET

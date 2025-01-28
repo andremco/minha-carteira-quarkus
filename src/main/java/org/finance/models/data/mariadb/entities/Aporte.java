@@ -1,4 +1,4 @@
-package org.finance.models.data.mariadb;
+package org.finance.models.data.mariadb.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -7,30 +7,29 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity(name = "Acao")
-public class Acao {
+@Entity(name = "Aporte")
+public class Aporte {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @NotNull
-    private String razaoSocial;
+    private double preco;
     @NotNull
-    private String ticker;
+    private Integer quantidade;
     @NotNull
-    private Integer nota;
+    private char movimentacao;
     @NotNull
     private LocalDateTime dataRegistroCriacao;
     private LocalDateTime dataRegistroEdicao;
     private LocalDateTime dataRegistroRemocao;
     @ManyToOne
-    @JoinColumn(name = "SetorId")
-    private Setor setor;
-    @OneToMany(mappedBy = "acao")
-    private List<Aporte> aportes = new ArrayList<>();
+    @JoinColumn(name = "AcaoId")
+    private Acao acao;
+    @ManyToOne
+    @JoinColumn(name = "TituloPublicoId")
+    private TituloPublico tituloPublico;
 }

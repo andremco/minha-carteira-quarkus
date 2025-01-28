@@ -1,7 +1,7 @@
 package org.finance.mappers;
 
-import org.finance.models.data.mariadb.Setor;
-import org.finance.models.data.mariadb.TituloPublico;
+import org.finance.models.data.mariadb.entities.Setor;
+import org.finance.models.data.mariadb.entities.TituloPublico;
 import org.finance.models.request.tituloPublico.SalvarTituloPublicoRequest;
 import org.finance.models.response.tituloPublico.DetalharTituloPublicoResponse;
 import org.finance.models.response.tituloPublico.TituloPublicoResponse;

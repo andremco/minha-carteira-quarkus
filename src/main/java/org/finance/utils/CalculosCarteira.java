@@ -1,9 +1,9 @@
 package org.finance.utils;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import org.finance.models.data.mariadb.Acao;
-import org.finance.models.data.mariadb.Aporte;
-import org.finance.models.data.mariadb.TituloPublico;
+import org.finance.models.data.mariadb.entities.Acao;
+import org.finance.models.data.mariadb.entities.Aporte;
+import org.finance.models.data.mariadb.entities.TituloPublico;
 import org.finance.repositories.mariadb.AcaoRepository;
 import org.finance.repositories.mariadb.TituloPublicoRepository;
 
