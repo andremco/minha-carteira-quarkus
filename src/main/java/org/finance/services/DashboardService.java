@@ -6,14 +6,13 @@ import jakarta.inject.Inject;
 import org.finance.configs.ApiConfigProperty;
 import org.finance.exceptions.NegocioException;
 import org.finance.mappers.DashboardMapper;
-import org.finance.models.response.dashboard.AportesMensalResponse;
-import org.finance.models.response.dashboard.AportesTipoAtivoMensalResponse;
-import org.finance.models.response.dashboard.AportesTotalResponse;
-import org.finance.models.response.dashboard.ValoresCarteiraResponse;
+import org.finance.models.response.dashboard.*;
 import org.finance.repositories.mariadb.DashboardRepository;
 import org.finance.utils.CalculosCarteira;
 import org.finance.utils.Formatter;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DateFormatSymbols;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
@@ -33,7 +32,7 @@ public class DashboardService {
     DashboardMapper mapper;
     @Inject
     ApiConfigProperty apiConfigProperty;
-    public ValoresCarteiraResponse obterValoresCarteira(){
+    public ValoresCarteiraResponse obterCarteiraTotal(){
         var totalCarteira = aporteService.calcularTotalCarteira();
         var totalCarteiraAtualizado = aporteService.calcularTotalCarteiraAtualizado();
         var lucroOuPerda = calculosCarteira.calcularLucroOuPerda(totalCarteira, totalCarteiraAtualizado);
@@ -45,7 +44,37 @@ public class DashboardService {
                 balancoPositivo);
     }
 
-    public AportesMensalResponse obterAportesMensal(String dataInicio, String dataFim) throws NotImplementedException {
+    public AportesPorcetagemTotalResponse obterAportesPorcentagemTotal(){
+        var response = AportesPorcetagemTotalResponse.builder().build();
+        var aportes = dashboardRepository.obterAportesTotal(null, null);
+        if (aportes!= null){
+            var totalCarteira = aportes.getTotalAcoes()
+                        .add(aportes.getTotalBDRs())
+                        .add(aportes.getTotalFIIs())
+                        .add(aportes.getTotalTitulos());
+            var porcentagemAcoes = aportes.getTotalAcoes().divide(totalCarteira, RoundingMode.HALF_EVEN)
+                    .multiply(new BigDecimal(100));
+            var porcentagemBDRs = aportes.getTotalBDRs().divide(totalCarteira, RoundingMode.HALF_EVEN)
+                    .multiply(new BigDecimal(100));
+            var porcentagemFIIs = aportes.getTotalFIIs().divide(totalCarteira, RoundingMode.HALF_EVEN)
+                    .multiply(new BigDecimal(100));
+            var porcentagemTitulos = aportes.getTotalTitulos().divide(totalCarteira, RoundingMode.HALF_EVEN)
+                    .multiply(new BigDecimal(100));
+            response = mapper.toAportesPorcetagemTotalResponse(porcentagemAcoes.doubleValue(), porcentagemBDRs.doubleValue(),
+                    porcentagemFIIs.doubleValue(), porcentagemTitulos.doubleValue());
+        }
+        return response;
+    }
+
+    public AportesValorTotalResponse obterAportesValorTotal(){
+        var response = AportesValorTotalResponse.builder().build();
+        var aportes = dashboardRepository.obterAportesTotal(null, null);
+        if (aportes != null)
+            response = mapper.toAportesValorTotalResponse(aportes);
+        return response;
+    }
+
+    public AportesValorMensalResponse obterAportesValorMensal(String dataInicio, String dataFim) throws NotImplementedException {
         LocalDateTime inicio = Formatter.stringToLocalDateTime(dataInicio);
         LocalDateTime fim = Formatter.stringToLocalDateTime(dataFim).withHour(23).withMinute(59);
 
@@ -74,7 +103,7 @@ public class DashboardService {
         var aportesFIIsMensal = new ArrayList<AportesTipoAtivoMensalResponse>();
         var aportesBDRsMensal = new ArrayList<AportesTipoAtivoMensalResponse>();
         var aportesTituloPublicoMensal = new ArrayList<AportesTipoAtivoMensalResponse>();
-        var response = AportesMensalResponse.builder().build();
+        var response = AportesValorMensalResponse.builder().build();
 
         for (int mesPercorrido = primeiroMesPeriodo.getValue(); mesPercorrido <= ultimoMesPeriodo.getValue(); mesPercorrido++){
             YearMonth yearMonth = YearMonth.of(anoVigente, mesPercorrido);
@@ -107,13 +136,8 @@ public class DashboardService {
                         .build());
             }
         }
-        response = mapper.toAportesMensalResponse(mesesPesquisados, aportesAcoesMensal,
+        response = mapper.toAportesValorMensalResponse(mesesPesquisados, aportesAcoesMensal,
                 aportesFIIsMensal, aportesBDRsMensal, aportesTituloPublicoMensal);
         return response;
-    }
-
-    public AportesTotalResponse obterAportesTotal(){
-        var aportes = dashboardRepository.obterAportesTotal(null, null);
-        return mapper.toAportesTotalResponse(aportes);
     }
 }

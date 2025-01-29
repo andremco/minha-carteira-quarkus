@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @Builder
 @AllArgsConstructor
-public class AportesMensalResponse {
+public class AportesValorMensalResponse {
     private List<String> mesesPesquisados;
     private List<AportesTipoAtivoMensalResponse> aportesAcoesMensal;
     private List<AportesTipoAtivoMensalResponse> aportesFIIsMensal;
