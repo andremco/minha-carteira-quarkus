@@ -2,17 +2,21 @@ package org.finance.resources;
 
 import com.arjuna.ats.jta.exceptions.NotImplementedException;
 import jakarta.inject.Inject;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.finance.models.response.ResponseApi;
-import org.finance.models.response.dashboard.AportesPorcetagemTotalResponse;
+import org.finance.models.response.dashboard.AportesTotalResponse;
 import org.finance.models.response.dashboard.AportesValorMensalResponse;
-import org.finance.models.response.dashboard.AportesValorTotalResponse;
+import org.finance.models.response.dashboard.SetoresFatiadoResponse;
 import org.finance.models.response.dashboard.ValoresCarteiraResponse;
 import org.finance.services.DashboardService;
+
+import java.util.List;
 
 @Path("/dashboard")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -33,14 +37,14 @@ public class DashboardResource {
     @GET
     @Path("/aportes/porcentagem/total")
     @Produces(MediaType.APPLICATION_JSON)
-    public ResponseApi<AportesPorcetagemTotalResponse> obterAportesPorcentagemTotal(){
+    public ResponseApi<AportesTotalResponse> obterAportesPorcentagemTotal(){
         return new ResponseApi<>(service.obterAportesPorcentagemTotal(), new String[] {operacaoSucesso}, true);
     }
 
     @GET
     @Path("/aportes/valor/total")
     @Produces(MediaType.APPLICATION_JSON)
-    public ResponseApi<AportesValorTotalResponse> obterAportesValorTotal(){
+    public ResponseApi<AportesTotalResponse> obterAportesValorTotal(){
         return new ResponseApi<>(service.obterAportesValorTotal(), new String[] {operacaoSucesso}, true);
     }
 
@@ -59,30 +63,20 @@ public class DashboardResource {
     }
 
     @GET
-    @Path("/setor/tituloPublico")
+    @Path("/setores/fatiado/{tipoAtivoId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public void obterSetorTituloPublico(){
-
+    public ResponseApi<List<SetoresFatiadoResponse>> obterSetoresFatiado(@Min(value = 1, message = "{campo.tipo.ativo.informado.valor.range}")
+                                    @Max(value = 4, message = "{campo.tipo.ativo.informado.valor.range}")
+                                    @PathParam("tipoAtivoId") Integer tipoAtivoId){
+        return new ResponseApi<>(service.obterSetoresFatiado(tipoAtivoId), new String[] {operacaoSucesso}, true);
     }
 
     @GET
-    @Path("aumentar/setor/tituloPublico")
+    @Path("setores/aumento/fatiado/{tipoAtivoId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public void obterAumentoSetorTituloPublico(){
-
-    }
-
-    @GET
-    @Path("/setores/acao")
-    @Produces(MediaType.APPLICATION_JSON)
-    public void obterSetoresAcao(){
-
-    }
-
-    @GET
-    @Path("aumentar/setores/acao")
-    @Produces(MediaType.APPLICATION_JSON)
-    public void obterAumentoSetoresAcao(){
+    public void obterSetoresAumentoFatiado(@Min(value = 1, message = "{campo.tipo.ativo.informado.valor.range}")
+                                               @Max(value = 4, message = "{campo.tipo.ativo.informado.valor.range}")
+                                               @PathParam("tipoAtivoId") Integer tipoAtivoId){
 
     }
 }

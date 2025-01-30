@@ -11,9 +11,7 @@ import java.math.BigDecimal;
 @Setter
 @Builder
 @AllArgsConstructor
-public class AportesPorcetagemTotalResponse {
-    private Double porAcoes;
-    private Double porFIIs;
-    private Double porBDRs;
-    private Double porTitulos;
+public class SetoresFatiadoResponse {
+    private String setor;
+    private BigDecimal totalAportado;
 }
