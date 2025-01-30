@@ -19,6 +19,9 @@ public class AcaoRepository implements PanacheRepository<Acao> {
     public Acao findByTicker(String ticker){
         return find("ticker", ticker).firstResult();
     }
+    public List<Acao> findAcoesByTipoAtivo(TipoAtivoEnum tipoAtivo){
+        return find("dataRegistroRemocao is null and setor.tipoAtivo.id = ?1", tipoAtivo.getId()).list();
+    }
     private StringBuilder montarQueryBuilder(TipoAtivoEnum tipoAtivo, String razaoSocial){
         StringBuilder query = new StringBuilder("1=1 and dataRegistroRemocao is null");
         if (tipoAtivo != null){

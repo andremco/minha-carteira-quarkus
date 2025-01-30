@@ -27,5 +27,7 @@ public interface DashboardMapper {
 
     SetoresFatiadoResponse toSetoresFatiadoResponse(SetoresFatiados setores);
 
+    SetoresFatiadoResponse toSetoresFatiadoResponse(String setor, Double percentual);
+
     List<SetoresFatiadoResponse> toSetoresFatiadoResponse(List<SetoresFatiados> setores);
 }

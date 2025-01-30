@@ -66,17 +66,17 @@ public class DashboardResource {
     @Path("/setores/fatiado/{tipoAtivoId}")
     @Produces(MediaType.APPLICATION_JSON)
     public ResponseApi<List<SetoresFatiadoResponse>> obterSetoresFatiado(@Min(value = 1, message = "{campo.tipo.ativo.informado.valor.range}")
-                                    @Max(value = 4, message = "{campo.tipo.ativo.informado.valor.range}")
-                                    @PathParam("tipoAtivoId") Integer tipoAtivoId){
+                                                                         @Max(value = 4, message = "{campo.tipo.ativo.informado.valor.range}")
+                                                                         @PathParam("tipoAtivoId") Integer tipoAtivoId){
         return new ResponseApi<>(service.obterSetoresFatiado(tipoAtivoId), new String[] {operacaoSucesso}, true);
     }
 
     @GET
     @Path("setores/aumento/fatiado/{tipoAtivoId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public void obterSetoresAumentoFatiado(@Min(value = 1, message = "{campo.tipo.ativo.informado.valor.range}")
-                                               @Max(value = 4, message = "{campo.tipo.ativo.informado.valor.range}")
-                                               @PathParam("tipoAtivoId") Integer tipoAtivoId){
-
+    public ResponseApi<List<SetoresFatiadoResponse>> obterSetoresAumentoFatiado(@Min(value = 1, message = "{campo.tipo.ativo.informado.valor.range}")
+                                                                                @Max(value = 4, message = "{campo.tipo.ativo.informado.valor.range}")
+                                                                                @PathParam("tipoAtivoId") Integer tipoAtivoId){
+        return new ResponseApi<>(service.obterSetoresAumentoFatiado(tipoAtivoId), new String[] {operacaoSucesso}, true);
     }
 }

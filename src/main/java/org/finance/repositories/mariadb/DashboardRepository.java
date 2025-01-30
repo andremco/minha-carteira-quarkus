@@ -6,11 +6,11 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import org.finance.models.data.mariadb.queries.AportesTotalPorTipoAtivo;
 import org.finance.models.data.mariadb.queries.SetoresFatiados;
+import org.finance.models.data.mariadb.queries.SetoresTotalNotas;
 import org.finance.models.enums.TipoAtivoEnum;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -97,14 +97,44 @@ public class DashboardRepository {
                 setor.Descricao AS SETOR,
                 SUM(CASE When Movimentacao='C' Then Preco*Quantidade Else 0 End) - SUM(CASE When Movimentacao='V' Then Preco*Quantidade Else 0 End) AS TOTAL_APORTADO
             FROM Aporte aporte
-            INNER JOIN Acao acao ON  aporte.AcaoId = acao.Id
-            INNER JOIN Setor setor ON acao.SetorId = setor.Id
+            #JOIN#
             WHERE
                 1=1
                 AND aporte.DataRegistroRemocao IS NULL
-                AND setor.ID in (SELECT ID FROM Setor WHERE TipoAtivoId = #TIPOATIVO#) -- Ação
+                AND setor.ID in (SELECT ID FROM Setor WHERE TipoAtivoId = #TIPOATIVO#)
             GROUP BY setor.Descricao                
                 """;
+        if (tipoAtivo != TipoAtivoEnum.TITULO_PUBLICO)
+            sql = sql.replace("#JOIN#", """
+                    INNER JOIN Acao acao ON  aporte.AcaoId = acao.Id
+                    INNER JOIN Setor setor ON acao.SetorId = setor.Id
+                    """);
+        if (tipoAtivo == TipoAtivoEnum.TITULO_PUBLICO)
+            sql = sql.replace("#JOIN#", """
+                    INNER JOIN TituloPublico titulo ON  aporte.TituloPublicoId = titulo.Id
+                    INNER JOIN Setor setor ON titulo.SetorId = setor.Id
+                    """);
+        sql = sql.replace("#TIPOATIVO#", Integer.toString(tipoAtivo.getId()));
+        return new StringBuilder(sql);
+    }
+
+    private StringBuilder montarQuerySetoresTotalNotas(TipoAtivoEnum tipoAtivo) {
+        String sql = """
+            SELECT
+                setor.Descricao AS SETOR,
+                SUM(ativo.Nota) AS TOTAL_NOTAS_ATIVOS
+            FROM #TABELA# ativo
+            INNER JOIN Setor setor ON ativo.SetorId = setor.Id
+            WHERE
+                1=1
+                AND ativo.DataRegistroRemocao IS NULL
+                AND setor.ID in (SELECT ID FROM Setor WHERE TipoAtivoId = #TIPOATIVO#)
+            GROUP BY setor.Descricao                
+                """;
+        if (tipoAtivo != TipoAtivoEnum.TITULO_PUBLICO)
+            sql = sql.replace("#TABELA#", "Acao");
+        if (tipoAtivo == TipoAtivoEnum.TITULO_PUBLICO)
+            sql = sql.replace("#TABELA#", "TituloPublico");
         sql = sql.replace("#TIPOATIVO#", Integer.toString(tipoAtivo.getId()));
         return new StringBuilder(sql);
     }
@@ -125,6 +155,20 @@ public class DashboardRepository {
                         .builder()
                         .setor((String) obj[0])
                         .totalAportado((BigDecimal) obj[1])
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    public List<SetoresTotalNotas> obterSetoresTotalNotas(TipoAtivoEnum tipoAtivo){
+        StringBuilder query = montarQuerySetoresTotalNotas(tipoAtivo);
+        Query result = entityManager.createNativeQuery(query.toString(), Object[].class);
+        List<Object[]> setores = result.getResultList();
+
+        return setores.stream()
+                .map(obj -> SetoresTotalNotas
+                        .builder()
+                        .setor((String) obj[0])
+                        .totalNotasAtivos(((BigDecimal) obj[1]).intValue())
                         .build())
                 .collect(Collectors.toList());
     }

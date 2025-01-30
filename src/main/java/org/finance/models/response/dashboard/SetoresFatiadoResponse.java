@@ -13,5 +13,5 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class SetoresFatiadoResponse {
     private String setor;
-    private BigDecimal totalAportado;
+    private Double percentual;
 }

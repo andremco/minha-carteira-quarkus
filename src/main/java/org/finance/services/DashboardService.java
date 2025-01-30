@@ -6,6 +6,7 @@ import jakarta.inject.Inject;
 import org.finance.configs.ApiConfigProperty;
 import org.finance.exceptions.NegocioException;
 import org.finance.mappers.DashboardMapper;
+import org.finance.models.data.mariadb.queries.SetoresTotalNotas;
 import org.finance.models.enums.TipoAtivoEnum;
 import org.finance.models.response.dashboard.*;
 import org.finance.repositories.mariadb.DashboardRepository;
@@ -146,7 +147,7 @@ public class DashboardService {
     public List<SetoresFatiadoResponse> obterSetoresFatiado(Integer tipoAtivoId){
         TipoAtivoEnum tipoAtivoEnum = TipoAtivoEnum.ACAO;
         List<SetoresFatiadoResponse> response = new ArrayList<>();
-        BigDecimal totalAtivo = new BigDecimal(0);
+        BigDecimal totalPorAtivo = new BigDecimal(0);
 
         if (tipoAtivoId != null)
             tipoAtivoEnum = TipoAtivoEnum.getById(tipoAtivoId);
@@ -157,27 +158,48 @@ public class DashboardService {
         if (aportes == null || setores == null || setores.isEmpty())
             return response;
 
-        switch (tipoAtivoEnum){
-            case TipoAtivoEnum.ACAO:
-                totalAtivo = aportes.getTotalAcoes();
-                break;
-            case TipoAtivoEnum.FUNDO_IMOBILIARIO:
-                totalAtivo = aportes.getTotalFIIs();
-                break;
-            case TipoAtivoEnum.BRAZILIAN_DEPOSITARY_RECEIPTS:
-                totalAtivo = aportes.getTotalBDRs();
-                break;
-            case TipoAtivoEnum.TITULO_PUBLICO:
-                totalAtivo = aportes.getTotalTitulos();
-                break;
-        }
+        totalPorAtivo = switch (tipoAtivoEnum) {
+            case TipoAtivoEnum.ACAO -> aportes.getTotalAcoes();
+            case TipoAtivoEnum.FUNDO_IMOBILIARIO -> aportes.getTotalFIIs();
+            case TipoAtivoEnum.BRAZILIAN_DEPOSITARY_RECEIPTS -> aportes.getTotalBDRs();
+            case TipoAtivoEnum.TITULO_PUBLICO -> aportes.getTotalTitulos();
+        };
 
         for(var setor : setores){
-            var fatiaSetor = setor.getTotalAportado().divide(totalAtivo, RoundingMode.HALF_EVEN).multiply(new BigDecimal(100));
+            var fatiaSetor = setor.getTotalAportado().divide(totalPorAtivo, RoundingMode.HALF_EVEN).multiply(new BigDecimal(100));
             setor.setTotalAportado(fatiaSetor);
         }
 
         response = mapper.toSetoresFatiadoResponse(setores);
+        return response;
+    }
+
+    public List<SetoresFatiadoResponse> obterSetoresAumentoFatiado(Integer tipoAtivoId){
+        TipoAtivoEnum tipoAtivoEnum = TipoAtivoEnum.ACAO;
+        var response = new ArrayList<SetoresFatiadoResponse>();
+        if (tipoAtivoId != null)
+            tipoAtivoEnum = TipoAtivoEnum.getById(tipoAtivoId);
+
+        var aportes = dashboardRepository.obterAportesTotal(null, null);
+        var setores = dashboardRepository.obterSetoresTotalNotas(tipoAtivoEnum);
+        if (setores != null && !setores.isEmpty() && aportes != null){
+            var somaNotasAtivos = setores.stream().mapToInt(SetoresTotalNotas::getTotalNotasAtivos).sum();
+
+            var valorTotalPorAtivo = switch (tipoAtivoEnum) {
+                case TipoAtivoEnum.ACAO -> aportes.getTotalAcoes();
+                case TipoAtivoEnum.FUNDO_IMOBILIARIO -> aportes.getTotalFIIs();
+                case TipoAtivoEnum.BRAZILIAN_DEPOSITARY_RECEIPTS -> aportes.getTotalBDRs();
+                case TipoAtivoEnum.TITULO_PUBLICO -> aportes.getTotalTitulos();
+            };
+
+            for (var setor : setores){
+                var setorIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(setor.getTotalNotasAtivos(), somaNotasAtivos);
+                var calcularQuantoQueroSetor = calculosCarteira.calcularQuantoQuero(setorIdealPorcento, valorTotalPorAtivo.doubleValue());
+                var porcentagemPraAportar = calcularQuantoQueroSetor/valorTotalPorAtivo.doubleValue();
+                porcentagemPraAportar = Math.round(porcentagemPraAportar * 100.0);
+                response.add(mapper.toSetoresFatiadoResponse(setor.getSetor(), porcentagemPraAportar));
+            }
+        }
         return response;
     }
 }
