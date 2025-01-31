@@ -26,8 +26,8 @@ public class DashboardRepository {
                 CARTEIRA_3.TOTAL AS TOTAL_BDRS,
                 CARTEIRA_4.TOTAL AS TOTAL_TITULOS
                 FROM
-                    (SELECT SUM(CASE When Movimentacao='C' Then Preco*Quantidade Else 0 End) -
-                            SUM(CASE When Movimentacao='V' Then Preco*Quantidade Else 0 End) AS TOTAL
+                    (SELECT IFNULL(SUM(CASE When Movimentacao='C' Then Preco*Quantidade Else 0 End) -
+                                   SUM(CASE When Movimentacao='V' Then Preco*Quantidade Else 0 End), 0) AS TOTAL
                     FROM Aporte aporte
                     INNER JOIN Acao acao ON  aporte.AcaoId = acao.Id
                     INNER JOIN Setor setor ON acao.SetorId = setor.Id
@@ -39,8 +39,8 @@ public class DashboardRepository {
                         #PERIODOFIM#
                         AND tipo.Id = 1 -- Ação
                     ) CARTEIRA_1,
-                    (SELECT SUM(CASE When Movimentacao='C' Then Preco*Quantidade Else 0 End) -
-                            SUM(CASE When Movimentacao='V' Then Preco*Quantidade Else 0 End) AS TOTAL
+                    (SELECT IFNULL(SUM(CASE When Movimentacao='C' Then Preco*Quantidade Else 0 End) -
+                                   SUM(CASE When Movimentacao='V' Then Preco*Quantidade Else 0 End), 0) AS TOTAL
                     FROM Aporte aporte
                     INNER JOIN Acao acao ON  aporte.AcaoId = acao.Id
                     INNER JOIN Setor setor ON acao.SetorId = setor.Id
@@ -52,8 +52,8 @@ public class DashboardRepository {
                         #PERIODOFIM#
                         AND tipo.Id = 2 -- Fundo Imobiliário
                     ) CARTEIRA_2,
-                    (SELECT SUM(CASE When Movimentacao='C' Then Preco*Quantidade Else 0 End) -
-                            SUM(CASE When Movimentacao='V' Then Preco*Quantidade Else 0 End) AS TOTAL
+                    (SELECT IFNULL(SUM(CASE When Movimentacao='C' Then Preco*Quantidade Else 0 End) -
+                                   SUM(CASE When Movimentacao='V' Then Preco*Quantidade Else 0 End), 0) AS TOTAL
                     FROM Aporte aporte
                     INNER JOIN Acao acao ON  aporte.AcaoId = acao.Id
                     INNER JOIN Setor setor ON acao.SetorId = setor.Id
@@ -65,8 +65,8 @@ public class DashboardRepository {
                         #PERIODOFIM#
                         AND tipo.Id = 3 -- Brazilian Depositary Receipts
                     ) CARTEIRA_3,
-                    (SELECT SUM(CASE When Movimentacao='C' Then Preco*Quantidade Else 0 End) -
-                            SUM(CASE When Movimentacao='V' Then Preco*Quantidade Else 0 End) AS TOTAL
+                    (SELECT IFNULL(SUM(CASE When Movimentacao='C' Then Preco*Quantidade Else 0 End) -
+                                   SUM(CASE When Movimentacao='V' Then Preco*Quantidade Else 0 End), 0) AS TOTAL
                     FROM Aporte aporte
                     INNER JOIN TituloPublico titulo ON  aporte.TituloPublicoId = titulo.Id
                     INNER JOIN Setor setor ON titulo.SetorId = setor.Id
@@ -95,7 +95,8 @@ public class DashboardRepository {
         String sql = """
             SELECT
                 setor.Descricao AS SETOR,
-                SUM(CASE When Movimentacao='C' Then Preco*Quantidade Else 0 End) - SUM(CASE When Movimentacao='V' Then Preco*Quantidade Else 0 End) AS TOTAL_APORTADO
+                IFNULL(SUM(CASE When Movimentacao='C' Then Preco*Quantidade Else 0 End) - 
+                       SUM(CASE When Movimentacao='V' Then Preco*Quantidade Else 0 End), 0) AS TOTAL_APORTADO
             FROM Aporte aporte
             #JOIN#
             WHERE
@@ -118,27 +119,6 @@ public class DashboardRepository {
         return new StringBuilder(sql);
     }
 
-    private StringBuilder montarQuerySetoresTotalNotas(TipoAtivoEnum tipoAtivo) {
-        String sql = """
-            SELECT
-                setor.Descricao AS SETOR,
-                SUM(ativo.Nota) AS TOTAL_NOTAS_ATIVOS
-            FROM #TABELA# ativo
-            INNER JOIN Setor setor ON ativo.SetorId = setor.Id
-            WHERE
-                1=1
-                AND ativo.DataRegistroRemocao IS NULL
-                AND setor.ID in (SELECT ID FROM Setor WHERE TipoAtivoId = #TIPOATIVO#)
-            GROUP BY setor.Descricao                
-                """;
-        if (tipoAtivo != TipoAtivoEnum.TITULO_PUBLICO)
-            sql = sql.replace("#TABELA#", "Acao");
-        if (tipoAtivo == TipoAtivoEnum.TITULO_PUBLICO)
-            sql = sql.replace("#TABELA#", "TituloPublico");
-        sql = sql.replace("#TIPOATIVO#", Integer.toString(tipoAtivo.getId()));
-        return new StringBuilder(sql);
-    }
-
     public AportesTotalPorTipoAtivo obterAportesTotal(LocalDateTime dataInicio, LocalDateTime dataFim){
         StringBuilder query = montarQueryAportesTotal(dataInicio, dataFim);
         var result = entityManager.createNativeQuery(query.toString(), AportesTotalPorTipoAtivo.class).getResultList();
@@ -155,20 +135,6 @@ public class DashboardRepository {
                         .builder()
                         .setor((String) obj[0])
                         .totalAportado((BigDecimal) obj[1])
-                        .build())
-                .collect(Collectors.toList());
-    }
-
-    public List<SetoresTotalNotas> obterSetoresTotalNotas(TipoAtivoEnum tipoAtivo){
-        StringBuilder query = montarQuerySetoresTotalNotas(tipoAtivo);
-        Query result = entityManager.createNativeQuery(query.toString(), Object[].class);
-        List<Object[]> setores = result.getResultList();
-
-        return setores.stream()
-                .map(obj -> SetoresTotalNotas
-                        .builder()
-                        .setor((String) obj[0])
-                        .totalNotasAtivos(((BigDecimal) obj[1]).intValue())
                         .build())
                 .collect(Collectors.toList());
     }

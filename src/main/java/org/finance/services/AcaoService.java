@@ -16,6 +16,7 @@ import org.finance.models.response.Paginado;
 import org.finance.models.response.acao.AcaoResponse;
 import org.finance.models.response.acao.DetalharAcaoResponse;
 import org.finance.repositories.mariadb.AcaoRepository;
+import org.finance.repositories.mariadb.DashboardRepository;
 import org.finance.repositories.mariadb.SetorRepository;
 import org.finance.repositories.mariadb.TituloPublicoRepository;
 import org.finance.utils.CalculosCarteira;
@@ -115,9 +116,11 @@ public class AcaoService {
         if (ticker == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
-        var notasAcao = acaoRepository.findAll().stream().mapToInt(Acao::getNota).sum();
-        var notasTituloPublico = tituloPublicoRepository.findAll().stream().mapToInt(TituloPublico::getNota).sum();
-        var somaTodasNotasCarteira = notasAcao + notasTituloPublico;
+        var tipoAtivo = acao.getSetor().getTipoAtivo().getId();
+        TipoAtivoEnum tipoAtivoEnum = TipoAtivoEnum.getById(tipoAtivo);
+        var setores = setorRepository.obterSetoresTotalNotas(tipoAtivoEnum);
+
+        var somaTodasNotasCarteira = calculosCarteira.somarNotasPorSetores(setores);
 
         var totalCarteira = aporteService.calcularTotalCarteira();
         var quantidadeCompras = AporteService.calcularQuantidadeCompras(acao.getAportes());

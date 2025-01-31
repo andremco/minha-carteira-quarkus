@@ -10,6 +10,7 @@ import org.finance.models.data.mariadb.queries.SetoresTotalNotas;
 import org.finance.models.enums.TipoAtivoEnum;
 import org.finance.models.response.dashboard.*;
 import org.finance.repositories.mariadb.DashboardRepository;
+import org.finance.repositories.mariadb.SetorRepository;
 import org.finance.utils.CalculosCarteira;
 import org.finance.utils.Formatter;
 
@@ -27,6 +28,8 @@ import java.util.Locale;
 public class DashboardService {
     @Inject
     DashboardRepository dashboardRepository;
+    @Inject
+    SetorRepository setorRepository;
     @Inject
     AporteService aporteService;
     @Inject
@@ -181,9 +184,9 @@ public class DashboardService {
             tipoAtivoEnum = TipoAtivoEnum.getById(tipoAtivoId);
 
         var aportes = dashboardRepository.obterAportesTotal(null, null);
-        var setores = dashboardRepository.obterSetoresTotalNotas(tipoAtivoEnum);
+        var setores = setorRepository.obterSetoresTotalNotas(tipoAtivoEnum);
         if (setores != null && !setores.isEmpty() && aportes != null){
-            var somaNotasAtivos = setores.stream().mapToInt(SetoresTotalNotas::getTotalNotasAtivos).sum();
+            var somaNotasAtivos = calculosCarteira.somarNotasPorSetores(setores);
 
             var valorTotalPorAtivo = switch (tipoAtivoEnum) {
                 case TipoAtivoEnum.ACAO -> aportes.getTotalAcoes();

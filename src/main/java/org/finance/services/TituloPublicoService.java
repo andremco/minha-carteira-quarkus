@@ -9,6 +9,7 @@ import org.finance.mappers.TituloPublicoMapper;
 import org.finance.models.data.mariadb.entities.Acao;
 import org.finance.models.data.mariadb.entities.Setor;
 import org.finance.models.data.mariadb.entities.TituloPublico;
+import org.finance.models.enums.TipoAtivoEnum;
 import org.finance.models.request.tituloPublico.EditarTituloPublicoRequest;
 import org.finance.models.request.tituloPublico.SalvarTituloPublicoRequest;
 import org.finance.models.response.Paginado;
@@ -99,8 +100,12 @@ public class TituloPublicoService {
         if (tituloPublico == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
+        var tipoAtivo = tituloPublico.getSetor().getTipoAtivo().getId();
+        TipoAtivoEnum tipoAtivoEnum = TipoAtivoEnum.getById(tipoAtivo);
+
+        var setores = setorRepository.obterSetoresTotalNotas(tipoAtivoEnum);
+        var somaTodasNotasCarteira = calculosCarteira.somarNotasPorSetores(setores);
         var totalCarteira = aporteService.calcularTotalCarteira();
-        var somaTodasNotasCarteira = calculosCarteira.somarNotasCarteira(acaoRepository, tituloPublicoRepository);
         var precoMedio = calculosCarteira.calcularPrecoMedioAportes(tituloPublico.getAportes());
         var precoUltimoAporte = !tituloPublico.getAportes().stream().filter(a -> a.getDataRegistroRemocao() == null).toList().isEmpty() ?
                 tituloPublico.getAportes().stream().filter(a -> a.getDataRegistroRemocao() == null).toList().getFirst().getPreco() : 0;

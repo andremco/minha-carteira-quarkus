@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.finance.models.data.mariadb.entities.Acao;
 import org.finance.models.data.mariadb.entities.Aporte;
 import org.finance.models.data.mariadb.entities.TituloPublico;
+import org.finance.models.data.mariadb.queries.SetoresTotalNotas;
 import org.finance.repositories.mariadb.AcaoRepository;
 import org.finance.repositories.mariadb.TituloPublicoRepository;
 
@@ -58,5 +59,13 @@ public class CalculosCarteira {
         var notasTitulos = tituloPublicoRepository.findAll().stream().mapToInt(TituloPublico::getNota).sum();
 
         return notasAcao + notasTitulos;
+    }
+
+    public int somarNotasPorSetores(List<SetoresTotalNotas> setores) {
+        int total = 0;
+        if (setores != null && !setores.isEmpty())
+            total = setores.stream().mapToInt(SetoresTotalNotas::getTotalNotasAtivos).sum();
+
+        return total;
     }
 }

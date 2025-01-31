@@ -25,6 +25,7 @@ public interface DashboardMapper {
     @Mapping(target = "porTitulos", source = "totalTitulos")
     AportesTotalResponse toAportesTotalResponse(AportesTotalPorTipoAtivo aportes);
 
+    @Mapping(target = "percentual", expression = "java(setores.getTotalAportado().doubleValue())")
     SetoresFatiadoResponse toSetoresFatiadoResponse(SetoresFatiados setores);
 
     SetoresFatiadoResponse toSetoresFatiadoResponse(String setor, Double percentual);
