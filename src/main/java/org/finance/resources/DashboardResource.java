@@ -58,7 +58,7 @@ public class DashboardResource {
                                                                            @Pattern(regexp = "^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\\d{4}$", message = "{campo.data.invalido}")
                                                                            @NotNull(message = "{campo.data.fim.nao.informado}")
                                                                            @HeaderParam("dataFim")
-                                                                           String dataFim) throws NotImplementedException {
+                                                                           String dataFim)  {
         return new ResponseApi<>(service.obterAportesValorMensal(dataInicio, dataFim), new String[] {operacaoSucesso}, true);
     }
 

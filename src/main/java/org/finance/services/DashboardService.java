@@ -6,7 +6,6 @@ import jakarta.inject.Inject;
 import org.finance.configs.ApiConfigProperty;
 import org.finance.exceptions.NegocioException;
 import org.finance.mappers.DashboardMapper;
-import org.finance.models.data.mariadb.queries.SetoresTotalNotas;
 import org.finance.models.enums.TipoAtivoEnum;
 import org.finance.models.response.dashboard.*;
 import org.finance.repositories.mariadb.DashboardRepository;
@@ -80,7 +79,7 @@ public class DashboardService {
         return response;
     }
 
-    public AportesValorMensalResponse obterAportesValorMensal(String dataInicio, String dataFim) throws NotImplementedException {
+    public AportesValorMensalResponse obterAportesValorMensal(String dataInicio, String dataFim) {
         LocalDateTime inicio = Formatter.stringToLocalDateTime(dataInicio);
         LocalDateTime fim = Formatter.stringToLocalDateTime(dataFim).withHour(23).withMinute(59);
 

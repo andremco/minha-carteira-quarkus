@@ -54,13 +54,6 @@ public class CalculosCarteira {
         return quantidadeQueFaltaTotal > 0 ? "Comprar" : "Aguardar";
     }
 
-    public int somarNotasCarteira(AcaoRepository acaoRepository, TituloPublicoRepository tituloPublicoRepository){
-        var notasAcao = acaoRepository.findAll().stream().mapToInt(Acao::getNota).sum();
-        var notasTitulos = tituloPublicoRepository.findAll().stream().mapToInt(TituloPublico::getNota).sum();
-
-        return notasAcao + notasTitulos;
-    }
-
     public int somarNotasPorSetores(List<SetoresTotalNotas> setores) {
         int total = 0;
         if (setores != null && !setores.isEmpty())
