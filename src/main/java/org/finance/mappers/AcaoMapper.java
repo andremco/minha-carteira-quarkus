@@ -41,6 +41,7 @@ public interface AcaoMapper {
     DetalharAcaoResponse toDetalharAcaoResponse(Acao acao, String precoDinamico, Integer quantidadeCompras,
                                                 String carteiraIdealPorcento, String carteiraTenhoPorcento,
                                                 String valorTotalAtivo, String valorTotalAtivoAtual,
+                                                String valorTotalCompras, String valorTotalVendas,
                                                 String quantoQueroTotal, String quantoFaltaTotal, Integer quantidadeQueFaltaTotal,
                                                 String comprarOuAguardar, String lucroOuPerda);
 

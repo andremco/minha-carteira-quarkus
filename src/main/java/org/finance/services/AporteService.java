@@ -225,11 +225,15 @@ public class AporteService {
         return comprasRealizadas(aportes)-vendasRealizadas(aportes);
     }
 
-    private double comprasRealizadas(List<Aporte> aportes){
+    public double comprasRealizadas(List<Aporte> aportes){
+        if(aportes.isEmpty())
+            return 0;
         return aportes.stream().filter(a -> a.getMovimentacao() == 'C' && a.getDataRegistroRemocao() == null).mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
     }
 
-    private double vendasRealizadas(List<Aporte> aportes){
+    public double vendasRealizadas(List<Aporte> aportes){
+        if(aportes.isEmpty())
+            return 0;
         return aportes.stream().filter(a -> a.getMovimentacao() == 'V' && a.getDataRegistroRemocao() == null).mapToDouble(a -> a.getQuantidade() * a.getPreco()).sum();
     }
 

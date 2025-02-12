@@ -36,6 +36,8 @@ public class AcaoService {
     @Inject
     SetorRepository setorRepository;
     @Inject
+    DashboardRepository dashboardRepository;
+    @Inject
     AcaoMapper acaoMapper;
     @Inject
     ApiConfigProperty apiConfigProperty;
@@ -118,17 +120,26 @@ public class AcaoService {
 
         var tipoAtivo = acao.getSetor().getTipoAtivo().getId();
         TipoAtivoEnum tipoAtivoEnum = TipoAtivoEnum.getById(tipoAtivo);
+
         var setores = setorRepository.obterSetoresTotalNotas(tipoAtivoEnum);
+        var somaTodasNotasSetoresPorAtivo = calculosCarteira.somarNotasPorSetores(setores);
 
-        var somaTodasNotasCarteira = calculosCarteira.somarNotasPorSetores(setores);
+        var aportes = dashboardRepository.obterAportesTotal(null, null);
+        var totalCarteira = switch (tipoAtivoEnum) {
+            case TipoAtivoEnum.ACAO -> aportes.getTotalAcoes();
+            case TipoAtivoEnum.FUNDO_IMOBILIARIO -> aportes.getTotalFIIs();
+            case TipoAtivoEnum.BRAZILIAN_DEPOSITARY_RECEIPTS -> aportes.getTotalBDRs();
+            case TipoAtivoEnum.TITULO_PUBLICO -> aportes.getTotalTitulos();
+        };
 
-        var totalCarteira = aporteService.calcularTotalCarteira();
         var quantidadeCompras = AporteService.calcularQuantidadeCompras(acao.getAportes());
+        var valorTotalCompras = aporteService.comprasRealizadas(acao.getAportes());
+        var valorTotalVendas = aporteService.vendasRealizadas(acao.getAportes());
         var valorTotalAtivo = aporteService.calcularValorTotalAtivo(acao.getAportes());
         var valorTotalAtivoAtual = aporteService.calcularValorTotalAtivoAtual(acao.getAportes(), ticker.getPrecoDinamico());
-        var carteiraIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(acao.getNota(), somaTodasNotasCarteira);
-        var carteiraTenhoPorcento = calculosCarteira.calcularCarteiraTenhoQuociente(valorTotalAtivo, totalCarteira);
-        var quantoQueroTotal = calculosCarteira.calcularQuantoQuero(carteiraIdealPorcento, totalCarteira);
+        var carteiraIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(acao.getNota(), somaTodasNotasSetoresPorAtivo);
+        var carteiraTenhoPorcento = calculosCarteira.calcularCarteiraTenhoQuociente(valorTotalAtivo, totalCarteira.doubleValue());
+        var quantoQueroTotal = calculosCarteira.calcularQuantoQuero(carteiraIdealPorcento, totalCarteira.doubleValue());
         var quantoFaltaTotal = calculosCarteira.calcularQuantoFalta(quantoQueroTotal, valorTotalAtivo);
         var quantidadeQueFaltaTotal = (int) Math.round(calculosCarteira.calcularQuantidadeQueFalta(quantoFaltaTotal, ticker.getPrecoDinamico()));
         var comprarOuAguardar = quantidadeQueFaltaTotal > 0 ? "Comprar" : "Aguardar";
@@ -137,6 +148,7 @@ public class AcaoService {
         return acaoMapper.toDetalharAcaoResponse(acao, Formatter.doubleToReal(ticker.getPrecoDinamico()), quantidadeCompras,
                 Formatter.doubleToPorcento(carteiraIdealPorcento), Formatter.doubleToPorcento(carteiraTenhoPorcento),
                 Formatter.doubleToReal(valorTotalAtivo), Formatter.doubleToReal(valorTotalAtivoAtual),
+                Formatter.doubleToReal(valorTotalCompras), Formatter.doubleToReal(valorTotalVendas),
                 Formatter.doubleToReal(quantoQueroTotal), Formatter.doubleToReal(quantoFaltaTotal), quantidadeQueFaltaTotal,
                 comprarOuAguardar, Formatter.doubleToReal(lucroOuPerda));
     }

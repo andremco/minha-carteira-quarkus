@@ -12,8 +12,8 @@ public class StartupJob {
     @Inject
     AporteService aporteService;
     void onStart(@Observes StartupEvent ev) {
-        var totalCarteira = Formatter.doubleToReal(aporteService.calcularTotalCarteira());
-        var totalCarteiraAtualizado = Formatter.doubleToReal(aporteService.calcularTotalCarteiraAtualizado());
+        var totalCarteira = aporteService.calcularTotalCarteira();
+        var totalCarteiraAtualizado = aporteService.calcularTotalCarteiraAtualizado();
         System.out.println("Minha carteira: " + totalCarteira + " - Minha carteira (atualizado): " + totalCarteiraAtualizado);
     }
 }
