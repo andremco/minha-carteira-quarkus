@@ -16,6 +16,7 @@ import org.finance.models.response.Paginado;
 import org.finance.models.response.tituloPublico.DetalharTituloPublicoResponse;
 import org.finance.models.response.tituloPublico.TituloPublicoResponse;
 import org.finance.repositories.mariadb.AcaoRepository;
+import org.finance.repositories.mariadb.DashboardRepository;
 import org.finance.repositories.mariadb.SetorRepository;
 import org.finance.repositories.mariadb.TituloPublicoRepository;
 import org.finance.utils.CalculosCarteira;
@@ -31,15 +32,15 @@ public class TituloPublicoService {
     @Inject
     TituloPublicoRepository tituloPublicoRepository;
     @Inject
-    AcaoRepository acaoRepository;
-    @Inject
-    SetorRepository setorRepository;
-    @Inject
     TituloPublicoMapper tituloPublicoMapper;
     @Inject
     ApiConfigProperty apiConfigProperty;
     @Inject
     AporteService aporteService;
+    @Inject
+    DashboardService dashboardService;
+    @Inject
+    SetorService setorService;
     @Inject
     CalculosCarteira calculosCarteira;
 
@@ -50,7 +51,7 @@ public class TituloPublicoService {
         if (existePorDescricao != 0)
             throw new NegocioException(apiConfigProperty.getRegistroJaExiste());
 
-        var setor = setorRepository.findById(request.getSetorId().longValue());
+        var setor = setorService.buscarPorId(request.getSetorId());
 
         if (setor == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
@@ -65,7 +66,7 @@ public class TituloPublicoService {
         Setor setor = new Setor();
 
         if (request.getSetorId() != null)
-            setor = setorRepository.findById(request.getSetorId().longValue());
+            setor = setorService.buscarPorId(request.getSetorId());
 
         if (setor == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
@@ -85,7 +86,9 @@ public class TituloPublicoService {
         if (request.getSetorId() != null)
             tituloPublico.setSetor(setor);
         if (request.getPrecoInicial() != null)
-            tituloPublico.setPrecoInicial(request.getPrecoInicial() );
+            tituloPublico.setPrecoInicial(request.getPrecoInicial());
+        if (request.getValorRendimento() != null)
+            tituloPublico.setValorRendimento(request.getValorRendimento());
         if (request.getNota() != null)
             tituloPublico.setNota(request.getNota());
 
@@ -100,29 +103,29 @@ public class TituloPublicoService {
         if (tituloPublico == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
-        var tipoAtivo = tituloPublico.getSetor().getTipoAtivo().getId();
-        TipoAtivoEnum tipoAtivoEnum = TipoAtivoEnum.getById(tipoAtivo);
+        TipoAtivoEnum tipoAtivo = TipoAtivoEnum.TITULO_PUBLICO;
+        var setores = setorService.obterSetoresTotalNotas(tipoAtivo);
+        var somaTodasNotasTituloPublico = calculosCarteira.somarNotasPorSetores(setores);
 
-        var setores = setorRepository.obterSetoresTotalNotas(tipoAtivoEnum);
-        var somaTodasNotasCarteira = calculosCarteira.somarNotasPorSetores(setores);
-        var totalCarteira = aporteService.calcularTotalCarteira();
+        var aportes = dashboardService.obterAportesTotal(null, null);
+        var totalCarteira = aportes.getTotalTitulos().doubleValue();
+
+        var valorTotalCompras = aporteService.comprasRealizadas(tituloPublico.getAportes());
+        var valorTotalVendas = aporteService.vendasRealizadas(tituloPublico.getAportes());
         var precoMedio = calculosCarteira.calcularPrecoMedioAportes(tituloPublico.getAportes());
-        var precoUltimoAporte = !tituloPublico.getAportes().stream().filter(a -> a.getDataRegistroRemocao() == null).toList().isEmpty() ?
-                tituloPublico.getAportes().stream().filter(a -> a.getDataRegistroRemocao() == null).toList().getFirst().getPreco() : 0;
-        var valorTotalAtivo = aporteService.calcularValorTotalAtivo(tituloPublico.getAportes());
-        var carteiraIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(tituloPublico.getNota(), somaTodasNotasCarteira);
+        var valorTotalAtivo = valorTotalCompras-valorTotalVendas;
+        var carteiraIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(tituloPublico.getNota(), somaTodasNotasTituloPublico);
         var carteiraTenhoPorcento = calculosCarteira.calcularCarteiraTenhoQuociente(valorTotalAtivo, totalCarteira);
         var quantoQueroTotal = calculosCarteira.calcularQuantoQuero(carteiraIdealPorcento, totalCarteira);
         var quantoFaltaTotal = calculosCarteira.calcularQuantoFalta(quantoQueroTotal, valorTotalAtivo);
         var precoParaCalculoQuantoFalta = precoMedio == 0 ? tituloPublico.getPrecoInicial() : precoMedio;
         var quantidadeQueFaltaTotal = (int) Math.round(calculosCarteira.calcularQuantidadeQueFalta(quantoFaltaTotal, precoParaCalculoQuantoFalta));
+        var lucroOuPerda = tituloPublico.getValorRendimento() != null ? tituloPublico.getValorRendimento() : 0;
         var comprarOuAguardar = calculosCarteira.informarComprarOuAguardar(quantidadeQueFaltaTotal);
-        var precoCalcularTotalAtivoAtual = precoUltimoAporte == 0 ? tituloPublico.getPrecoInicial() : precoUltimoAporte;
-        var valorTotalAtivoAtual = aporteService.calcularValorTotalAtivoAtual(tituloPublico.getAportes(), precoCalcularTotalAtivoAtual);
-        var lucroOuPerda = calculosCarteira.calcularLucroOuPerda(valorTotalAtivo, valorTotalAtivoAtual);
 
         return tituloPublicoMapper.toDetalharTituloPublicoResponse(tituloPublico, Formatter.doubleToReal(precoMedio),
                 Formatter.doubleToPorcento(carteiraIdealPorcento), Formatter.doubleToPorcento(carteiraTenhoPorcento),
+                Formatter.doubleToReal(valorTotalCompras), Formatter.doubleToReal(valorTotalVendas),
                 Formatter.doubleToReal(valorTotalAtivo), Formatter.doubleToReal(quantoQueroTotal),
                 Formatter.doubleToReal(quantoFaltaTotal), quantidadeQueFaltaTotal, comprarOuAguardar, Formatter.doubleToReal(lucroOuPerda));
     }
@@ -143,25 +146,26 @@ public class TituloPublicoService {
 
     public Paginado<TituloPublicoResponse> filtrarTitulos(String descricao, Integer pagina, Integer tamanho){
         long totalTitulos = total(descricao);
-
         var titulos = tituloPublicoRepository.findTitulosPaged(descricao, pagina, tamanho);
         List<TituloPublicoResponse> response = new ArrayList<>();
-        var totalCarteira = aporteService.calcularTotalCarteira();
-        var notasAcao = acaoRepository.findAll().stream().mapToInt(Acao::getNota).sum();
-        var notasTituloPublico = tituloPublicoRepository.findAll().stream().mapToInt(TituloPublico::getNota).sum();
-        var somaTodasNotasCarteira = notasAcao + notasTituloPublico;
+
+        TipoAtivoEnum tipoAtivo = TipoAtivoEnum.TITULO_PUBLICO;
+        var setores = setorService.obterSetoresTotalNotas(tipoAtivo);
+        var somaTodasNotasTituloPublico = calculosCarteira.somarNotasPorSetores(setores);
+
+        var aportes = dashboardService.obterAportesTotal(null, null);
+        var totalCarteira = aportes.getTotalTitulos().doubleValue();
 
         titulos.forEach(titulo -> {
-            var valorTotalAtivo = aporteService.calcularValorTotalAtivo(titulo.getAportes());
-            var precoMedio = calculosCarteira.calcularPrecoMedioAportes(titulo.getAportes());
-            var valorTotalAtivoAtual = aporteService.calcularValorTotalAtivoAtual(titulo.getAportes(), precoMedio);
-            var carteiraIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(titulo.getNota(), somaTodasNotasCarteira);
+            var carteiraIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(titulo.getNota(), somaTodasNotasTituloPublico);
             var quantoQueroTotal = calculosCarteira.calcularQuantoQuero(carteiraIdealPorcento, totalCarteira);
+            var valorTotalAtivo = aporteService.calcularValorTotalAtivo(titulo.getAportes());
             var quantoFaltaTotal = calculosCarteira.calcularQuantoFalta(quantoQueroTotal, valorTotalAtivo);
+            var precoMedio = calculosCarteira.calcularPrecoMedioAportes(titulo.getAportes());
             var precoParaCalculoQuantoFalta = precoMedio == 0 ? titulo.getPrecoInicial() : precoMedio;
             var quantidadeQueFaltaTotal = (int) Math.round(calculosCarteira.calcularQuantidadeQueFalta(quantoFaltaTotal, precoParaCalculoQuantoFalta));
-            var comprarOuAguardar = quantidadeQueFaltaTotal > 0 ? "Comprar" : "Aguardar";
-            var lucroOuPerda = calculosCarteira.calcularLucroOuPerda(valorTotalAtivo, valorTotalAtivoAtual);
+            var comprarOuAguardar = calculosCarteira.informarComprarOuAguardar(quantidadeQueFaltaTotal);
+            var lucroOuPerda = titulo.getValorRendimento() != null ? titulo.getValorRendimento() : 0;
 
             response.add(tituloPublicoMapper.toTituloPublicoResponse(titulo,
                     Formatter.doubleToReal(precoMedio), Formatter.doubleToReal(valorTotalAtivo),
@@ -181,5 +185,6 @@ public class TituloPublicoService {
         if (descricao != null) {
             return tituloPublicoRepository.find("1=1 and dataRegistroRemocao is null and descricao like '%" + descricao + "%'").count();
         }
-        return tituloPublicoRepository.find("dataRegistroRemocao is null").count(); }
+        return tituloPublicoRepository.find("dataRegistroRemocao is null").count();
+    }
 }

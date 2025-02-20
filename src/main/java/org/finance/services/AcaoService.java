@@ -32,12 +32,6 @@ public class AcaoService {
     @Inject
     AcaoRepository acaoRepository;
     @Inject
-    TituloPublicoRepository tituloPublicoRepository;
-    @Inject
-    SetorRepository setorRepository;
-    @Inject
-    DashboardRepository dashboardRepository;
-    @Inject
     AcaoMapper acaoMapper;
     @Inject
     ApiConfigProperty apiConfigProperty;
@@ -45,6 +39,10 @@ public class AcaoService {
     TickerService tickerService;
     @Inject
     AporteService aporteService;
+    @Inject
+    DashboardService dashboardService;
+    @Inject
+    SetorService setorService;
     @Inject
     CalculosCarteira calculosCarteira;
 
@@ -57,7 +55,7 @@ public class AcaoService {
         if(existePorRazaoSocial != 0 || existePorTicker != 0)
             throw new NegocioException(apiConfigProperty.getRegistroJaExiste());
 
-        var setor = setorRepository.findById(request.getSetorId().longValue());
+        var setor = setorService.buscarPorId(request.getSetorId());
 
         if (setor == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
@@ -74,7 +72,7 @@ public class AcaoService {
         Setor setor = new Setor();
 
         if (request.getSetorId() != null)
-            setor = setorRepository.findById(request.getSetorId().longValue());
+            setor = setorService.buscarPorId(request.getSetorId());
 
         if (setor == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
@@ -121,15 +119,15 @@ public class AcaoService {
         var tipoAtivo = acao.getSetor().getTipoAtivo().getId();
         TipoAtivoEnum tipoAtivoEnum = TipoAtivoEnum.getById(tipoAtivo);
 
-        var setores = setorRepository.obterSetoresTotalNotas(tipoAtivoEnum);
+        var setores = setorService.obterSetoresTotalNotas(tipoAtivoEnum);
         var somaTodasNotasSetoresPorAtivo = calculosCarteira.somarNotasPorSetores(setores);
 
-        var aportes = dashboardRepository.obterAportesTotal(null, null);
+        var aportes = dashboardService.obterAportesTotal(null, null);
         var totalCarteira = switch (tipoAtivoEnum) {
             case TipoAtivoEnum.ACAO -> aportes.getTotalAcoes();
             case TipoAtivoEnum.FUNDO_IMOBILIARIO -> aportes.getTotalFIIs();
             case TipoAtivoEnum.BRAZILIAN_DEPOSITARY_RECEIPTS -> aportes.getTotalBDRs();
-            case TipoAtivoEnum.TITULO_PUBLICO -> aportes.getTotalTitulos();
+            default -> 0;
         };
 
         var quantidadeCompras = AporteService.calcularQuantidadeCompras(acao.getAportes());
@@ -142,7 +140,7 @@ public class AcaoService {
         var quantoQueroTotal = calculosCarteira.calcularQuantoQuero(carteiraIdealPorcento, totalCarteira.doubleValue());
         var quantoFaltaTotal = calculosCarteira.calcularQuantoFalta(quantoQueroTotal, valorTotalAtivo);
         var quantidadeQueFaltaTotal = (int) Math.round(calculosCarteira.calcularQuantidadeQueFalta(quantoFaltaTotal, ticker.getPrecoDinamico()));
-        var comprarOuAguardar = quantidadeQueFaltaTotal > 0 ? "Comprar" : "Aguardar";
+        var comprarOuAguardar = calculosCarteira.informarComprarOuAguardar(quantidadeQueFaltaTotal);
         var lucroOuPerda = calculosCarteira.calcularLucroOuPerda(valorTotalAtivo, valorTotalAtivoAtual);
 
         return acaoMapper.toDetalharAcaoResponse(acao, Formatter.doubleToReal(ticker.getPrecoDinamico()), quantidadeCompras,
@@ -176,15 +174,40 @@ public class AcaoService {
         var acoes = acaoRepository.findAcoesPaged(tipoAtivoEnum, razaoSocial, pagina, tamanho);
 
         List<AcaoResponse> response = new ArrayList<>();
-        var totalCarteira = aporteService.calcularTotalCarteira();
-        var notasAcao = acaoRepository.findAll().stream().mapToInt(Acao::getNota).sum();
-        var notasTituloPublico = tituloPublicoRepository.findAll().stream().mapToInt(TituloPublico::getNota).sum();
-        var somaTodasNotasCarteira = notasAcao + notasTituloPublico;
+        var aportes = dashboardService.obterAportesTotal(null, null);
+        var totalCarteiraAcoes = aportes.getTotalAcoes().doubleValue();
+        var totalCarteiraFIIs = aportes.getTotalFIIs().doubleValue();
+        var totalCarteiraBDRs = aportes.getTotalBDRs().doubleValue();
+
+        var setoresAcoes = setorService.obterSetoresTotalNotas(TipoAtivoEnum.ACAO);
+        var somaTodasNotasSetoresPorAcoes = calculosCarteira.somarNotasPorSetores(setoresAcoes);
+
+        var setoresFIIs = setorService.obterSetoresTotalNotas(TipoAtivoEnum.FUNDO_IMOBILIARIO);
+        var somaTodasNotasSetoresPorFIIs = calculosCarteira.somarNotasPorSetores(setoresFIIs);
+
+        var setoresBDRs = setorService.obterSetoresTotalNotas(TipoAtivoEnum.BRAZILIAN_DEPOSITARY_RECEIPTS);
+        var somaTodasNotasSetoresPorBDRs = calculosCarteira.somarNotasPorSetores(setoresBDRs);
 
         acoes.forEach(acao -> {
             var ticker = tickerService.obter(acao.getTicker());
             if (ticker == null)
                 throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
+
+            var tipoAtivo =  TipoAtivoEnum.getById(acao.getSetor().getTipoAtivo().getId());
+
+            var totalCarteira = switch (tipoAtivo) {
+                case TipoAtivoEnum.ACAO -> totalCarteiraAcoes;
+                case TipoAtivoEnum.FUNDO_IMOBILIARIO -> totalCarteiraFIIs;
+                case TipoAtivoEnum.BRAZILIAN_DEPOSITARY_RECEIPTS -> totalCarteiraBDRs;
+                default -> 0;
+            };
+
+            var somaTodasNotasCarteira = switch (tipoAtivo) {
+                case TipoAtivoEnum.ACAO -> somaTodasNotasSetoresPorAcoes;
+                case TipoAtivoEnum.FUNDO_IMOBILIARIO -> somaTodasNotasSetoresPorFIIs;
+                case TipoAtivoEnum.BRAZILIAN_DEPOSITARY_RECEIPTS -> somaTodasNotasSetoresPorBDRs;
+                default -> 0;
+            };
 
             var valorTotalAtivo = aporteService.calcularValorTotalAtivo(acao.getAportes());
             var valorTotalAtivoAtual = aporteService.calcularValorTotalAtivoAtual(acao.getAportes(), ticker.getPrecoDinamico());
@@ -193,7 +216,7 @@ public class AcaoService {
             var quantoQueroTotal = calculosCarteira.calcularQuantoQuero(carteiraIdealPorcento, totalCarteira);
             var quantoFaltaTotal = calculosCarteira.calcularQuantoFalta(quantoQueroTotal, valorTotalAtivo);
             var quantidadeQueFaltaTotal = (int) Math.round(calculosCarteira.calcularQuantidadeQueFalta(quantoFaltaTotal, ticker.getPrecoDinamico()));
-            var comprarOuAguardar = quantidadeQueFaltaTotal > 0 ? "Comprar" : "Aguardar";
+            var comprarOuAguardar = calculosCarteira.informarComprarOuAguardar(quantidadeQueFaltaTotal);
 
             response.add(acaoMapper.toAcaoResponse(acao, Formatter.doubleToReal(ticker.getPrecoDinamico()),
                     Formatter.doubleToReal(valorTotalAtivoAtual), comprarOuAguardar,

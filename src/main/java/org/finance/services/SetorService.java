@@ -1,5 +1,6 @@
 package org.finance.services;
 
+import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.finance.configs.ApiConfigProperty;
@@ -7,6 +8,8 @@ import org.finance.exceptions.NegocioException;
 import org.finance.mappers.SetorMapper;
 import org.finance.models.data.mariadb.entities.TipoAtivo;
 import org.finance.models.data.mariadb.entities.Setor;
+import org.finance.models.data.mariadb.queries.SetoresTotalNotas;
+import org.finance.models.enums.TipoAtivoEnum;
 import org.finance.models.request.setor.EditarSetorRequest;
 import org.finance.models.request.setor.SalvarSetorRequest;
 import org.finance.models.response.Paginado;
@@ -94,7 +97,18 @@ public class SetorService {
         return paginado;
     }
 
+    public Setor buscarPorId(Integer id){
+        if (id == null)
+            return null;
+        return setorRepository.findById(id.longValue());
+    }
+
     public long total(){
         return setorRepository.count();
+    }
+
+    @CacheResult(cacheName = "buscar-setores-notas")
+    public List<SetoresTotalNotas> obterSetoresTotalNotas(TipoAtivoEnum tipoAtivo){
+        return setorRepository.obterSetoresTotalNotas(tipoAtivo);
     }
 }

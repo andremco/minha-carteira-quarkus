@@ -16,6 +16,7 @@ public class EditarTituloPublicoRequest {
     private Integer setorId;
     @Positive(message = "{campo.preco.inicial.valor.invalido}")
     private Double precoInicial;
+    private Double valorRendimento;
     @Min(value = 0, message = "{campo.nota.informado.valor.range}")
     @Max(value = 10, message = "{campo.nota.informado.valor.range}")
     private Integer nota;

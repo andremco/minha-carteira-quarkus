@@ -30,7 +30,7 @@ public class TickerService {
     @Inject
     ApiConfigProperty apiConfigProperty;
 
-    @CacheResult(cacheName = "obter-ticker")
+    @CacheResult(cacheName = "buscar-ticker")
     public TickerResponse obter(String ticker){
         try{
             //Verifica se existe no mongo cotações já pesquisadas com diferença de um dia!
@@ -65,7 +65,6 @@ public class TickerService {
         return null;
     }
 
-    @CacheResult(cacheName = "buscar-ticker")
     public TickerResponse buscar(String ticker){
         var quote = apiClient.listQuotes(ticker);
         if (quote != null && quote.getStocks() != null && !quote.getStocks().isEmpty())

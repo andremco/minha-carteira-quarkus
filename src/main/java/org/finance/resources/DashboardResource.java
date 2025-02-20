@@ -68,7 +68,7 @@ public class DashboardResource {
     public ResponseApi<List<SetoresFatiadoResponse>> obterSetoresFatiado(@Min(value = 1, message = "{campo.tipo.ativo.informado.valor.range}")
                                                                          @Max(value = 4, message = "{campo.tipo.ativo.informado.valor.range}")
                                                                          @PathParam("tipoAtivoId") Integer tipoAtivoId){
-        return new ResponseApi<>(service.obterSetoresFatiado(tipoAtivoId), new String[] {operacaoSucesso}, true);
+        return new ResponseApi<>(service.obterSetoresFatiados(tipoAtivoId), new String[] {operacaoSucesso}, true);
     }
 
     @GET

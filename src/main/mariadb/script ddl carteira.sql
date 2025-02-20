@@ -51,6 +51,7 @@ CREATE TABLE TituloPublico
     SetorId INT NOT NULL,
     Descricao VARCHAR(100) NOT NULL,
     PrecoInicial DECIMAL(10,2) NOT NULL,
+    ValorRendimento DECIMAL(10,2) NULL,
     Nota INT NOT NULL,
     DataRegistroCriacao DATETIME NOT NULL,
     DataRegistroEdicao DATETIME NULL,

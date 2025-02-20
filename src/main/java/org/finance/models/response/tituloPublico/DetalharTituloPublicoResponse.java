@@ -12,6 +12,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class DetalharTituloPublicoResponse extends TituloPublicoResponse {
+    private String valorTotalCompras;
+    private String valorTotalVendas;
     private String carteiraIdealPorcento;
     private String carteiraTenhoPorcento;
     private String quantoQueroTotal;

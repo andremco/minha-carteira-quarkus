@@ -1,15 +1,16 @@
 package org.finance.services;
 
 import com.arjuna.ats.jta.exceptions.NotImplementedException;
+import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.finance.configs.ApiConfigProperty;
 import org.finance.exceptions.NegocioException;
 import org.finance.mappers.DashboardMapper;
+import org.finance.models.data.mariadb.queries.AportesTotalPorTipoAtivo;
 import org.finance.models.enums.TipoAtivoEnum;
 import org.finance.models.response.dashboard.*;
 import org.finance.repositories.mariadb.DashboardRepository;
-import org.finance.repositories.mariadb.SetorRepository;
 import org.finance.utils.CalculosCarteira;
 import org.finance.utils.Formatter;
 
@@ -28,9 +29,9 @@ public class DashboardService {
     @Inject
     DashboardRepository dashboardRepository;
     @Inject
-    SetorRepository setorRepository;
-    @Inject
     AporteService aporteService;
+    @Inject
+    SetorService setorService;
     @Inject
     CalculosCarteira calculosCarteira;
     @Inject
@@ -51,7 +52,7 @@ public class DashboardService {
 
     public AportesTotalResponse obterAportesPorcentagemTotal(){
         var response = AportesTotalResponse.builder().build();
-        var aportes = dashboardRepository.obterAportesTotal(null, null);
+        var aportes = obterAportesTotal(null, null);
         if (aportes!= null){
             var totalCarteira = aportes.getTotalAcoes()
                         .add(aportes.getTotalBDRs())
@@ -65,15 +66,15 @@ public class DashboardService {
                     .multiply(new BigDecimal(100));
             var porcentagemTitulos = aportes.getTotalTitulos().divide(totalCarteira, RoundingMode.HALF_EVEN)
                     .multiply(new BigDecimal(100));
-            response = mapper.toAportesTotalResponse(porcentagemAcoes, porcentagemBDRs,
-                    porcentagemFIIs, porcentagemTitulos);
+            response = mapper.toAportesTotalResponse(porcentagemAcoes, porcentagemFIIs,
+                    porcentagemBDRs, porcentagemTitulos);
         }
         return response;
     }
 
     public AportesTotalResponse obterAportesValorTotal(){
         var response = AportesTotalResponse.builder().build();
-        var aportes = dashboardRepository.obterAportesTotal(null, null);
+        var aportes = obterAportesTotal(null, null);
         if (aportes != null)
             response = mapper.toAportesTotalResponse(aportes);
         return response;
@@ -109,6 +110,7 @@ public class DashboardService {
         var aportesBDRsMensal = new ArrayList<AportesTipoAtivoMensalResponse>();
         var aportesTituloPublicoMensal = new ArrayList<AportesTipoAtivoMensalResponse>();
         var response = AportesValorMensalResponse.builder().build();
+        var zero = new BigDecimal(0);
 
         for (int mesPercorrido = primeiroMesPeriodo.getValue(); mesPercorrido <= ultimoMesPeriodo.getValue(); mesPercorrido++){
             YearMonth yearMonth = YearMonth.of(anoVigente, mesPercorrido);
@@ -117,7 +119,7 @@ public class DashboardService {
             inicio = LocalDateTime.of(anoVigente, mesPercorrido, 1, 0, 0);
             fim = LocalDateTime.of(anoVigente, mesPercorrido, ultimoDiaMes, 23, 59);
 
-            var aportes = dashboardRepository.obterAportesTotal(inicio, fim);
+            var aportes = obterAportesTotal(inicio, fim);
 
             if (aportes != null && nomeMesesCurtos != null){
                 var mesPesquisado = nomeMesesCurtos[mesPercorrido-1];
@@ -125,19 +127,19 @@ public class DashboardService {
                     mesesPesquisados.add(mesPesquisado);
                 aportesAcoesMensal.add(AportesTipoAtivoMensalResponse.builder()
                         .mes(mesPesquisado)
-                        .totalAportado(aportes.getTotalAcoes())
+                        .totalAportado(aportes.getTotalAcoes().compareTo(zero) > 0 ? aportes.getTotalAcoes() : zero)
                         .build());
                 aportesFIIsMensal.add(AportesTipoAtivoMensalResponse.builder()
                         .mes(mesPesquisado)
-                        .totalAportado(aportes.getTotalFIIs())
+                        .totalAportado(aportes.getTotalFIIs().compareTo(zero) > 0 ? aportes.getTotalFIIs() : zero)
                         .build());
                 aportesBDRsMensal.add(AportesTipoAtivoMensalResponse.builder()
                         .mes(mesPesquisado)
-                        .totalAportado(aportes.getTotalBDRs())
+                        .totalAportado(aportes.getTotalBDRs().compareTo(zero) > 0 ? aportes.getTotalBDRs() : zero)
                         .build());
                 aportesTituloPublicoMensal.add(AportesTipoAtivoMensalResponse.builder()
                         .mes(mesPesquisado)
-                        .totalAportado(aportes.getTotalTitulos())
+                        .totalAportado(aportes.getTotalTitulos().compareTo(zero) > 0 ? aportes.getTotalTitulos() : zero)
                         .build());
             }
         }
@@ -146,7 +148,7 @@ public class DashboardService {
         return response;
     }
 
-    public List<SetoresFatiadoResponse> obterSetoresFatiado(Integer tipoAtivoId){
+    public List<SetoresFatiadoResponse> obterSetoresFatiados(Integer tipoAtivoId){
         TipoAtivoEnum tipoAtivoEnum = TipoAtivoEnum.ACAO;
         List<SetoresFatiadoResponse> response = new ArrayList<>();
         BigDecimal totalPorAtivo = new BigDecimal(0);
@@ -154,7 +156,7 @@ public class DashboardService {
         if (tipoAtivoId != null)
             tipoAtivoEnum = TipoAtivoEnum.getById(tipoAtivoId);
 
-        var aportes = dashboardRepository.obterAportesTotal(null, null);
+        var aportes = obterAportesTotal(null, null);
         var setores = dashboardRepository.obterSetoresFatiados(tipoAtivoEnum);
 
         if (aportes == null || setores == null || setores.isEmpty())
@@ -182,8 +184,8 @@ public class DashboardService {
         if (tipoAtivoId != null)
             tipoAtivoEnum = TipoAtivoEnum.getById(tipoAtivoId);
 
-        var aportes = dashboardRepository.obterAportesTotal(null, null);
-        var setores = setorRepository.obterSetoresTotalNotas(tipoAtivoEnum);
+        var aportes = obterAportesTotal(null, null);
+        var setores = setorService.obterSetoresTotalNotas(tipoAtivoEnum);
         if (setores != null && !setores.isEmpty() && aportes != null){
             var somaNotasAtivos = calculosCarteira.somarNotasPorSetores(setores);
 
@@ -203,5 +205,10 @@ public class DashboardService {
             }
         }
         return response;
+    }
+
+    @CacheResult(cacheName = "buscar-aportes-total")
+    public AportesTotalPorTipoAtivo obterAportesTotal(LocalDateTime dataInicio, LocalDateTime dataFim){
+        return dashboardRepository.obterAportesTotal(dataInicio, dataFim);
     }
 }

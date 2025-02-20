@@ -22,6 +22,7 @@ public class TituloPublico {
     private String descricao;
     @NotNull
     private double precoInicial;
+    private Double valorRendimento;
     @NotNull
     private Integer nota;
     @NotNull
