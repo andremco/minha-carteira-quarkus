@@ -188,9 +188,9 @@ public class AporteService {
         if (!titulosPublicos.isEmpty())
             for (TituloPublico tituloPublico : titulosPublicos){
                 if (!tituloPublico.getAportes().isEmpty()){
-                    var precoUltimoAporte = tituloPublico.getAportes().getFirst().getPreco();
-                    var precoCalcularTotalAtivoAtual = precoUltimoAporte == 0 ? tituloPublico.getPrecoInicial() : precoUltimoAporte;
-                    totalCarteiraAtualizado += calcularValorTotalAtivoAtual(tituloPublico.getAportes(), precoCalcularTotalAtivoAtual);
+                    totalCarteiraAtualizado += calcularValorTotalAtivo(tituloPublico.getAportes());
+                    if(tituloPublico.getValorRendimento() != null)
+                        totalCarteiraAtualizado += tituloPublico.getValorRendimento();
                 }
             }
 

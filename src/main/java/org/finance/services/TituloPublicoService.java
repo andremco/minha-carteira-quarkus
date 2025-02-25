@@ -114,6 +114,8 @@ public class TituloPublicoService {
         var valorTotalVendas = aporteService.vendasRealizadas(tituloPublico.getAportes());
         var precoMedio = calculosCarteira.calcularPrecoMedioAportes(tituloPublico.getAportes());
         var valorTotalAtivo = valorTotalCompras-valorTotalVendas;
+        if (tituloPublico.getValorRendimento() != null)
+            valorTotalAtivo += tituloPublico.getValorRendimento();
         var carteiraIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(tituloPublico.getNota(), somaTodasNotasTituloPublico);
         var carteiraTenhoPorcento = calculosCarteira.calcularCarteiraTenhoQuociente(valorTotalAtivo, totalCarteira);
         var quantoQueroTotal = calculosCarteira.calcularQuantoQuero(carteiraIdealPorcento, totalCarteira);
@@ -160,6 +162,8 @@ public class TituloPublicoService {
             var carteiraIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(titulo.getNota(), somaTodasNotasTituloPublico);
             var quantoQueroTotal = calculosCarteira.calcularQuantoQuero(carteiraIdealPorcento, totalCarteira);
             var valorTotalAtivo = aporteService.calcularValorTotalAtivo(titulo.getAportes());
+            if (titulo.getValorRendimento() != null)
+                valorTotalAtivo += titulo.getValorRendimento();
             var quantoFaltaTotal = calculosCarteira.calcularQuantoFalta(quantoQueroTotal, valorTotalAtivo);
             var precoMedio = calculosCarteira.calcularPrecoMedioAportes(titulo.getAportes());
             var precoParaCalculoQuantoFalta = precoMedio == 0 ? titulo.getPrecoInicial() : precoMedio;
