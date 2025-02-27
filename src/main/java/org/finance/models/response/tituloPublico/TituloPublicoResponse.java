@@ -15,6 +15,7 @@ public class TituloPublicoResponse {
     private String descricao;
     private String precoMedio;
     private String valorTotalAtivo;
+    private String valorTotalAtivoAtual;
     private String precoInicial;
     private String valorRendimento;
     private Integer nota;

@@ -45,13 +45,13 @@ public class CalculosCarteira {
     public double calcularPrecoMedioAportes(List<Aporte> aportes){
         if (aportes == null || aportes.isEmpty())
             return 0;
-        var quantidadeAportes = aportes.stream().filter(a -> a.getMovimentacao() == 'C' && a.getDataRegistroRemocao() == null).toList().size();
-        var somaValores = aportes.stream().filter(a -> a.getMovimentacao() == 'C' && a.getDataRegistroRemocao() == null).mapToDouble(Aporte::getPreco).sum();
+        var quantidadeAportes = aportes.stream().filter(a -> a.getDataRegistroRemocao() == null).toList().size();
+        var somaValores = aportes.stream().filter(a -> a.getDataRegistroRemocao() == null).mapToDouble(Aporte::getPreco).sum();
         return somaValores/quantidadeAportes;
     }
 
-    public String informarComprarOuAguardar(int quantidadeQueFaltaTotal){
-        return quantidadeQueFaltaTotal > 0 ? "Comprar" : "Aguardar";
+    public String informarComprarOuAguardar(double carteiraIdealPorcento, double carteiraTenhoPorcento){
+        return carteiraIdealPorcento >= carteiraTenhoPorcento ? "Comprar" : "Aguardar";
     }
 
     public int somarNotasPorSetores(List<SetoresTotalNotas> setores) {

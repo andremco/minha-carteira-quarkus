@@ -21,6 +21,7 @@ import org.finance.utils.Formatter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @ApplicationScoped
 public class AporteService {
@@ -74,7 +75,6 @@ public class AporteService {
     public AporteResponse editar(EditarAporteRequest request) throws NegocioException {
         Acao acao = new Acao();
         TituloPublico tituloPublico = new TituloPublico();
-        List<Aporte> aportes;
         var hoje = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
 
         Aporte aporte = aporteRepository.findById(request.getId().longValue());
@@ -92,15 +92,23 @@ public class AporteService {
         if (request.getAcaoId() != null){
             acao = acaoRepository.findById(request.getAcaoId().longValue());
             //Validar venda para ativo de ação!!
-            aportes = aporteRepository.find("acao.id", request.getAcaoId()).list();
-            validarVendasAportes(aportes, request.getQuantidade(), request.getPreco());
+            if (acao != null && request.getMovimentacao().equalsIgnoreCase("V")){
+                var aportes = aporteRepository.find("acao.id", request.getAcaoId()).list();
+                if ((aportes != null && !aportes.isEmpty()))
+                    aportes = aportes.stream().filter(a -> !Objects.equals(a.getId(), request.getId())).toList();
+                validarVendasAportes(aportes, request.getQuantidade(), request.getPreco());
+            }
         }
 
         if (request.getTituloPublicoId() != null){
             tituloPublico = tituloPublicoRepository.findById(request.getTituloPublicoId().longValue());
             //Validar venda para ativo de título público!!
-            aportes = aporteRepository.find("tituloPublico.id", request.getTituloPublicoId()).list();
-            validarVendasAportes(aportes, request.getQuantidade(), request.getPreco());
+            if (tituloPublico != null && request.getMovimentacao().equalsIgnoreCase("V")){
+                var aportes = aporteRepository.find("tituloPublico.id", request.getTituloPublicoId()).list();
+                if ((aportes != null && !aportes.isEmpty()))
+                    aportes = aportes.stream().filter(a -> !Objects.equals(a.getId(), request.getId())).toList();
+                validarVendasAportes(aportes, request.getQuantidade(), request.getPreco());
+            }
         }
 
         if (acao == null && tituloPublico == null)

@@ -38,6 +38,8 @@ public class DashboardService {
     DashboardMapper mapper;
     @Inject
     ApiConfigProperty apiConfigProperty;
+    private static final BigDecimal ZERO = new BigDecimal("0.00");
+
     public ValoresCarteiraResponse obterCarteiraTotal(){
         var totalCarteira = aporteService.calcularTotalCarteira();
         var totalCarteiraAtualizado = aporteService.calcularTotalCarteiraAtualizado();
@@ -110,7 +112,6 @@ public class DashboardService {
         var aportesBDRsMensal = new ArrayList<AportesTipoAtivoMensalResponse>();
         var aportesTituloPublicoMensal = new ArrayList<AportesTipoAtivoMensalResponse>();
         var response = AportesValorMensalResponse.builder().build();
-        var zero = new BigDecimal(0);
 
         for (int mesPercorrido = primeiroMesPeriodo.getValue(); mesPercorrido <= ultimoMesPeriodo.getValue(); mesPercorrido++){
             YearMonth yearMonth = YearMonth.of(anoVigente, mesPercorrido);
@@ -125,22 +126,30 @@ public class DashboardService {
                 var mesPesquisado = nomeMesesCurtos[mesPercorrido-1];
                 if (mesesPesquisados.stream().noneMatch(m -> m.equals(mesPesquisado)))
                     mesesPesquisados.add(mesPesquisado);
-                aportesAcoesMensal.add(AportesTipoAtivoMensalResponse.builder()
-                        .mes(mesPesquisado)
-                        .totalAportado(aportes.getTotalAcoes().compareTo(zero) > 0 ? aportes.getTotalAcoes() : zero)
-                        .build());
-                aportesFIIsMensal.add(AportesTipoAtivoMensalResponse.builder()
-                        .mes(mesPesquisado)
-                        .totalAportado(aportes.getTotalFIIs().compareTo(zero) > 0 ? aportes.getTotalFIIs() : zero)
-                        .build());
-                aportesBDRsMensal.add(AportesTipoAtivoMensalResponse.builder()
-                        .mes(mesPesquisado)
-                        .totalAportado(aportes.getTotalBDRs().compareTo(zero) > 0 ? aportes.getTotalBDRs() : zero)
-                        .build());
-                aportesTituloPublicoMensal.add(AportesTipoAtivoMensalResponse.builder()
-                        .mes(mesPesquisado)
-                        .totalAportado(aportes.getTotalTitulos().compareTo(zero) > 0 ? aportes.getTotalTitulos() : zero)
-                        .build());
+
+                if (aportes.getTotalAcoes().compareTo(ZERO) > 0)
+                    aportesAcoesMensal.add(AportesTipoAtivoMensalResponse.builder()
+                            .mes(mesPesquisado)
+                            .totalAportado(aportes.getTotalAcoes())
+                            .build());
+
+                if (aportes.getTotalFIIs().compareTo(ZERO) > 0)
+                    aportesFIIsMensal.add(AportesTipoAtivoMensalResponse.builder()
+                            .mes(mesPesquisado)
+                            .totalAportado(aportes.getTotalFIIs())
+                            .build());
+
+                if (aportes.getTotalBDRs().compareTo(ZERO) > 0)
+                    aportesBDRsMensal.add(AportesTipoAtivoMensalResponse.builder()
+                            .mes(mesPesquisado)
+                            .totalAportado(aportes.getTotalBDRs())
+                            .build());
+
+                if (aportes.getTotalTitulos().compareTo(ZERO) > 0)
+                    aportesTituloPublicoMensal.add(AportesTipoAtivoMensalResponse.builder()
+                            .mes(mesPesquisado)
+                            .totalAportado(aportes.getTotalTitulos())
+                            .build());
             }
         }
         response = mapper.toAportesValorMensalResponse(mesesPesquisados, aportesAcoesMensal,
@@ -195,6 +204,9 @@ public class DashboardService {
                 case TipoAtivoEnum.BRAZILIAN_DEPOSITARY_RECEIPTS -> aportes.getTotalBDRs();
                 case TipoAtivoEnum.TITULO_PUBLICO -> aportes.getTotalTitulos();
             };
+
+            if (valorTotalPorAtivo.equals(ZERO))
+                return response;
 
             for (var setor : setores){
                 var setorIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(setor.getTotalNotasAtivos(), somaNotasAtivos);

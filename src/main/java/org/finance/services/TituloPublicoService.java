@@ -114,22 +114,24 @@ public class TituloPublicoService {
         var valorTotalVendas = aporteService.vendasRealizadas(tituloPublico.getAportes());
         var precoMedio = calculosCarteira.calcularPrecoMedioAportes(tituloPublico.getAportes());
         var valorTotalAtivo = valorTotalCompras-valorTotalVendas;
+        var valorTotalAtivoAtual = valorTotalAtivo;
         if (tituloPublico.getValorRendimento() != null)
-            valorTotalAtivo += tituloPublico.getValorRendimento();
+            valorTotalAtivoAtual += tituloPublico.getValorRendimento();
         var carteiraIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(tituloPublico.getNota(), somaTodasNotasTituloPublico);
         var carteiraTenhoPorcento = calculosCarteira.calcularCarteiraTenhoQuociente(valorTotalAtivo, totalCarteira);
         var quantoQueroTotal = calculosCarteira.calcularQuantoQuero(carteiraIdealPorcento, totalCarteira);
         var quantoFaltaTotal = calculosCarteira.calcularQuantoFalta(quantoQueroTotal, valorTotalAtivo);
         var precoParaCalculoQuantoFalta = precoMedio == 0 ? tituloPublico.getPrecoInicial() : precoMedio;
+        var quantidadeQueTenho = (int) Math.round(valorTotalAtivo / precoParaCalculoQuantoFalta);
         var quantidadeQueFaltaTotal = (int) Math.round(calculosCarteira.calcularQuantidadeQueFalta(quantoFaltaTotal, precoParaCalculoQuantoFalta));
         var lucroOuPerda = tituloPublico.getValorRendimento() != null ? tituloPublico.getValorRendimento() : 0;
-        var comprarOuAguardar = calculosCarteira.informarComprarOuAguardar(quantidadeQueFaltaTotal);
+        var comprarOuAguardar = calculosCarteira.informarComprarOuAguardar(carteiraIdealPorcento, carteiraTenhoPorcento);
 
         return tituloPublicoMapper.toDetalharTituloPublicoResponse(tituloPublico, Formatter.doubleToReal(precoMedio),
                 Formatter.doubleToPorcento(carteiraIdealPorcento), Formatter.doubleToPorcento(carteiraTenhoPorcento),
                 Formatter.doubleToReal(valorTotalCompras), Formatter.doubleToReal(valorTotalVendas),
-                Formatter.doubleToReal(valorTotalAtivo), Formatter.doubleToReal(quantoQueroTotal),
-                Formatter.doubleToReal(quantoFaltaTotal), quantidadeQueFaltaTotal, comprarOuAguardar, Formatter.doubleToReal(lucroOuPerda));
+                Formatter.doubleToReal(valorTotalAtivo), Formatter.doubleToReal(valorTotalAtivoAtual), Formatter.doubleToReal(quantoQueroTotal),
+                Formatter.doubleToReal(quantoFaltaTotal), quantidadeQueTenho, quantidadeQueFaltaTotal, comprarOuAguardar, Formatter.doubleToReal(lucroOuPerda));
     }
 
     public void excluir(Integer id) throws NegocioException {
@@ -138,7 +140,11 @@ public class TituloPublicoService {
         if (tituloPublico == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
-        var quantidade = AporteService.calcularQuantidadeCompras(tituloPublico.getAportes());
+        var valorTotalAtivo = aporteService.calcularValorTotalAtivo(tituloPublico.getAportes());
+        var precoMedio = calculosCarteira.calcularPrecoMedioAportes(tituloPublico.getAportes());
+        var precoParaCalculoQuantoFalta = precoMedio == 0 ? tituloPublico.getPrecoInicial() : precoMedio;
+        var quantidade = (int) Math.round(valorTotalAtivo / precoParaCalculoQuantoFalta);
+
         if (quantidade > 0)
             throw new NegocioException(apiConfigProperty.getTituloNaoPodeSerExcluido());
 
@@ -160,19 +166,20 @@ public class TituloPublicoService {
 
         titulos.forEach(titulo -> {
             var carteiraIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(titulo.getNota(), somaTodasNotasTituloPublico);
-            var quantoQueroTotal = calculosCarteira.calcularQuantoQuero(carteiraIdealPorcento, totalCarteira);
             var valorTotalAtivo = aporteService.calcularValorTotalAtivo(titulo.getAportes());
+            var valorTotalAtivoAtual = valorTotalAtivo;
             if (titulo.getValorRendimento() != null)
-                valorTotalAtivo += titulo.getValorRendimento();
-            var quantoFaltaTotal = calculosCarteira.calcularQuantoFalta(quantoQueroTotal, valorTotalAtivo);
+                valorTotalAtivoAtual += titulo.getValorRendimento();
+
+            var carteiraTenhoPorcento = calculosCarteira.calcularCarteiraTenhoQuociente(valorTotalAtivo, totalCarteira);
             var precoMedio = calculosCarteira.calcularPrecoMedioAportes(titulo.getAportes());
             var precoParaCalculoQuantoFalta = precoMedio == 0 ? titulo.getPrecoInicial() : precoMedio;
-            var quantidadeQueFaltaTotal = (int) Math.round(calculosCarteira.calcularQuantidadeQueFalta(quantoFaltaTotal, precoParaCalculoQuantoFalta));
-            var comprarOuAguardar = calculosCarteira.informarComprarOuAguardar(quantidadeQueFaltaTotal);
+            var quantidadeQueTenho = (int) Math.round(valorTotalAtivo / precoParaCalculoQuantoFalta);
+            var comprarOuAguardar = calculosCarteira.informarComprarOuAguardar(carteiraIdealPorcento, carteiraTenhoPorcento);
             var lucroOuPerda = titulo.getValorRendimento() != null ? titulo.getValorRendimento() : 0;
 
-            response.add(tituloPublicoMapper.toTituloPublicoResponse(titulo,
-                    Formatter.doubleToReal(precoMedio), Formatter.doubleToReal(valorTotalAtivo),
+            response.add(tituloPublicoMapper.toTituloPublicoResponse(titulo, Formatter.doubleToReal(precoMedio), quantidadeQueTenho,
+                    Formatter.doubleToReal(valorTotalAtivo), Formatter.doubleToReal(valorTotalAtivoAtual),
                     comprarOuAguardar, Formatter.doubleToReal(lucroOuPerda)));
         });
 
