@@ -23,26 +23,27 @@ public interface AcaoMapper {
 
     @Mapping(target = "id", source = "acao.id")
     @Mapping(target = "dataRegistro", source = "acao.dataRegistroCriacao")
-    @Mapping(target = "quantidade", source = "quantidadeCompras")
-    AcaoResponse toAcaoResponse(Acao acao, Setor setor, Integer quantidadeCompras);
+    @Mapping(target = "quantidade", ignore = true)
+    AcaoResponse toAcaoResponse(Acao acao, Setor setor);
 
     @Mapping(target = "dataRegistro", source = "acao.dataRegistroCriacao")
-    @Mapping(target = "quantidade", expression = "java(AporteService.calcularQuantidadeCompras(acao.getAportes()))")
+    @Mapping(target = "quantidade", ignore = true)
     AcaoResponse toAcaoResponse(Acao acao);
 
     @Mapping(target = "dataRegistro", source = "acao.dataRegistroCriacao")
-    @Mapping(target = "quantidade", expression = "java(AporteService.calcularQuantidadeCompras(acao.getAportes()))")
-    AcaoResponse toAcaoResponse(Acao acao, String precoDinamico, String valorTotalAtivoAtual, String comprarOuAguardar, String lucroOuPerda);
+    @Mapping(target = "quantidade", source = "quantidadeQueTenho")
+    AcaoResponse toAcaoResponse(Acao acao, String precoDinamico, Integer quantidadeQueTenho, String valorTotalAtivoAtual, String comprarOuAguardar, String lucroOuPerda);
 
     @Mapping(target = "razaoSocial", source = "acao.razaoSocial")
     @Mapping(target = "ticker", source = "acao.ticker")
     @Mapping(target = "dataRegistro", source = "acao.dataRegistroCriacao")
-    @Mapping(target = "quantidade", source = "quantidadeCompras")
-    DetalharAcaoResponse toDetalharAcaoResponse(Acao acao, String precoDinamico, Integer quantidadeCompras,
+    @Mapping(target = "quantidade", source = "quantidadeQueTenho")
+    DetalharAcaoResponse toDetalharAcaoResponse(Acao acao, String precoDinamico,
                                                 String carteiraIdealPorcento, String carteiraTenhoPorcento,
                                                 String valorTotalAtivo, String valorTotalAtivoAtual,
                                                 String valorTotalCompras, String valorTotalVendas,
-                                                String quantoQueroTotal, String quantoFaltaTotal, Integer quantidadeQueFaltaTotal,
+                                                String quantoQueroTotal, String quantoFaltaTotal,
+                                                Integer quantidadeQueTenho, Integer quantidadeQueFaltaTotal,
                                                 String comprarOuAguardar, String lucroOuPerda);
 
     List<AcaoResponse> toAcoesResponse(List<Acao> acoes);

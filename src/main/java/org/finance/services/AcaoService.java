@@ -63,9 +63,7 @@ public class AcaoService {
         var acao = acaoMapper.toAcao(request, setor);
         acaoRepository.persist(acao);
 
-        Integer quantidadeAportes = 0;
-
-        return acaoMapper.toAcaoResponse(acao, setor, quantidadeAportes);
+        return acaoMapper.toAcaoResponse(acao, setor);
     }
 
     public AcaoResponse editar(EditarAcaoRequest request) throws NegocioException {
@@ -102,9 +100,7 @@ public class AcaoService {
         acao.setDataRegistroEdicao(LocalDateTime.now());
         acaoRepository.persist(acao);
 
-        var quantidadeCompras = AporteService.calcularQuantidadeCompras(acao.getAportes());
-
-        return acaoMapper.toAcaoResponse(acao, setor, quantidadeCompras);
+        return acaoMapper.toAcaoResponse(acao, setor);
     }
 
     public DetalharAcaoResponse detalharAcao(Integer id){
@@ -130,24 +126,25 @@ public class AcaoService {
             default -> 0;
         };
 
-        var quantidadeCompras = AporteService.calcularQuantidadeCompras(acao.getAportes());
         var valorTotalCompras = aporteService.comprasRealizadas(acao.getAportes());
         var valorTotalVendas = aporteService.vendasRealizadas(acao.getAportes());
-        var valorTotalAtivo = aporteService.calcularValorTotalAtivo(acao.getAportes());
+        var valorTotalAtivo = valorTotalCompras-valorTotalVendas;
         var valorTotalAtivoAtual = aporteService.calcularValorTotalAtivoAtual(acao.getAportes(), ticker.getPrecoDinamico());
         var carteiraIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(acao.getNota(), somaTodasNotasSetoresPorAtivo);
         var carteiraTenhoPorcento = calculosCarteira.calcularCarteiraTenhoQuociente(valorTotalAtivo, totalCarteira.doubleValue());
         var quantoQueroTotal = calculosCarteira.calcularQuantoQuero(carteiraIdealPorcento, totalCarteira.doubleValue());
         var quantoFaltaTotal = calculosCarteira.calcularQuantoFalta(quantoQueroTotal, valorTotalAtivo);
+        var quantidadeQueTenho = aporteService.calcularQuantidadeCompras(acao.getAportes());
         var quantidadeQueFaltaTotal = (int) Math.round(calculosCarteira.calcularQuantidadeQueFalta(quantoFaltaTotal, ticker.getPrecoDinamico()));
         var comprarOuAguardar = calculosCarteira.informarComprarOuAguardar(carteiraIdealPorcento, carteiraTenhoPorcento);
         var lucroOuPerda = calculosCarteira.calcularLucroOuPerda(valorTotalAtivo, valorTotalAtivoAtual);
 
-        return acaoMapper.toDetalharAcaoResponse(acao, Formatter.doubleToReal(ticker.getPrecoDinamico()), quantidadeCompras,
+        return acaoMapper.toDetalharAcaoResponse(acao, Formatter.doubleToReal(ticker.getPrecoDinamico()),
                 Formatter.doubleToPorcento(carteiraIdealPorcento), Formatter.doubleToPorcento(carteiraTenhoPorcento),
                 Formatter.doubleToReal(valorTotalAtivo), Formatter.doubleToReal(valorTotalAtivoAtual),
                 Formatter.doubleToReal(valorTotalCompras), Formatter.doubleToReal(valorTotalVendas),
-                Formatter.doubleToReal(quantoQueroTotal), Formatter.doubleToReal(quantoFaltaTotal), quantidadeQueFaltaTotal,
+                Formatter.doubleToReal(quantoQueroTotal), Formatter.doubleToReal(quantoFaltaTotal),
+                quantidadeQueTenho, quantidadeQueFaltaTotal,
                 comprarOuAguardar, Formatter.doubleToReal(lucroOuPerda));
     }
 
@@ -156,9 +153,9 @@ public class AcaoService {
         if (acao == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
-        var quantidade = AporteService.calcularQuantidadeCompras(acao.getAportes());
+        var quantidadeQueTenho = aporteService.calcularQuantidadeCompras(acao.getAportes());
 
-        if (quantidade > 0)
+        if (quantidadeQueTenho > 0)
             throw new NegocioException(apiConfigProperty.getAcaoNaoPodeSerExcluido());
 
         acao.setDataRegistroRemocao(LocalDateTime.now());
@@ -215,10 +212,10 @@ public class AcaoService {
             var carteiraIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(acao.getNota(), somaTodasNotasCarteira);
             var carteiraTenhoPorcento = calculosCarteira.calcularCarteiraTenhoQuociente(valorTotalAtivo, totalCarteira);
             var comprarOuAguardar = calculosCarteira.informarComprarOuAguardar(carteiraIdealPorcento, carteiraTenhoPorcento);
+            var quantidadeQueTenho = aporteService.calcularQuantidadeCompras(acao.getAportes());
 
-            response.add(acaoMapper.toAcaoResponse(acao, Formatter.doubleToReal(ticker.getPrecoDinamico()),
-                    Formatter.doubleToReal(valorTotalAtivoAtual), comprarOuAguardar,
-                    Formatter.doubleToReal(lucroOuPerda)));
+            response.add(acaoMapper.toAcaoResponse(acao, Formatter.doubleToReal(ticker.getPrecoDinamico()), quantidadeQueTenho,
+                    Formatter.doubleToReal(valorTotalAtivoAtual), comprarOuAguardar, Formatter.doubleToReal(lucroOuPerda)));
         });
 
         Paginado<AcaoResponse> paginado = Paginado.<AcaoResponse>builder()

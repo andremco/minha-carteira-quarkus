@@ -60,16 +60,18 @@ public class DashboardService {
                         .add(aportes.getTotalBDRs())
                         .add(aportes.getTotalFIIs())
                         .add(aportes.getTotalTitulos());
-            var porcentagemAcoes = aportes.getTotalAcoes().divide(totalCarteira, RoundingMode.HALF_EVEN)
-                    .multiply(new BigDecimal(100));
-            var porcentagemBDRs = aportes.getTotalBDRs().divide(totalCarteira, RoundingMode.HALF_EVEN)
-                    .multiply(new BigDecimal(100));
-            var porcentagemFIIs = aportes.getTotalFIIs().divide(totalCarteira, RoundingMode.HALF_EVEN)
-                    .multiply(new BigDecimal(100));
-            var porcentagemTitulos = aportes.getTotalTitulos().divide(totalCarteira, RoundingMode.HALF_EVEN)
-                    .multiply(new BigDecimal(100));
-            response = mapper.toAportesTotalResponse(porcentagemAcoes, porcentagemFIIs,
-                    porcentagemBDRs, porcentagemTitulos);
+            if (totalCarteira.compareTo(ZERO) > 0){
+                var porcentagemAcoes = aportes.getTotalAcoes().divide(totalCarteira, RoundingMode.HALF_EVEN)
+                        .multiply(new BigDecimal(100));
+                var porcentagemBDRs = aportes.getTotalBDRs().divide(totalCarteira, RoundingMode.HALF_EVEN)
+                        .multiply(new BigDecimal(100));
+                var porcentagemFIIs = aportes.getTotalFIIs().divide(totalCarteira, RoundingMode.HALF_EVEN)
+                        .multiply(new BigDecimal(100));
+                var porcentagemTitulos = aportes.getTotalTitulos().divide(totalCarteira, RoundingMode.HALF_EVEN)
+                        .multiply(new BigDecimal(100));
+                response = mapper.toAportesTotalResponse(porcentagemAcoes, porcentagemFIIs,
+                        porcentagemBDRs, porcentagemTitulos);
+            }
         }
         return response;
     }
@@ -123,8 +125,10 @@ public class DashboardService {
             var aportes = obterAportesTotal(inicio, fim);
 
             if (aportes != null && nomeMesesCurtos != null){
+                BigDecimal[] todosAportes = { aportes.getTotalAcoes(), aportes.getTotalFIIs(), aportes.getTotalBDRs(), aportes.getTotalTitulos()};
                 var mesPesquisado = nomeMesesCurtos[mesPercorrido-1];
-                if (mesesPesquisados.stream().noneMatch(m -> m.equals(mesPesquisado)))
+                if (mesesPesquisados.stream().noneMatch(m -> m.equals(mesPesquisado)) &&
+                        Arrays.stream(todosAportes).anyMatch(a -> a.compareTo(ZERO) > 0))
                     mesesPesquisados.add(mesPesquisado);
 
                 if (aportes.getTotalAcoes().compareTo(ZERO) > 0)
@@ -177,6 +181,9 @@ public class DashboardService {
             case TipoAtivoEnum.BRAZILIAN_DEPOSITARY_RECEIPTS -> aportes.getTotalBDRs();
             case TipoAtivoEnum.TITULO_PUBLICO -> aportes.getTotalTitulos();
         };
+
+        if (totalPorAtivo.equals(ZERO))
+            return response;
 
         for(var setor : setores){
             var fatiaSetor = setor.getTotalAportado().divide(totalPorAtivo, RoundingMode.HALF_EVEN).multiply(new BigDecimal(100));

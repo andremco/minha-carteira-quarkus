@@ -18,13 +18,15 @@ public class CalculosCarteira {
     }
 
     public double calcularCarteiraTenhoQuociente(double valorTotalAtivo, double totalCarteira){
-        if(valorTotalAtivo == 0)
+        if(valorTotalAtivo == 0 || totalCarteira == 0)
             return 0;
         var carteiraTenho = (valorTotalAtivo/totalCarteira);
         return Math.round(carteiraTenho * 100.0) / 100.0;
     }
 
     public double calcularQuantoQuero(double carteiraIdeal, double totalCarteira){
+        if (totalCarteira == 0)
+            return 0;
         return carteiraIdeal*totalCarteira;
     }
 
