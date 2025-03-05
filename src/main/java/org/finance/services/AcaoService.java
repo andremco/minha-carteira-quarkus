@@ -162,13 +162,13 @@ public class AcaoService {
         acaoRepository.persist(acao);
     }
 
-    public Paginado<AcaoResponse> filtrarAcoes(Integer tipoAtivoId, String razaoSocial, Integer pagina, Integer tamanho){
+    public Paginado<AcaoResponse> filtrarAcoes(Integer tipoAtivoId, String descricaoAtivo, Integer pagina, Integer tamanho){
         TipoAtivoEnum tipoAtivoEnum = null;
         if (tipoAtivoId != null)
             tipoAtivoEnum = TipoAtivoEnum.getById(tipoAtivoId);
 
-        long totalAcoes = total(tipoAtivoEnum, razaoSocial);
-        var acoes = acaoRepository.findAcoesPaged(tipoAtivoEnum, razaoSocial, pagina, tamanho);
+        long totalAcoes = total(tipoAtivoEnum, descricaoAtivo);
+        var acoes = acaoRepository.findAcoesPaged(tipoAtivoEnum, descricaoAtivo, pagina, tamanho);
 
         List<AcaoResponse> response = new ArrayList<>();
         var aportes = dashboardService.obterAportesTotal(null, null);
@@ -227,7 +227,7 @@ public class AcaoService {
         return paginado;
     }
 
-    public long total(TipoAtivoEnum tipoAtivo, String razaoSocial){
-        return acaoRepository.total(tipoAtivo, razaoSocial);
+    public long total(TipoAtivoEnum tipoAtivo, String descricaoAtivo){
+        return acaoRepository.total(tipoAtivo, descricaoAtivo);
     }
 }

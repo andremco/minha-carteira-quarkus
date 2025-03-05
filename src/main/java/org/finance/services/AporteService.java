@@ -54,6 +54,13 @@ public class AporteService {
         if (acao == null && tituloPublico == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
+        //Se for ação validar o preço informado com o mercado
+        /*if (acao != null){
+            var ticker = tickerService.obter(acao.getTicker());
+            if (request.getPreco() > ticker.getPrecoDinamico())
+                throw new NegocioException(apiConfigProperty.getPrecoInformadoAcimaMercado());
+        }*/
+
         //Validar venda para ativo de ação!!
         if (acao != null && request.getMovimentacao().equalsIgnoreCase("V")){
             var aportes = aporteRepository.find("acao.id", request.getAcaoId()).list();
@@ -91,6 +98,12 @@ public class AporteService {
 
         if (request.getAcaoId() != null){
             acao = acaoRepository.findById(request.getAcaoId().longValue());
+            //Se for ação validar o preço informado com o mercado
+            /*if (acao != null){
+                var ticker = tickerService.obter(acao.getTicker());
+                if (request.getPreco() > ticker.getPrecoDinamico())
+                    throw new NegocioException(apiConfigProperty.getPrecoInformadoAcimaMercado());
+            }*/
             //Validar venda para ativo de ação!!
             if (acao != null && request.getMovimentacao().equalsIgnoreCase("V")){
                 var aportes = aporteRepository.find("acao.id", request.getAcaoId()).list();

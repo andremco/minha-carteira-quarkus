@@ -29,4 +29,6 @@ public class ApiConfigProperty {
     String anoPeriodoInformadoNaoPermitido;
     @ConfigProperty(name = "aporte.dia.operacao.nao.permitida")
     String aporteDiaOperacaoNaoPermitida;
+    @ConfigProperty(name = "preco.informado.acima.mercado")
+    String precoInformadoAcimaMercado;
 }
