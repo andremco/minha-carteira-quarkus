@@ -54,12 +54,12 @@ public class AporteService {
         if (acao == null && tituloPublico == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
-        //Se for ação validar o preço informado com o mercado
-        /*if (acao != null){
+        //Se for ação validar o preço informado com o mercado na hora da compra
+        if (acao != null){
             var ticker = tickerService.obter(acao.getTicker());
-            if (request.getPreco() > ticker.getPrecoDinamico())
+            if (request.getPreco() > ticker.getPrecoDinamico() && !acao.getAportes().isEmpty())
                 throw new NegocioException(apiConfigProperty.getPrecoInformadoAcimaMercado());
-        }*/
+        }
 
         //Validar venda para ativo de ação!!
         if (acao != null && request.getMovimentacao().equalsIgnoreCase("V")){
@@ -99,11 +99,11 @@ public class AporteService {
         if (request.getAcaoId() != null){
             acao = acaoRepository.findById(request.getAcaoId().longValue());
             //Se for ação validar o preço informado com o mercado
-            /*if (acao != null){
+            if (acao != null){
                 var ticker = tickerService.obter(acao.getTicker());
-                if (request.getPreco() > ticker.getPrecoDinamico())
+                if (request.getPreco() > ticker.getPrecoDinamico() && !acao.getAportes().isEmpty())
                     throw new NegocioException(apiConfigProperty.getPrecoInformadoAcimaMercado());
-            }*/
+            }
             //Validar venda para ativo de ação!!
             if (acao != null && request.getMovimentacao().equalsIgnoreCase("V")){
                 var aportes = aporteRepository.find("acao.id", request.getAcaoId()).list();

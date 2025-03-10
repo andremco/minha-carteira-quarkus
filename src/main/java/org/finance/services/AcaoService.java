@@ -215,7 +215,7 @@ public class AcaoService {
             var quantidadeQueTenho = aporteService.calcularQuantidadeCompras(acao.getAportes());
 
             response.add(acaoMapper.toAcaoResponse(acao, Formatter.doubleToReal(ticker.getPrecoDinamico()), quantidadeQueTenho,
-                    Formatter.doubleToReal(valorTotalAtivoAtual), comprarOuAguardar, Formatter.doubleToReal(lucroOuPerda)));
+                    Formatter.doubleToReal(valorTotalAtivoAtual), comprarOuAguardar, Formatter.doubleToReal(lucroOuPerda), ticker.getLogoUrl()));
         });
 
         Paginado<AcaoResponse> paginado = Paginado.<AcaoResponse>builder()

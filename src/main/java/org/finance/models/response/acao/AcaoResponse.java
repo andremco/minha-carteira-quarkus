@@ -20,4 +20,5 @@ public class AcaoResponse {
     private String comprarOuAguardar;
     private String valorTotalAtivoAtual;
     private String dataRegistro;
+    private String urlIconAtivo;
 }

@@ -32,7 +32,8 @@ public interface AcaoMapper {
 
     @Mapping(target = "dataRegistro", source = "acao.dataRegistroCriacao")
     @Mapping(target = "quantidade", source = "quantidadeQueTenho")
-    AcaoResponse toAcaoResponse(Acao acao, String precoDinamico, Integer quantidadeQueTenho, String valorTotalAtivoAtual, String comprarOuAguardar, String lucroOuPerda);
+    AcaoResponse toAcaoResponse(Acao acao, String precoDinamico, Integer quantidadeQueTenho, String valorTotalAtivoAtual,
+                                String comprarOuAguardar, String lucroOuPerda, String urlIconAtivo);
 
     @Mapping(target = "razaoSocial", source = "acao.razaoSocial")
     @Mapping(target = "ticker", source = "acao.ticker")
