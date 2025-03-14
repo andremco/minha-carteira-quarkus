@@ -17,11 +17,13 @@ public class AporteRepository implements PanacheRepository<Aporte> {
     private StringBuilder montarQueryBuilder(TipoAtivoEnum tipoAtivo, Integer ativoId, LocalDateTime dataInicio, LocalDateTime dataFim){
         StringBuilder query = new StringBuilder("1=1 and dataRegistroRemocao is null");
         if (tipoAtivo != null && ativoId == null){
-            if (tipoAtivo == TipoAtivoEnum.ACAO){
+            if (tipoAtivo != TipoAtivoEnum.TITULO_PUBLICO){
                 query.append(" and acao.id is not null");
+                query.append(" and acao.setor.tipoAtivo.id = :tipoAtivo");
             }
             if (tipoAtivo == TipoAtivoEnum.TITULO_PUBLICO){
                 query.append(" and tituloPublico.id is not null");
+                query.append(" and tituloPublico.setor.tipoAtivo.id = :tipoAtivo");
             }
         }
         if (tipoAtivo != null && ativoId != null){
@@ -40,6 +42,8 @@ public class AporteRepository implements PanacheRepository<Aporte> {
     }
     private Map<String, Object> montarParamsQuery(TipoAtivoEnum tipoAtivo, Integer ativoId, LocalDateTime dataInicio, LocalDateTime dataFim){
         Map<String, Object> params = new HashMap<>();
+        if (tipoAtivo != null && ativoId == null)
+            params.put("tipoAtivo", tipoAtivo.getId());
         if (tipoAtivo != null && ativoId != null){
             if (tipoAtivo == TipoAtivoEnum.ACAO){
                 params.put("acaoId", ativoId);

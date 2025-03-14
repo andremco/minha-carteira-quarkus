@@ -47,7 +47,7 @@ public class AporteResource {
     @Path("/filtrar")
     @Produces(MediaType.APPLICATION_JSON)
     public ResponseApi<Paginado<AporteResponse>> filtrar(@Min(value = 1, message = "{campo.tipo.ativo.informado.valor.range}")
-                                                         @Max(value = 2, message = "{campo.tipo.ativo.informado.valor.range}")
+                                                         @Max(value = 4, message = "{campo.tipo.ativo.informado.valor.range}")
                                                          @HeaderParam("tipoAtivoId") Integer tipoAtivoId,
                                                          @HeaderParam("ativoId")
                                                          Integer ativoId,
