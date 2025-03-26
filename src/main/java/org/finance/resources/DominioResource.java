@@ -5,18 +5,12 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.finance.models.response.Paginado;
 import org.finance.models.response.ResponseApi;
-import org.finance.models.response.acao.AcaoResponse;
 import org.finance.models.response.dominio.DominioResponse;
 import org.finance.services.DominioService;
-import org.jboss.resteasy.reactive.RestPath;
-import org.jboss.resteasy.reactive.RestQuery;
 
 import java.util.List;
-import java.util.Optional;
 
 @Path("/dominio")
 @Consumes(MediaType.APPLICATION_JSON)
