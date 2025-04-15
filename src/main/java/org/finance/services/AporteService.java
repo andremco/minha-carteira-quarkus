@@ -57,7 +57,9 @@ public class AporteService {
         //Se for ação validar o preço informado com o mercado na hora da compra
         if (acao != null){
             var ticker = tickerService.obter(acao.getTicker());
-            if (request.getPreco() > ticker.getPrecoDinamico() && !acao.getAportes().isEmpty())
+            //Preco com limite de 10% a mais do valor de mercado!
+            var precoLimitePraCompra = ticker.getPrecoDinamico() + (ticker.getPrecoDinamico() * 0.1);
+            if (request.getPreco() > precoLimitePraCompra && !acao.getAportes().isEmpty())
                 throw new NegocioException(apiConfigProperty.getPrecoInformadoAcimaMercado());
         }
 

@@ -9,12 +9,12 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class DetalharAcaoResponse extends AcaoResponse{
-    private String valorTotalAtivo;
-    private String valorTotalCompras;
-    private String valorTotalVendas;
-    private String carteiraIdealPorcento;
-    private String carteiraTenhoPorcento;
-    private String quantoQueroTotal;
-    private String quantoFaltaTotal;
+    private double valorTotalAtivo;
+    private double valorTotalCompras;
+    private double valorTotalVendas;
+    private double carteiraIdealPorcento;
+    private double carteiraTenhoPorcento;
+    private double quantoQueroTotal;
+    private double quantoFaltaTotal;
     private int quantidadeQueFaltaTotal;
 }

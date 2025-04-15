@@ -24,28 +24,39 @@ public interface AcaoMapper {
     @Mapping(target = "id", source = "acao.id")
     @Mapping(target = "dataRegistro", source = "acao.dataRegistroCriacao")
     @Mapping(target = "quantidade", ignore = true)
+    @Mapping(target = "precoDinamico", ignore = true)
+    @Mapping(target = "lucroOuPerda", ignore = true)
+    @Mapping(target = "comprarOuAguardar", ignore = true)
+    @Mapping(target = "valorTotalAtivoAtual", ignore = true)
+    @Mapping(target = "urlIconAtivo", ignore = true)
     AcaoResponse toAcaoResponse(Acao acao, Setor setor);
 
     @Mapping(target = "dataRegistro", source = "acao.dataRegistroCriacao")
     @Mapping(target = "quantidade", ignore = true)
+    @Mapping(target = "precoDinamico", ignore = true)
+    @Mapping(target = "lucroOuPerda", ignore = true)
+    @Mapping(target = "comprarOuAguardar", ignore = true)
+    @Mapping(target = "valorTotalAtivoAtual", ignore = true)
+    @Mapping(target = "urlIconAtivo", ignore = true)
     AcaoResponse toAcaoResponse(Acao acao);
 
     @Mapping(target = "dataRegistro", source = "acao.dataRegistroCriacao")
     @Mapping(target = "quantidade", source = "quantidadeQueTenho")
-    AcaoResponse toAcaoResponse(Acao acao, String precoDinamico, Integer quantidadeQueTenho, String valorTotalAtivoAtual,
-                                String comprarOuAguardar, String lucroOuPerda, String urlIconAtivo);
+    AcaoResponse toAcaoResponse(Acao acao, double precoDinamico, Integer quantidadeQueTenho, double valorTotalAtivoAtual,
+                                String comprarOuAguardar, double lucroOuPerda, String urlIconAtivo);
 
     @Mapping(target = "razaoSocial", source = "acao.razaoSocial")
     @Mapping(target = "ticker", source = "acao.ticker")
     @Mapping(target = "dataRegistro", source = "acao.dataRegistroCriacao")
     @Mapping(target = "quantidade", source = "quantidadeQueTenho")
-    DetalharAcaoResponse toDetalharAcaoResponse(Acao acao, String precoDinamico,
-                                                String carteiraIdealPorcento, String carteiraTenhoPorcento,
-                                                String valorTotalAtivo, String valorTotalAtivoAtual,
-                                                String valorTotalCompras, String valorTotalVendas,
-                                                String quantoQueroTotal, String quantoFaltaTotal,
+    @Mapping(target = "urlIconAtivo", ignore = true)
+    DetalharAcaoResponse toDetalharAcaoResponse(Acao acao, double precoDinamico,
+                                                double carteiraIdealPorcento, double carteiraTenhoPorcento,
+                                                double valorTotalAtivo, double valorTotalAtivoAtual,
+                                                double valorTotalCompras, double valorTotalVendas,
+                                                double quantoQueroTotal, double quantoFaltaTotal,
                                                 Integer quantidadeQueTenho, Integer quantidadeQueFaltaTotal,
-                                                String comprarOuAguardar, String lucroOuPerda);
+                                                String comprarOuAguardar, double lucroOuPerda);
 
     List<AcaoResponse> toAcoesResponse(List<Acao> acoes);
 }

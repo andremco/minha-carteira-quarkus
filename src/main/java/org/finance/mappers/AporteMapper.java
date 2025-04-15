@@ -23,12 +23,12 @@ public interface AporteMapper {
 
     @Mapping(target = "id", expression = "java(acao != null ? acao.getId() : tituloPublico.getId())")
     @Mapping(target = "movimentacao", expression = "java(AporteService.sinalizarCompraOuVenda(aporte.getMovimentacao()))")
-    @Mapping(target = "preco", expression = "java(Formatter.doubleToReal(aporte.getPreco()))")
+    @Mapping(target = "preco", source = "aporte.preco")
     @Mapping(target = "dataRegistro", source = "aporte.dataRegistroCriacao")
     AporteResponse toAporteResponse(Aporte aporte, Acao acao, TituloPublico tituloPublico);
 
     @Mapping(target = "movimentacao", expression = "java(AporteService.sinalizarCompraOuVenda(aporte.getMovimentacao()))")
-    @Mapping(target = "preco", expression = "java(Formatter.doubleToReal(aporte.getPreco()))")
+    @Mapping(target = "preco", source = "aporte.preco")
     @Mapping(target = "dataRegistro", source = "aporte.dataRegistroCriacao")
     AporteResponse toAporteResponse(Aporte aporte);
 

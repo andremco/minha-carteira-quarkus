@@ -10,8 +10,8 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 public class ValoresCarteiraResponse {
-    private String totalCarteira;
-    private String totalCarteiraAtualizado;
-    private String lucroOuPerda;
+    private double totalCarteira;
+    private double totalCarteiraAtualizado;
+    private double lucroOuPerda;
     private Boolean balancoPositivo;
 }

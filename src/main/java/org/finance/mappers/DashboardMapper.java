@@ -12,8 +12,8 @@ import java.util.List;
 
 @Mapper(componentModel = "jakarta-cdi", imports = {LocalDateTime.class})
 public interface DashboardMapper {
-    ValoresCarteiraResponse toValoresCarteiraResponse(String totalCarteira, String totalCarteiraAtualizado,
-                                                      String lucroOuPerda, Boolean balancoPositivo);
+    ValoresCarteiraResponse toValoresCarteiraResponse(double totalCarteira, double totalCarteiraAtualizado,
+                                                      double lucroOuPerda, Boolean balancoPositivo);
     AportesValorMensalResponse toAportesValorMensalResponse(List<String> mesesPesquisados, List<AportesTipoAtivoMensalResponse> aportesAcoesMensal,
                                                        List<AportesTipoAtivoMensalResponse> aportesFIIsMensal, List<AportesTipoAtivoMensalResponse> aportesBDRsMensal,
                                                        List<AportesTipoAtivoMensalResponse> aportesTituloPublicoMensal);

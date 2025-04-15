@@ -15,7 +15,7 @@ public class AporteResponse {
     private Integer id;
     private AcaoResponse acao;
     private TituloPublicoResponse tituloPublico;
-    private String preco;
+    private double preco;
     private Integer quantidade;
     private String movimentacao;
     private String dataRegistro;

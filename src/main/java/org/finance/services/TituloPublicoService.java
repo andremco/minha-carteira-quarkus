@@ -127,11 +127,10 @@ public class TituloPublicoService {
         var lucroOuPerda = tituloPublico.getValorRendimento() != null ? tituloPublico.getValorRendimento() : 0;
         var comprarOuAguardar = calculosCarteira.informarComprarOuAguardar(carteiraIdealPorcento, carteiraTenhoPorcento);
 
-        return tituloPublicoMapper.toDetalharTituloPublicoResponse(tituloPublico, Formatter.doubleToReal(precoMedio),
-                Formatter.doubleToPorcento(carteiraIdealPorcento), Formatter.doubleToPorcento(carteiraTenhoPorcento),
-                Formatter.doubleToReal(valorTotalCompras), Formatter.doubleToReal(valorTotalVendas),
-                Formatter.doubleToReal(valorTotalAtivo), Formatter.doubleToReal(valorTotalAtivoAtual), Formatter.doubleToReal(quantoQueroTotal),
-                Formatter.doubleToReal(quantoFaltaTotal), quantidadeQueTenho, quantidadeQueFaltaTotal, comprarOuAguardar, Formatter.doubleToReal(lucroOuPerda));
+        return tituloPublicoMapper.toDetalharTituloPublicoResponse(tituloPublico, precoMedio,
+                (carteiraIdealPorcento*100), (carteiraTenhoPorcento*100), valorTotalCompras, valorTotalVendas,
+                valorTotalAtivo, valorTotalAtivoAtual, quantoQueroTotal, quantoFaltaTotal,
+                quantidadeQueTenho, quantidadeQueFaltaTotal, comprarOuAguardar, lucroOuPerda);
     }
 
     public void excluir(Integer id) throws NegocioException {
@@ -178,9 +177,8 @@ public class TituloPublicoService {
             var comprarOuAguardar = calculosCarteira.informarComprarOuAguardar(carteiraIdealPorcento, carteiraTenhoPorcento);
             var lucroOuPerda = titulo.getValorRendimento() != null ? titulo.getValorRendimento() : 0;
 
-            response.add(tituloPublicoMapper.toTituloPublicoResponse(titulo, Formatter.doubleToReal(precoMedio), quantidadeQueTenho,
-                    Formatter.doubleToReal(valorTotalAtivo), Formatter.doubleToReal(valorTotalAtivoAtual),
-                    comprarOuAguardar, Formatter.doubleToReal(lucroOuPerda)));
+            response.add(tituloPublicoMapper.toTituloPublicoResponse(titulo, precoMedio, quantidadeQueTenho,
+                    valorTotalAtivo, valorTotalAtivoAtual, comprarOuAguardar, lucroOuPerda));
         });
 
         Paginado<TituloPublicoResponse> paginado = Paginado.<TituloPublicoResponse>builder()

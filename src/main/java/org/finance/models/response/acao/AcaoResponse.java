@@ -15,10 +15,10 @@ public class AcaoResponse {
     private String ticker;
     private Integer nota;
     private Integer quantidade;
-    private String precoDinamico;
-    private String lucroOuPerda;
+    private double precoDinamico;
+    private double lucroOuPerda;
     private String comprarOuAguardar;
-    private String valorTotalAtivoAtual;
+    private double valorTotalAtivoAtual;
     private String dataRegistro;
     private String urlIconAtivo;
 }

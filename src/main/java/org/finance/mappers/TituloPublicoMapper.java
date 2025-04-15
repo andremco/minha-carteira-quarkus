@@ -27,34 +27,46 @@ public interface TituloPublicoMapper {
     @Mapping(target = "id", source = "tituloPublico.id")
     @Mapping(target = "descricao", source = "tituloPublico.descricao")
     @Mapping(target = "dataRegistro", source = "tituloPublico.dataRegistroCriacao")
-    @Mapping(target = "precoInicial", expression = "java(Formatter.doubleToReal(tituloPublico.getPrecoInicial()))")
-    @Mapping(target = "valorRendimento", expression = "java(Formatter.doubleToReal(tituloPublico.getValorRendimento() != null ? tituloPublico.getValorRendimento() : 0))")
+    @Mapping(target = "precoInicial", source = "tituloPublico.precoInicial")
+    @Mapping(target = "valorRendimento", source = "tituloPublico.valorRendimento")
     @Mapping(target = "quantidade", ignore = true)
+    @Mapping(target = "precoMedio", ignore = true)
+    @Mapping(target = "lucroOuPerda", ignore = true)
+    @Mapping(target = "comprarOuAguardar", ignore = true)
+    @Mapping(target = "valorTotalAtivo", ignore = true)
+    @Mapping(target = "valorTotalAtivoAtual", ignore = true)
     TituloPublicoResponse toTituloPublicoResponse(TituloPublico tituloPublico, Setor setor);
 
     @Mapping(target = "dataRegistro", source = "tituloPublico.dataRegistroCriacao")
-    @Mapping(target = "precoInicial", expression = "java(Formatter.doubleToReal(tituloPublico.getPrecoInicial()))")
-    @Mapping(target = "valorRendimento", expression = "java(Formatter.doubleToReal(tituloPublico.getValorRendimento() != null ? tituloPublico.getValorRendimento() : 0))")
+    @Mapping(target = "precoInicial", source = "tituloPublico.precoInicial")
+    @Mapping(target = "valorRendimento", source = "tituloPublico.valorRendimento")
     @Mapping(target = "quantidade", ignore = true)
+    @Mapping(target = "precoMedio", ignore = true)
+    @Mapping(target = "lucroOuPerda", ignore = true)
+    @Mapping(target = "comprarOuAguardar", ignore = true)
+    @Mapping(target = "valorTotalAtivo", ignore = true)
+    @Mapping(target = "valorTotalAtivoAtual", ignore = true)
     TituloPublicoResponse toTituloPublicoResponse(TituloPublico tituloPublico);
 
     @Mapping(target = "descricao", source = "tituloPublico.descricao")
     @Mapping(target = "dataRegistro", source = "tituloPublico.dataRegistroCriacao")
-    @Mapping(target = "precoInicial", expression = "java(Formatter.doubleToReal(tituloPublico.getPrecoInicial()))")
-    @Mapping(target = "valorRendimento", expression = "java(Formatter.doubleToReal(tituloPublico.getValorRendimento() != null ? tituloPublico.getValorRendimento() : 0))")
+    @Mapping(target = "precoInicial", source = "tituloPublico.precoInicial")
+    @Mapping(target = "valorRendimento", source = "tituloPublico.valorRendimento")
     @Mapping(target = "quantidade", source = "quantidadeQueTenho")
-    TituloPublicoResponse toTituloPublicoResponse(TituloPublico tituloPublico, String precoMedio, Integer quantidadeQueTenho, String valorTotalAtivo, String valorTotalAtivoAtual, String comprarOuAguardar, String lucroOuPerda);
+    TituloPublicoResponse toTituloPublicoResponse(TituloPublico tituloPublico, double precoMedio,
+                                                  Integer quantidadeQueTenho, double valorTotalAtivo, double valorTotalAtivoAtual,
+                                                  String comprarOuAguardar, double lucroOuPerda);
 
     @Mapping(target = "descricao", source = "tituloPublico.descricao")
     @Mapping(target = "dataRegistro", source = "tituloPublico.dataRegistroCriacao")
-    @Mapping(target = "precoInicial", expression = "java(Formatter.doubleToReal(tituloPublico.getPrecoInicial()))")
-    @Mapping(target = "valorRendimento", expression = "java(Formatter.doubleToReal(tituloPublico.getValorRendimento() != null ? tituloPublico.getValorRendimento() : 0))")
+    @Mapping(target = "precoInicial", source = "tituloPublico.precoInicial")
+    @Mapping(target = "valorRendimento", source = "tituloPublico.valorRendimento")
     @Mapping(target = "quantidade", source = "quantidadeQueTenho")
-    DetalharTituloPublicoResponse toDetalharTituloPublicoResponse(TituloPublico tituloPublico, String precoMedio,
-                                                         String carteiraIdealPorcento, String carteiraTenhoPorcento,
-                                                         String valorTotalCompras, String valorTotalVendas,
-                                                         String valorTotalAtivo, String valorTotalAtivoAtual, String quantoQueroTotal, String quantoFaltaTotal,
-                                                         Integer quantidadeQueTenho, Integer quantidadeQueFaltaTotal, String comprarOuAguardar, String lucroOuPerda);
+    DetalharTituloPublicoResponse toDetalharTituloPublicoResponse(TituloPublico tituloPublico, double precoMedio,
+                                                         double carteiraIdealPorcento, double carteiraTenhoPorcento,
+                                                         double valorTotalCompras, double valorTotalVendas,
+                                                         double valorTotalAtivo, double valorTotalAtivoAtual, double quantoQueroTotal, double quantoFaltaTotal,
+                                                         Integer quantidadeQueTenho, Integer quantidadeQueFaltaTotal, String comprarOuAguardar, double lucroOuPerda);
 
     List<TituloPublicoResponse> toTitulosPublicoResponse(List<TituloPublico> titulos);
 }

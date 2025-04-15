@@ -13,14 +13,14 @@ public class TituloPublicoResponse {
     private Integer id;
     private SetorResponse setor;
     private String descricao;
-    private String precoMedio;
-    private String valorTotalAtivo;
-    private String valorTotalAtivoAtual;
-    private String precoInicial;
-    private String valorRendimento;
+    private double precoMedio;
+    private double valorTotalAtivo;
+    private double valorTotalAtivoAtual;
+    private double precoInicial;
+    private Double valorRendimento;
     private Integer nota;
     private Integer quantidade;
-    private String lucroOuPerda;
+    private double lucroOuPerda;
     private String comprarOuAguardar;
     private String dataRegistro;
 }

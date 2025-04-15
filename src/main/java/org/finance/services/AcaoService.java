@@ -139,13 +139,13 @@ public class AcaoService {
         var comprarOuAguardar = calculosCarteira.informarComprarOuAguardar(carteiraIdealPorcento, carteiraTenhoPorcento);
         var lucroOuPerda = calculosCarteira.calcularLucroOuPerda(valorTotalAtivo, valorTotalAtivoAtual);
 
-        return acaoMapper.toDetalharAcaoResponse(acao, Formatter.doubleToReal(ticker.getPrecoDinamico()),
-                Formatter.doubleToPorcento(carteiraIdealPorcento), Formatter.doubleToPorcento(carteiraTenhoPorcento),
-                Formatter.doubleToReal(valorTotalAtivo), Formatter.doubleToReal(valorTotalAtivoAtual),
-                Formatter.doubleToReal(valorTotalCompras), Formatter.doubleToReal(valorTotalVendas),
-                Formatter.doubleToReal(quantoQueroTotal), Formatter.doubleToReal(quantoFaltaTotal),
+        return acaoMapper.toDetalharAcaoResponse(acao, ticker.getPrecoDinamico(),
+                (carteiraIdealPorcento*100), (carteiraTenhoPorcento*100),
+                valorTotalAtivo, valorTotalAtivoAtual,
+                valorTotalCompras, valorTotalVendas,
+                quantoQueroTotal, quantoFaltaTotal,
                 quantidadeQueTenho, quantidadeQueFaltaTotal,
-                comprarOuAguardar, Formatter.doubleToReal(lucroOuPerda));
+                comprarOuAguardar, lucroOuPerda);
     }
 
     public void excluir(Integer id) throws NegocioException {
@@ -214,8 +214,8 @@ public class AcaoService {
             var comprarOuAguardar = calculosCarteira.informarComprarOuAguardar(carteiraIdealPorcento, carteiraTenhoPorcento);
             var quantidadeQueTenho = aporteService.calcularQuantidadeCompras(acao.getAportes());
 
-            response.add(acaoMapper.toAcaoResponse(acao, Formatter.doubleToReal(ticker.getPrecoDinamico()), quantidadeQueTenho,
-                    Formatter.doubleToReal(valorTotalAtivoAtual), comprarOuAguardar, Formatter.doubleToReal(lucroOuPerda), ticker.getLogoUrl()));
+            response.add(acaoMapper.toAcaoResponse(acao, ticker.getPrecoDinamico(), quantidadeQueTenho,
+                    valorTotalAtivoAtual, comprarOuAguardar, lucroOuPerda, ticker.getLogoUrl()));
         });
 
         Paginado<AcaoResponse> paginado = Paginado.<AcaoResponse>builder()

@@ -46,10 +46,7 @@ public class DashboardService {
         var lucroOuPerda = calculosCarteira.calcularLucroOuPerda(totalCarteira, totalCarteiraAtualizado);
         var balancoPositivo = lucroOuPerda >= 0;
 
-        return mapper.toValoresCarteiraResponse(Formatter.doubleToReal(totalCarteira),
-                Formatter.doubleToReal(totalCarteiraAtualizado),
-                Formatter.doubleToReal(lucroOuPerda),
-                balancoPositivo);
+        return mapper.toValoresCarteiraResponse(totalCarteira, totalCarteiraAtualizado, lucroOuPerda, balancoPositivo);
     }
 
     public AportesTotalResponse obterAportesPorcentagemTotal(){
