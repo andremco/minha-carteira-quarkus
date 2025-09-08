@@ -122,34 +122,34 @@ public class DashboardService {
             var aportes = obterAportesTotal(inicio, fim);
 
             if (aportes != null && nomeMesesCurtos != null){
-                BigDecimal[] todosAportes = { aportes.getTotalAcoes(), aportes.getTotalFIIs(), aportes.getTotalBDRs(), aportes.getTotalTitulos()};
+                BigDecimal[] todosAportes = { aportes.getTotalAcoes(), aportes.getTotalFIIs(), aportes.getTotalBDRs(), aportes.getTotalTitulos() };
                 var mesPesquisado = nomeMesesCurtos[mesPercorrido-1];
-                if (mesesPesquisados.stream().noneMatch(m -> m.equals(mesPesquisado)) &&
-                        Arrays.stream(todosAportes).anyMatch(a -> a.compareTo(ZERO) > 0))
+                if (mesesPesquisados.stream().noneMatch(m -> m.equals(mesPesquisado)))
                     mesesPesquisados.add(mesPesquisado);
 
-                if (aportes.getTotalAcoes().compareTo(ZERO) > 0)
+                if (aportesAcoesMensal.stream().noneMatch(a -> a.getMes().equals(mesPesquisado)))
                     aportesAcoesMensal.add(AportesTipoAtivoMensalResponse.builder()
                             .mes(mesPesquisado)
-                            .totalAportado(aportes.getTotalAcoes())
+                            .totalAportado(aportes.getTotalAcoes().compareTo(ZERO) > 0 ? aportes.getTotalAcoes() : ZERO)
                             .build());
 
-                if (aportes.getTotalFIIs().compareTo(ZERO) > 0)
+
+                if (aportesFIIsMensal.stream().noneMatch(a -> a.getMes().equals(mesPesquisado)))
                     aportesFIIsMensal.add(AportesTipoAtivoMensalResponse.builder()
                             .mes(mesPesquisado)
-                            .totalAportado(aportes.getTotalFIIs())
+                            .totalAportado(aportes.getTotalFIIs().compareTo(ZERO) > 0 ? aportes.getTotalFIIs() : ZERO)
                             .build());
 
-                if (aportes.getTotalBDRs().compareTo(ZERO) > 0)
+                if (aportesBDRsMensal.stream().noneMatch(a -> a.getMes().equals(mesPesquisado)))
                     aportesBDRsMensal.add(AportesTipoAtivoMensalResponse.builder()
                             .mes(mesPesquisado)
-                            .totalAportado(aportes.getTotalBDRs())
+                            .totalAportado(aportes.getTotalBDRs().compareTo(ZERO) > 0 ? aportes.getTotalBDRs() : ZERO)
                             .build());
 
-                if (aportes.getTotalTitulos().compareTo(ZERO) > 0)
+                if (aportesTituloPublicoMensal.stream().noneMatch(a -> a.getMes().equals(mesPesquisado)))
                     aportesTituloPublicoMensal.add(AportesTipoAtivoMensalResponse.builder()
                             .mes(mesPesquisado)
-                            .totalAportado(aportes.getTotalTitulos())
+                            .totalAportado(aportes.getTotalTitulos().compareTo(ZERO) > 0 ? aportes.getTotalTitulos() : ZERO)
                             .build());
             }
         }
