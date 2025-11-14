@@ -49,7 +49,7 @@ public class TickerService {
             }
         }
         catch (WebApplicationException e){
-            if (e.getResponse().getStatus() == 404 || e.getResponse().getStatus() == 402){
+            if (e.getResponse().getStatus() == 404 || e.getResponse().getStatus() == 402 || e.getResponse().getStatus() == 401){
                 //Verifica se existe no mongo cotações já pesquisadas com diferença de 7 dias!
                 var dataFiltro = LocalDateTime.now().minusDays(7)
                     .withHour(23).withMinute(59).withSecond(59).withNano(0);
