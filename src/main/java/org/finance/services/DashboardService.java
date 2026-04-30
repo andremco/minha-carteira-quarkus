@@ -177,6 +177,7 @@ public class DashboardService {
             case TipoAtivoEnum.FUNDO_IMOBILIARIO -> aportes.getTotalFIIs();
             case TipoAtivoEnum.BRAZILIAN_DEPOSITARY_RECEIPTS -> aportes.getTotalBDRs();
             case TipoAtivoEnum.TITULO_PUBLICO -> aportes.getTotalTitulos();
+            case TipoAtivoEnum.MOEDA -> new BigDecimal("0.00");
         };
 
         if (totalPorAtivo.equals(ZERO))
@@ -207,6 +208,7 @@ public class DashboardService {
                 case TipoAtivoEnum.FUNDO_IMOBILIARIO -> aportes.getTotalFIIs();
                 case TipoAtivoEnum.BRAZILIAN_DEPOSITARY_RECEIPTS -> aportes.getTotalBDRs();
                 case TipoAtivoEnum.TITULO_PUBLICO -> aportes.getTotalTitulos();
+                case TipoAtivoEnum.MOEDA -> new BigDecimal("0.00");
             };
 
             if (valorTotalPorAtivo.equals(ZERO))

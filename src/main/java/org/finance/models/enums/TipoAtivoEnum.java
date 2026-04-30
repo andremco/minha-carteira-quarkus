@@ -10,7 +10,9 @@ public enum TipoAtivoEnum {
     ACAO(1, "Ação"),
     FUNDO_IMOBILIARIO(2, "Fundo Imobiliário"),
     BRAZILIAN_DEPOSITARY_RECEIPTS(3, "Brazilian Depositary Receipts"),
-    TITULO_PUBLICO(4, "Título Público");
+    TITULO_PUBLICO(4, "Título Público"),
+    MOEDA(5, "Moeda");
+
     private static HashMap<Integer, TipoAtivoEnum> enumById = new HashMap<>();
     static {
         Arrays.stream(values()).forEach(e -> enumById.put(e.getId(), e));
