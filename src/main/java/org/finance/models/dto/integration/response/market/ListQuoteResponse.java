@@ -1,4 +1,4 @@
-package org.finance.models.dto.integration.response;
+package org.finance.models.dto.integration.response.market;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;

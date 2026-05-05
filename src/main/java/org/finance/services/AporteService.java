@@ -40,7 +40,7 @@ public class AporteService {
     public AporteResponse salvar(SalvarAporteRequest request) {
         if (request.getAcaoId() == null && request.getTituloPublicoId() == null ||
                 request.getAcaoId() != null && request.getTituloPublicoId() != null)
-            throw new NegocioException(apiConfigProperty.getAporteParmasInsuficiente());
+            throw new NegocioException(apiConfigProperty.getAporteParamsInsuficiente());
 
         Acao acao = null;
         TituloPublico tituloPublico = null;
@@ -96,7 +96,7 @@ public class AporteService {
 
         if (request.getAcaoId() == null && request.getTituloPublicoId() == null ||
                 request.getAcaoId() != null && request.getTituloPublicoId() != null)
-            throw new NegocioException(apiConfigProperty.getAporteParmasInsuficiente());
+            throw new NegocioException(apiConfigProperty.getAporteParamsInsuficiente());
 
         if (request.getAcaoId() != null){
             acao = acaoRepository.findById(request.getAcaoId().longValue());

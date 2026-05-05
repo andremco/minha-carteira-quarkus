@@ -1,8 +1,8 @@
 package org.finance.mappers;
 
 import org.finance.models.data.mongo.Ticker;
-import org.finance.models.dto.integration.response.GetQuote;
-import org.finance.models.dto.integration.response.ListQuote;
+import org.finance.models.dto.integration.response.market.GetQuote;
+import org.finance.models.dto.integration.response.market.ListQuote;
 import org.finance.models.response.ticker.TickerResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

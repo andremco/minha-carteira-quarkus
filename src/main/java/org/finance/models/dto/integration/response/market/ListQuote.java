@@ -1,4 +1,4 @@
-package org.finance.models.dto.integration.response;
+package org.finance.models.dto.integration.response.market;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -10,13 +10,12 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GetQuote {
-    @JsonProperty("longName")
-    private String companyName;
-    @JsonProperty("regularMarketPrice")
+public class ListQuote {
+    @JsonProperty("close")
     private double dynamicPrice;
-    @JsonProperty("symbol")
+    @JsonProperty("stock")
     private String ticker;
-    @JsonProperty("logourl")
+    @JsonProperty("logo")
     private String logoUrl;
+    private String sector;
 }
