@@ -12,6 +12,6 @@ import lombok.Setter;
 public class CoinResponse {
     public String nome;
     public String codigo;
-    public Double preco;
+    public Double precoDinamico;
     private String dataCotacao;
 }
