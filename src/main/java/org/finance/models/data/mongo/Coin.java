@@ -1,9 +1,9 @@
-package org.finance.models.dto.integration.response.currency;
+package org.finance.models.data.mongo;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import lombok.*;
+import org.bson.codecs.pojo.annotations.BsonProperty;
 
 import java.time.LocalDateTime;
 
@@ -12,9 +12,8 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class QuoteCurrencyResponse {
-    @JsonProperty("code")
+public class Coin extends PanacheMongoEntity {
+    @BsonProperty("code")
     private String code;
     @JsonProperty("codein")
     private String codeIn;
@@ -26,7 +25,6 @@ public class QuoteCurrencyResponse {
     private double low;
     @JsonProperty("bid")
     private double bid;
-    @JsonProperty("create_date")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createDate;
+    @BsonProperty("quotationDate")
+    private LocalDateTime quotationDate;
 }
