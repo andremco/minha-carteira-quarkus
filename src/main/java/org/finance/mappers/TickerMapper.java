@@ -19,12 +19,12 @@ public interface TickerMapper {
 
     List<TickerResponse> toTickersResponse(List<GetQuote> quotes);
 
-    @Mapping(target = "dataCotacao", expression = "java(LocalDateTime.now())")
+    @Mapping(target = "quotationDate", expression = "java(LocalDateTime.now())")
     Ticker toTickerMongoResponse(GetQuote quote);
 
     @Mapping(target = "razaoSocial", source = "companyName")
     @Mapping(target = "precoDinamico", source = "dynamicPrice")
-    @Mapping(target = "dataCotacao", expression = "java(ticker.getDataCotacao().toString())")
+    @Mapping(target = "dataCotacao", expression = "java(ticker.getQuotationDate().toString())")
     TickerResponse toTickerResponse(Ticker ticker);
 
     @Mapping(target = "razaoSocial", ignore = true)

@@ -20,6 +20,6 @@ public class Ticker extends PanacheMongoEntity {
     private String ticker;
     @BsonProperty("logoUrl")
     private String logoUrl;
-    @BsonProperty("dataCotacao")
-    private LocalDateTime dataCotacao;
+    @BsonProperty("quotationDate")
+    private LocalDateTime quotationDate;
 }

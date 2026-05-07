@@ -19,6 +19,6 @@ public class CoinResource {
     @Path("/{coin}")
     @Produces(MediaType.APPLICATION_JSON)
     public ResponseApi<CoinResponse> obter(@PathParam("coin") String coin) {
-        return new ResponseApi<>( new String[] {operacaoSucesso}, true);
+        return new ResponseApi<>(service.obter(coin), new String[] {operacaoSucesso}, true);
     }
 }

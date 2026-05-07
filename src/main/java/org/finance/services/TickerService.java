@@ -5,7 +5,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.finance.configs.ApiConfigProperty;
 import org.finance.integration.market.BrapiClient;
 import org.finance.mappers.TickerMapper;
 import org.finance.models.data.mongo.Ticker;
@@ -70,7 +69,7 @@ public class TickerService {
     private TickerResponse obterTickerMongo(String ticker, LocalDateTime data){
         var tickers = tickerRepository.findTickerByDate(ticker, data);
         if (!tickers.isEmpty()){
-            tickers.sort(Comparator.comparing(Ticker::getDataCotacao).reversed());
+            tickers.sort(Comparator.comparing(Ticker::getQuotationDate).reversed());
             var mongoTicker = tickers.getFirst();
             return tickerMapper.toTickerResponse(mongoTicker);
         }

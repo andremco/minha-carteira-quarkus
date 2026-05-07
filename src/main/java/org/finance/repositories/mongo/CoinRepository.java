@@ -4,20 +4,20 @@ import io.quarkus.mongodb.panache.PanacheMongoRepository;
 import io.quarkus.mongodb.panache.PanacheQuery;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.bson.Document;
-import org.finance.models.data.mongo.Ticker;
+import org.finance.models.data.mongo.Coin;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @ApplicationScoped
-public class TickerRepository implements PanacheMongoRepository<Ticker> {
-    public List<Ticker> findTickerByDate(String ticker, LocalDateTime data){
+public class CoinRepository implements PanacheMongoRepository<Coin> {
+    public List<Coin> findCoinByDate(String code, LocalDateTime data){
         Document query = new Document()
-                .append("ticker", ticker)
+                .append("code", code)
                 .append("quotationDate", new Document("$gte", data));
 
         // Usando o método find para buscar os documentos
-        PanacheQuery<Ticker> tickerQuery = find(query);
+        PanacheQuery<Coin> tickerQuery = find(query);
 
         // Retornando a lista de resultados
         return tickerQuery.list();
