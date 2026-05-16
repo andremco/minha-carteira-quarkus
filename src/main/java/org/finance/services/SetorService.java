@@ -32,6 +32,9 @@ public class SetorService {
     ApiConfigProperty apiConfigProperty;
 
     public SetorResponse salvar(SalvarSetorRequest request) throws NegocioException {
+        if (request.getTipoAtivoId() == TipoAtivoEnum.MOEDA.getId())
+            throw new NegocioException(apiConfigProperty.getSetorNaoPodeSerCriado());
+
         var tipoAtivo = tipoAtivoRepository.findById(request.getTipoAtivoId().longValue());
 
         if (tipoAtivo == null)

@@ -11,6 +11,8 @@ public class ApiConfigProperty {
     String registroNaoEncontrado;
     @ConfigProperty(name = "registro.ja.existe")
     String registroJaExiste;
+    @ConfigProperty(name = "setor.nao.pode.ser.criado")
+    String setorNaoPodeSerCriado;
     @ConfigProperty(name = "setor.nao.pode.ser.excluido")
     String setorNaoPodeSerExcluido;
     @ConfigProperty(name = "aporte.params.insuficiente")

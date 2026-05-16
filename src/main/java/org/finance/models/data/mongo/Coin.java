@@ -24,7 +24,7 @@ public class Coin extends PanacheMongoEntity {
     @JsonProperty("low")
     private double low;
     @JsonProperty("bid")
-    private double bid;
+    private double priceBid;
     @BsonProperty("quotationDate")
     private LocalDateTime quotationDate;
 }

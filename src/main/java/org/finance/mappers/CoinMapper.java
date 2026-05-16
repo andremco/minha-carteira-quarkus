@@ -19,12 +19,13 @@ public interface CoinMapper {
 
     List<CoinResponse> toCoinsResponse(List<QuoteCurrencyResponse> quotes);
 
+    @Mapping(target = "priceBid", source = "bid")
     @Mapping(target = "quotationDate", source = "createDate")
     Coin toCoinMongoResponse(QuoteCurrencyResponse quote);
 
     @Mapping(target = "nome", source = "name")
     @Mapping(target = "codigo", source = "code")
-    @Mapping(target = "precoDinamico", source = "bid")
+    @Mapping(target = "precoDinamico", source = "priceBid")
     @Mapping(target = "dataCotacao", expression = "java(coin.getQuotationDate().toString())")
     CoinResponse toCoinResponse(Coin coin);
 }

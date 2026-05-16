@@ -29,7 +29,7 @@ public class DominioResource {
     @Path("/setores/{tipoAtivo}")
     @Produces(MediaType.APPLICATION_JSON)
     public ResponseApi<List<DominioResponse>> setores(@Min(value = 1, message = "{campo.tipo.ativo.informado.valor.range}")
-                                                      @Max(value = 4, message = "{campo.tipo.ativo.informado.valor.range}")
+                                                      @Max(value = 5, message = "{campo.tipo.ativo.informado.valor.range}")
                                                       @PathParam("tipoAtivo") Integer tipoAtivo) {
         return new ResponseApi<>(dominioService.setores(tipoAtivo), new String[] {operacaoSucesso}, true);
     }
