@@ -1,5 +1,7 @@
 package org.finance.models.request.moeda;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -16,4 +18,7 @@ public class EditarMoedaRequest {
     private String nome;
     @Size(max = 10, message = "{campo.codigo.informado.chars.limite}")
     private String codigo;
+    @Min(value = 0, message = "{campo.nota.informado.valor.range}")
+    @Max(value = 10, message = "{campo.nota.informado.valor.range}")
+    private Integer nota;
 }

@@ -70,6 +70,8 @@ public class MoedaService {
             moeda.setNome(request.getNome());
         if (codigo != null)
             moeda.setCodigo(codigo);
+        if (request.getNota() != null)
+            moeda.setNota(request.getNota());
 
         moeda.setDataRegistroEdicao(LocalDateTime.now());
         moedaRepository.persist(moeda);

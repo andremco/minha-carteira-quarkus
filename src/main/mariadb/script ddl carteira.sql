@@ -67,6 +67,7 @@ CREATE TABLE Moeda
     Id INT NOT NULL AUTO_INCREMENT,
     Nome VARCHAR(100) NOT NULL,
     Codigo VARCHAR(10) NOT NULL,
+    Nota INT NOT NULL,
     DataRegistroCriacao DATETIME NOT NULL,
     DataRegistroEdicao DATETIME NULL,
     DataRegistroRemocao DATETIME NULL,
@@ -78,6 +79,7 @@ CREATE TABLE Aporte
     Id INT NOT NULL AUTO_INCREMENT,
     AcaoId INT,
     TituloPublicoId INT,
+    MoedaId INT,
     Preco DECIMAL(10,2) NOT NULL,
     Quantidade INT NOT NULL,
     Movimentacao CHAR(1) NOT NULL, -- C - Compra V - Venda
@@ -86,5 +88,6 @@ CREATE TABLE Aporte
     DataRegistroRemocao DATETIME NULL,
     PRIMARY KEY(Id),
     CONSTRAINT `FK_Aporte_Acao` FOREIGN KEY (AcaoId) REFERENCES Acao(Id),
-    CONSTRAINT `FK_Aporte_TituloPublico` FOREIGN KEY (TituloPublicoId) REFERENCES TituloPublico(Id)
+    CONSTRAINT `FK_Aporte_TituloPublico` FOREIGN KEY (TituloPublicoId) REFERENCES TituloPublico(Id),
+    CONSTRAINT `FK_Aporte_Moeda` FOREIGN KEY (MoedaId) REFERENCES Moeda(Id)
 );

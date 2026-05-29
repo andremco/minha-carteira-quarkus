@@ -32,4 +32,7 @@ public class Aporte {
     @ManyToOne
     @JoinColumn(name = "TituloPublicoId")
     private TituloPublico tituloPublico;
+    @ManyToOne
+    @JoinColumn(name = "MoedaId")
+    private Moeda moeda;
 }

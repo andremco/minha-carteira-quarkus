@@ -1,15 +1,14 @@
 package org.finance.models.data.mariadb.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -24,7 +23,11 @@ public class Moeda {
     @NotNull
     private String codigo;
     @NotNull
+    private Integer nota;
+    @NotNull
     private LocalDateTime dataRegistroCriacao;
     private LocalDateTime dataRegistroEdicao;
     private LocalDateTime dataRegistroRemocao;
+    @OneToMany(mappedBy = "moeda")
+    private List<Aporte> aportes = new ArrayList<>();
 }

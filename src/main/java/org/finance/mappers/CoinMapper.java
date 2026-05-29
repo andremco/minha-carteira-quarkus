@@ -14,6 +14,8 @@ import java.util.List;
 
 @Mapper(componentModel = "cdi", imports = LocalDateTime.class)
 public interface CoinMapper {
+    //TODO aqui verificar mapeamento
+
     @Mapping(target = "nome", source = "name")
     @Mapping(target = "codigo", source = "code")
     @Mapping(target = "precoDinamico", source = "bid")
