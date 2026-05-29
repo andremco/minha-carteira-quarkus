@@ -2,6 +2,7 @@ USE Carteira;
 
 DROP TABLE IF EXISTS Aporte;
 DROP TABLE IF EXISTS TituloPublico;
+DROP TABLE IF EXISTS Moeda;
 DROP TABLE IF EXISTS Acao;
 DROP TABLE IF EXISTS Setor;
 DROP TABLE IF EXISTS TipoAtivo;
@@ -18,7 +19,8 @@ VALUES
     ('Ação', '2024-10-23'),
     ('Fundo Imobiliário', '2024-10-23'),
     ('Brazilian Depositary Receipts', '2024-10-23'),
-    ('Título Público', '2024-10-23');
+    ('Título Público', '2024-10-23'),
+    ('Moeda', '2024-10-23');
 
 CREATE TABLE Setor
 (
@@ -58,6 +60,17 @@ CREATE TABLE TituloPublico
     DataRegistroRemocao DATETIME NULL,
     PRIMARY KEY(Id),
     CONSTRAINT `FK_TituloPublico_Setor` FOREIGN KEY (SetorId) REFERENCES Setor(Id)
+);
+
+CREATE TABLE Moeda
+(
+    Id INT NOT NULL AUTO_INCREMENT,
+    Nome VARCHAR(100) NOT NULL,
+    Codigo VARCHAR(10) NOT NULL,
+    DataRegistroCriacao DATETIME NOT NULL,
+    DataRegistroEdicao DATETIME NULL,
+    DataRegistroRemocao DATETIME NULL,
+    PRIMARY KEY(Id)
 );
 
 CREATE TABLE Aporte
