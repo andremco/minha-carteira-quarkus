@@ -64,9 +64,9 @@ public class MoedaResource {
     @GET
     @Path("/filtrar")
     @Produces(MediaType.APPLICATION_JSON)
-    public ResponseApi<Paginado<MoedaResponse>> filtrar(@HeaderParam("descricaoAtivo") String descricaoAtivo,
+    public ResponseApi<Paginado<MoedaResponse>> filtrar(@HeaderParam("descricaoMoeda") String descricaoMoeda,
                                                         @NotNull(message = "{campo.pagina.nao.informado}") @HeaderParam("pagina") Integer pagina,
                                                         @NotNull(message = "{campo.tamanho.nao.informado}") @HeaderParam("tamanho") Integer tamanho) {
-        return new ResponseApi<>(moedaService.filtrarMoedas(descricaoAtivo, pagina, tamanho), new String[] {operacaoSucesso}, true);
+        return new ResponseApi<>(moedaService.filtrarMoedas(descricaoMoeda, pagina, tamanho), new String[] {operacaoSucesso}, true);
     }
 }

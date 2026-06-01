@@ -13,6 +13,7 @@ import lombok.Setter;
 public class SalvarAporteRequest {
     private Integer acaoId;
     private Integer tituloPublicoId;
+    private Integer moedaId;
     @NotNull(message = "{campo.preco.nao.informado}")
     @Positive(message = "{campo.preco.valor.invalido}")
     private Double preco;

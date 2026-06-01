@@ -8,10 +8,14 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class MoedaResponse {
-    private Integer id;
-    private String nome;
-    private String codigo;
-    private double precoDinamico;
-    private String dataCotacao;
+    public Integer id;
+    public String nome;
+    public String codigo;
+    public String nota;
+    private Integer quantidade;
+    public double precoDinamico;
+    private double lucroOuPerda;
+    private String comprarOuAguardar;
+    private double valorTotalAtivoAtual;
     private String dataRegistro;
 }

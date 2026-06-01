@@ -20,32 +20,32 @@ public class MoedaRepository implements PanacheRepository<Moeda> {
         return find("codigo", codigo).firstResult();
     }
 
-    private StringBuilder montarQueryBuilder(String descricaoAtivo){
+    private StringBuilder montarQueryBuilder(String descricaoMoeda){
         StringBuilder query = new StringBuilder("1=1 and dataRegistroRemocao is null");
-        if (descricaoAtivo != null) {
+        if (descricaoMoeda != null) {
             query.append(" and (nome like :nome or codigo like :codigo)");
         }
         return query;
     }
 
-    private Map<String, Object> montarParamsQuery(String descricaoAtivo){
+    private Map<String, Object> montarParamsQuery(String descricaoMoeda){
         Map<String, Object> params = new HashMap<>();
-        if (descricaoAtivo != null) {
-            params.put("nome", "%" + descricaoAtivo + "%");
-            params.put("codigo", "%" + descricaoAtivo + "%");
+        if (descricaoMoeda != null) {
+            params.put("nome", "%" + descricaoMoeda + "%");
+            params.put("codigo", "%" + descricaoMoeda + "%");
         }
         return params;
     }
 
-    public List<Moeda> findMoedasPaged(String descricaoAtivo, Integer pagina, Integer tamanho){
-        StringBuilder query = montarQueryBuilder(descricaoAtivo);
-        Map<String, Object> params = montarParamsQuery(descricaoAtivo);
+    public List<Moeda> findMoedasPaged(String descricaoMoeda, Integer pagina, Integer tamanho){
+        StringBuilder query = montarQueryBuilder(descricaoMoeda);
+        Map<String, Object> params = montarParamsQuery(descricaoMoeda);
         return find(query.toString(), Sort.by("nome").ascending(), params).page(Page.of(pagina, tamanho)).list();
     }
 
-    public long total(String descricaoAtivo){
-        StringBuilder query = montarQueryBuilder(descricaoAtivo);
-        Map<String, Object> params = montarParamsQuery(descricaoAtivo);
+    public long total(String descricaoMoeda){
+        StringBuilder query = montarQueryBuilder(descricaoMoeda);
+        Map<String, Object> params = montarParamsQuery(descricaoMoeda);
         return find(query.toString(), params).count();
     }
 }

@@ -6,6 +6,7 @@ import jakarta.inject.Inject;
 import org.finance.configs.ApiConfigProperty;
 import org.finance.exceptions.NegocioException;
 import org.finance.mappers.CoinMapper;
+import org.finance.mappers.MoedaMapper;
 import org.finance.models.data.mariadb.entities.Moeda;
 import org.finance.models.request.moeda.EditarMoedaRequest;
 import org.finance.models.request.moeda.SalvarMoedaRequest;
@@ -24,7 +25,7 @@ public class MoedaService {
     @Inject
     MoedaRepository moedaRepository;
     @Inject
-    CoinMapper coinMapper;
+    MoedaMapper moedaMapper;
     @Inject
     ApiConfigProperty apiConfigProperty;
     @Inject
@@ -40,10 +41,10 @@ public class MoedaService {
         if(existePorNome != 0 || existePorCodigo != 0)
             throw new NegocioException(apiConfigProperty.getRegistroJaExiste());
 
-        var moeda = coinMapper.toMoeda(request);
+        var moeda = moedaMapper.toMoeda(request);
         moedaRepository.persist(moeda);
 
-        return coinMapper.toMoedaResponse(moeda, obterCotacao(moeda.getCodigo()));
+        return moedaMapper.toMoedaResponse(moeda);
     }
 
     public MoedaResponse editar(EditarMoedaRequest request) throws NegocioException {
@@ -76,7 +77,7 @@ public class MoedaService {
         moeda.setDataRegistroEdicao(LocalDateTime.now());
         moedaRepository.persist(moeda);
 
-        return coinMapper.toMoedaResponse(moeda, obterCotacao(moeda.getCodigo()));
+        return moedaMapper.toMoedaResponse(moeda);
     }
 
     public MoedaResponse detalharMoeda(Integer id){
@@ -84,7 +85,7 @@ public class MoedaService {
         if (moeda == null || moeda.getDataRegistroRemocao() != null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
-        return coinMapper.toMoedaResponse(moeda, obterCotacao(moeda.getCodigo()));
+        return moedaMapper.toMoedaResponse(moeda);
     }
 
     public void excluir(Integer id) throws NegocioException {
@@ -96,12 +97,12 @@ public class MoedaService {
         moedaRepository.persist(moeda);
     }
 
-    public Paginado<MoedaResponse> filtrarMoedas(String descricaoAtivo, Integer pagina, Integer tamanho){
-        long totalMoedas = total(descricaoAtivo);
-        var moedas = moedaRepository.findMoedasPaged(descricaoAtivo, pagina, tamanho);
+    public Paginado<MoedaResponse> filtrarMoedas(String descricaoMoeda, Integer pagina, Integer tamanho){
+        long totalMoedas = total(descricaoMoeda);
+        var moedas = moedaRepository.findMoedasPaged(descricaoMoeda, pagina, tamanho);
 
         List<MoedaResponse> response = new ArrayList<>();
-        moedas.forEach(moeda -> response.add(coinMapper.toMoedaResponse(moeda, obterCotacao(moeda.getCodigo()))));
+        moedas.forEach(moeda -> response.add(moedaMapper.toMoedaResponse(moeda)));
 
         return Paginado.<MoedaResponse>builder()
                 .pagina(pagina)
@@ -111,8 +112,8 @@ public class MoedaService {
                 .build();
     }
 
-    public long total(String descricaoAtivo){
-        return moedaRepository.total(descricaoAtivo);
+    public long total(String descricaoMoeda){
+        return moedaRepository.total(descricaoMoeda);
     }
 
     private CoinResponse obterCotacao(String codigo) {

@@ -1,5 +1,6 @@
 package org.finance.services;
 
+import io.cucumber.java.sl.In;
 import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -8,6 +9,7 @@ import org.finance.exceptions.NegocioException;
 import org.finance.mappers.AporteMapper;
 import org.finance.models.data.mariadb.entities.Acao;
 import org.finance.models.data.mariadb.entities.Aporte;
+import org.finance.models.data.mariadb.entities.Moeda;
 import org.finance.models.data.mariadb.entities.TituloPublico;
 import org.finance.models.enums.TipoAtivoEnum;
 import org.finance.models.request.aporte.EditarAporteRequest;
@@ -16,10 +18,12 @@ import org.finance.models.response.Paginado;
 import org.finance.models.response.aporte.AporteResponse;
 import org.finance.repositories.mariadb.AcaoRepository;
 import org.finance.repositories.mariadb.AporteRepository;
+import org.finance.repositories.mariadb.MoedaRepository;
 import org.finance.repositories.mariadb.TituloPublicoRepository;
 import org.finance.utils.Formatter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,18 +36,27 @@ public class AporteService {
     @Inject
     TituloPublicoRepository tituloPublicoRepository;
     @Inject
+    MoedaRepository moedaRepository;
+    @Inject
     AporteMapper aporteMapper;
     @Inject
     ApiConfigProperty apiConfigProperty;
     @Inject
     TickerService tickerService;
+    @Inject
+    CoinService coinService;
     public AporteResponse salvar(SalvarAporteRequest request) {
-        if (request.getAcaoId() == null && request.getTituloPublicoId() == null ||
-                request.getAcaoId() != null && request.getTituloPublicoId() != null)
+        var params = new ArrayList<Integer>();
+        params.add(request.getAcaoId());
+        params.add(request.getTituloPublicoId());
+        params.add(request.getMoedaId());
+
+        if (params.stream().allMatch(Objects::isNull) || params.stream().filter(Objects::nonNull).count() > 1)
             throw new NegocioException(apiConfigProperty.getAporteParamsInsuficiente());
 
         Acao acao = null;
         TituloPublico tituloPublico = null;
+        Moeda moeda = null;
 
         if (request.getAcaoId() != null)
             acao = acaoRepository.findById(request.getAcaoId().longValue());
@@ -51,7 +64,10 @@ public class AporteService {
         if (request.getTituloPublicoId() != null)
             tituloPublico = tituloPublicoRepository.findById(request.getTituloPublicoId().longValue());
 
-        if (acao == null && tituloPublico == null)
+        if (request.getMoedaId() != null)
+            moeda = moedaRepository.findById(request.getMoedaId().longValue());
+
+        if (acao == null && tituloPublico == null && moeda == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
         //Se for ação validar o preço informado com o mercado na hora da compra
@@ -60,6 +76,14 @@ public class AporteService {
             //Preco com limite de 10% a mais do valor de mercado!
             var precoLimitePraCompra = ticker.getPrecoDinamico() + (ticker.getPrecoDinamico() * 0.1);
             if (request.getPreco() > precoLimitePraCompra && !acao.getAportes().isEmpty())
+                throw new NegocioException(apiConfigProperty.getPrecoInformadoAcimaMercado());
+        }
+
+        //Se for moeda validar o preço informado com o mercado na hora da compra
+        if (moeda != null){
+            var coin = coinService.obter(moeda.getCodigo());
+            var precoLimitePraCompra = coin.getPrecoDinamico() + (coin.getPrecoDinamico() * 0.1);
+            if (request.getPreco() > precoLimitePraCompra && !moeda.getAportes().isEmpty())
                 throw new NegocioException(apiConfigProperty.getPrecoInformadoAcimaMercado());
         }
 
@@ -75,10 +99,16 @@ public class AporteService {
             validarVendasAportes(aportes, request.getQuantidade(), request.getPreco());
         }
 
-        var aporte = aporteMapper.toAporte(request, acao, tituloPublico);
+        //Validar venda para ativo de moeda!!
+        if (moeda != null && request.getMovimentacao().equalsIgnoreCase("V")){
+            var aportes = aporteRepository.find("tituloPublico.id", request.getMoedaId()).list();
+            validarVendasAportes(aportes, request.getQuantidade(), request.getPreco());
+        }
+
+        var aporte = aporteMapper.toAporte(request, acao, tituloPublico, moeda);
         aporteRepository.persist(aporte);
 
-        return aporteMapper.toAporteResponse(aporte, acao, tituloPublico);
+        return aporteMapper.toAporteResponse(aporte, acao, tituloPublico, moeda);
     }
 
     public AporteResponse editar(EditarAporteRequest request) throws NegocioException {
@@ -143,7 +173,7 @@ public class AporteService {
         aporte.setDataRegistroEdicao(LocalDateTime.now());
         aporteRepository.persist(aporte);
 
-        return aporteMapper.toAporteResponse(aporte, acao, tituloPublico);
+        return aporteMapper.toAporteResponse(aporte, acao, tituloPublico, null);
     }
 
     public void excluir(Integer id) throws NegocioException {
@@ -266,5 +296,15 @@ public class AporteService {
 
     public static String sinalizarCompraOuVenda(char movimentacao){
         return movimentacao == 'C' ? "Compra" : "Venda";
+    }
+
+    public static Integer selecionarIdAtivo(Acao acao, TituloPublico tituloPublico, Moeda moeda){
+        if(acao != null)
+            return acao.getId();
+        if(tituloPublico != null)
+            return tituloPublico.getId();
+        if(moeda != null)
+            return moeda.getId();
+        return null;
     }
 }
