@@ -46,10 +46,7 @@ public class AporteService {
     @Inject
     CoinService coinService;
     public AporteResponse salvar(SalvarAporteRequest request) {
-        var params = new ArrayList<Integer>();
-        params.add(request.getAcaoId());
-        params.add(request.getTituloPublicoId());
-        params.add(request.getMoedaId());
+        var params = setarParamsAporte(request.getAcaoId(), request.getTituloPublicoId(), request.getMoedaId());
 
         if (params.stream().allMatch(Objects::isNull) || params.stream().filter(Objects::nonNull).count() > 1)
             throw new NegocioException(apiConfigProperty.getAporteParamsInsuficiente());
@@ -114,6 +111,13 @@ public class AporteService {
     public AporteResponse editar(EditarAporteRequest request) throws NegocioException {
         Acao acao = new Acao();
         TituloPublico tituloPublico = new TituloPublico();
+        Moeda moeda = new Moeda();
+
+        var params = setarParamsAporte(request.getAcaoId(), request.getTituloPublicoId(), request.getMoedaId());
+
+        if (params.stream().allMatch(Objects::isNull) || params.stream().filter(Objects::nonNull).count() > 1)
+            throw new NegocioException(apiConfigProperty.getAporteParamsInsuficiente());
+
         var hoje = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
 
         Aporte aporte = aporteRepository.findById(request.getId().longValue());
@@ -123,10 +127,6 @@ public class AporteService {
         var dataOperacao = aporte.getDataRegistroCriacao().withHour(0).withMinute(0).withSecond(0);
         if (!dataOperacao.isEqual(hoje))
             throw new NegocioException(apiConfigProperty.getAporteDiaOperacaoNaoPermitida());
-
-        if (request.getAcaoId() == null && request.getTituloPublicoId() == null ||
-                request.getAcaoId() != null && request.getTituloPublicoId() != null)
-            throw new NegocioException(apiConfigProperty.getAporteParamsInsuficiente());
 
         if (request.getAcaoId() != null){
             acao = acaoRepository.findById(request.getAcaoId().longValue());
@@ -156,13 +156,26 @@ public class AporteService {
             }
         }
 
-        if (acao == null && tituloPublico == null)
+        if (request.getMoedaId() != null){
+            moeda = moedaRepository.findById(request.getMoedaId().longValue());
+            //Validar venda para ativo de moeda!!
+            if (moeda != null && request.getMovimentacao().equalsIgnoreCase("V")){
+                var aportes = aporteRepository.find("moeda.id", request.getMoedaId()).list();
+                if ((aportes != null && !aportes.isEmpty()))
+                    aportes = aportes.stream().filter(a -> !Objects.equals(a.getId(), request.getId())).toList();
+                validarVendasAportes(aportes, request.getQuantidade(), request.getPreco());
+            }
+        }
+
+        if (acao == null && tituloPublico == null && moeda == null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
         if (request.getAcaoId() != null)
             aporte.setAcao(acao);
         if (request.getTituloPublicoId() != null)
             aporte.setTituloPublico(tituloPublico);
+        if (request.getMoedaId() != null)
+            aporte.setMoeda(moeda);
         if (request.getPreco() != null)
             aporte.setPreco(request.getPreco());
         if (request.getQuantidade() != null)
@@ -173,7 +186,7 @@ public class AporteService {
         aporte.setDataRegistroEdicao(LocalDateTime.now());
         aporteRepository.persist(aporte);
 
-        return aporteMapper.toAporteResponse(aporte, acao, tituloPublico, null);
+        return aporteMapper.toAporteResponse(aporte, acao, tituloPublico, moeda);
     }
 
     public void excluir(Integer id) throws NegocioException {
@@ -211,6 +224,14 @@ public class AporteService {
         return paginado;
     }
 
+    public List<Integer> setarParamsAporte(Integer acaoId, Integer tituloPublicoId, Integer moedaId){
+        List<Integer> params = new ArrayList<>();
+        params.add(acaoId);
+        params.add(tituloPublicoId);
+        params.add(moedaId);
+        return params;
+    }
+
     public long total(TipoAtivoEnum tipoAtivo, Integer ativoId, LocalDateTime dataInicio, LocalDateTime dataFim){
         return aporteRepository.total(tipoAtivo, ativoId, dataInicio, dataFim);
     }
@@ -227,6 +248,7 @@ public class AporteService {
         Double totalCarteiraAtualizado = 0.0;
         var acoes = acaoRepository.find("dataRegistroRemocao is null").list();
         var titulosPublicos = tituloPublicoRepository.find("dataRegistroRemocao is null").list();
+        var moedas = moedaRepository.find("dataRegistroRemocao is null").list();
 
         if (!acoes.isEmpty())
             for (Acao acao : acoes){
@@ -244,6 +266,16 @@ public class AporteService {
                     totalCarteiraAtualizado += calcularValorTotalAtivo(tituloPublico.getAportes());
                     if(tituloPublico.getValorRendimento() != null)
                         totalCarteiraAtualizado += tituloPublico.getValorRendimento();
+                }
+            }
+
+        if (!moedas.isEmpty())
+            for (Moeda moeda : moedas){
+                if (!moeda.getAportes().isEmpty()){
+                    var coin = moeda.getCodigo();
+                    var response = coinService.obter(coin);
+                    var precoDinamico = response.getPrecoDinamico();
+                    totalCarteiraAtualizado += calcularValorTotalAtivoAtual(moeda.getAportes(), precoDinamico);
                 }
             }
 
@@ -292,19 +324,5 @@ public class AporteService {
 
     public double calcularValorTotalAtivoAtual(List<Aporte> aportes, double preco){
         return calcularQuantidadeCompras(aportes) * preco;
-    }
-
-    public static String sinalizarCompraOuVenda(char movimentacao){
-        return movimentacao == 'C' ? "Compra" : "Venda";
-    }
-
-    public static Integer selecionarIdAtivo(Acao acao, TituloPublico tituloPublico, Moeda moeda){
-        if(acao != null)
-            return acao.getId();
-        if(tituloPublico != null)
-            return tituloPublico.getId();
-        if(moeda != null)
-            return moeda.getId();
-        return null;
     }
 }

@@ -15,6 +15,7 @@ public class EditarAporteRequest {
     private Integer id;
     private Integer acaoId;
     private Integer tituloPublicoId;
+    private Integer moedaId;
     @Positive(message = "{campo.preco.valor.invalido}")
     private Double preco;
     @Positive(message = "{campo.quantidade.valor.invalido}")

@@ -17,7 +17,8 @@ public class AporteRepository implements PanacheRepository<Aporte> {
     private StringBuilder montarQueryBuilder(TipoAtivoEnum tipoAtivo, Integer ativoId, LocalDateTime dataInicio, LocalDateTime dataFim){
         StringBuilder query = new StringBuilder("1=1 and dataRegistroRemocao is null");
         if (tipoAtivo != null && ativoId == null){
-            if (tipoAtivo != TipoAtivoEnum.TITULO_PUBLICO){
+            if (tipoAtivo == TipoAtivoEnum.ACAO || tipoAtivo == TipoAtivoEnum.FUNDO_IMOBILIARIO ||
+                    tipoAtivo == TipoAtivoEnum.BRAZILIAN_DEPOSITARY_RECEIPTS){
                 query.append(" and acao.id is not null");
                 query.append(" and acao.setor.tipoAtivo.id = :tipoAtivo");
             }
@@ -25,13 +26,20 @@ public class AporteRepository implements PanacheRepository<Aporte> {
                 query.append(" and tituloPublico.id is not null");
                 query.append(" and tituloPublico.setor.tipoAtivo.id = :tipoAtivo");
             }
+            if (tipoAtivo == TipoAtivoEnum.MOEDA){
+                query.append(" and moeda.id is not null");
+            }
         }
         if (tipoAtivo != null && ativoId != null){
-            if (tipoAtivo == TipoAtivoEnum.ACAO){
+            if (tipoAtivo == TipoAtivoEnum.ACAO || tipoAtivo == TipoAtivoEnum.FUNDO_IMOBILIARIO ||
+                    tipoAtivo == TipoAtivoEnum.BRAZILIAN_DEPOSITARY_RECEIPTS){
                 query.append(" and acao.id = :acaoId");
             }
             if (tipoAtivo == TipoAtivoEnum.TITULO_PUBLICO){
                 query.append(" and tituloPublico.id = :tituloPublicoId");
+            }
+            if (tipoAtivo == TipoAtivoEnum.MOEDA){
+                query.append(" and moeda.id = :moedaId");
             }
         }
         if (dataInicio != null)
@@ -42,14 +50,18 @@ public class AporteRepository implements PanacheRepository<Aporte> {
     }
     private Map<String, Object> montarParamsQuery(TipoAtivoEnum tipoAtivo, Integer ativoId, LocalDateTime dataInicio, LocalDateTime dataFim){
         Map<String, Object> params = new HashMap<>();
-        if (tipoAtivo != null && ativoId == null)
+        if (tipoAtivo != null && ativoId == null && tipoAtivo != TipoAtivoEnum.MOEDA)
             params.put("tipoAtivo", tipoAtivo.getId());
         if (tipoAtivo != null && ativoId != null){
-            if (tipoAtivo == TipoAtivoEnum.ACAO){
+            if (tipoAtivo == TipoAtivoEnum.ACAO || tipoAtivo == TipoAtivoEnum.FUNDO_IMOBILIARIO ||
+                    tipoAtivo == TipoAtivoEnum.BRAZILIAN_DEPOSITARY_RECEIPTS){
                 params.put("acaoId", ativoId);
             }
             if (tipoAtivo == TipoAtivoEnum.TITULO_PUBLICO){
                 params.put("tituloPublicoId", ativoId);
+            }
+            if (tipoAtivo == TipoAtivoEnum.MOEDA){
+                params.put("moedaId", ativoId);
             }
         }
         if (dataInicio != null)

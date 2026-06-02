@@ -25,4 +25,9 @@ public interface MoedaMapper {
     @Mapping(target = "valorTotalAtivoAtual", ignore = true)
     @Mapping(target = "dataRegistro", source = "dataRegistroCriacao")
     MoedaResponse toMoedaResponse(Moeda moeda);
+
+    @Mapping(target = "dataRegistro", source = "moeda.dataRegistroCriacao")
+    @Mapping(target = "quantidade", source = "quantidadeQueTenho")
+    MoedaResponse toMoedaResponse(Moeda moeda, double precoDinamico, Integer quantidadeQueTenho, double valorTotalAtivoAtual,
+                                  String comprarOuAguardar, double lucroOuPerda);
 }

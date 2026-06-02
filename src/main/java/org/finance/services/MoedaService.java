@@ -14,6 +14,7 @@ import org.finance.models.response.Paginado;
 import org.finance.models.response.coin.CoinResponse;
 import org.finance.models.response.moeda.MoedaResponse;
 import org.finance.repositories.mariadb.MoedaRepository;
+import org.finance.utils.CalculosCarteira;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,6 +31,12 @@ public class MoedaService {
     ApiConfigProperty apiConfigProperty;
     @Inject
     CoinService coinService;
+    @Inject
+    DashboardService dashboardService;
+    @Inject
+    CalculosCarteira calculosCarteira;
+    @Inject
+    AporteService aporteService;
 
     public MoedaResponse salvar(SalvarMoedaRequest request) {
         var codigo = request.getCodigo().toUpperCase();
@@ -100,9 +107,33 @@ public class MoedaService {
     public Paginado<MoedaResponse> filtrarMoedas(String descricaoMoeda, Integer pagina, Integer tamanho){
         long totalMoedas = total(descricaoMoeda);
         var moedas = moedaRepository.findMoedasPaged(descricaoMoeda, pagina, tamanho);
-
         List<MoedaResponse> response = new ArrayList<>();
-        moedas.forEach(moeda -> response.add(moedaMapper.toMoedaResponse(moeda)));
+
+        var todasMoedas = moedaRepository.listAll();
+
+        var somaTodasNotasMoedas = todasMoedas.stream()
+                .mapToInt(Moeda::getNota)
+                .sum();
+        var aportes = dashboardService.obterAportesTotal(null, null);
+        var totalCarteira = aportes.getTotalTitulos().doubleValue();
+
+        moedas.forEach(moeda -> {
+            var coin = coinService.obter(moeda.getCodigo());
+            if (coin == null)
+                throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
+
+            var valorTotalAtivoAtual = aporteService.calcularValorTotalAtivoAtual(moeda.getAportes(), coin.getPrecoDinamico());
+            var valorTotalAtivo = aporteService.calcularValorTotalAtivo(moeda.getAportes());
+
+            var carteiraTenhoPorcento = calculosCarteira.calcularCarteiraTenhoQuociente(valorTotalAtivo, totalCarteira);
+            var carteiraIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(moeda.getNota(), somaTodasNotasMoedas);
+
+            var lucroOuPerda = calculosCarteira.calcularLucroOuPerda(valorTotalAtivo, valorTotalAtivoAtual);
+            var comprarOuAguardar = calculosCarteira.informarComprarOuAguardar(carteiraIdealPorcento, carteiraTenhoPorcento);
+            var quantidadeQueTenho = aporteService.calcularQuantidadeCompras(moeda.getAportes());
+
+            response.add(moedaMapper.toMoedaResponse(moeda, coin.getPrecoDinamico(), quantidadeQueTenho, valorTotalAtivoAtual, comprarOuAguardar, lucroOuPerda));
+        });
 
         return Paginado.<MoedaResponse>builder()
                 .pagina(pagina)
