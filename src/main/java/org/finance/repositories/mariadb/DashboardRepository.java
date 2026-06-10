@@ -24,7 +24,8 @@ public class DashboardRepository {
                 CARTEIRA_1.TOTAL AS TOTAL_ACOES,
                 CARTEIRA_2.TOTAL AS TOTAL_FIIS,
                 CARTEIRA_3.TOTAL AS TOTAL_BDRS,
-                CARTEIRA_4.TOTAL AS TOTAL_TITULOS
+                CARTEIRA_4.TOTAL AS TOTAL_TITULOS,
+                CARTEIRA_5.TOTAL AS TOTAL_MOEDAS
                 FROM
                     (SELECT IFNULL(SUM(CASE When Movimentacao='C' Then Preco*Quantidade Else 0 End) -
                                    SUM(CASE When Movimentacao='V' Then Preco*Quantidade Else 0 End), 0) AS TOTAL
@@ -77,7 +78,18 @@ public class DashboardRepository {
                         #PERIODOINICIAL#
                         #PERIODOFIM#
                         AND tipo.Id = 4 -- Título Público
-                    ) CARTEIRA_4                      
+                    ) CARTEIRA_4,
+                    (SELECT IFNULL(SUM(CASE When Movimentacao='C' Then Preco*Quantidade Else 0 End) -
+                                   SUM(CASE When Movimentacao='V' Then Preco*Quantidade Else 0 End), 0) AS TOTAL
+                    FROM Aporte aporte
+                    INNER JOIN Moeda moeda ON  aporte.MoedaId = moeda.Id
+                    WHERE
+                        1=1
+                        AND aporte.DataRegistroRemocao IS NULL
+                        #PERIODOINICIAL#
+                        #PERIODOFIM#
+                        -- 5 Moeda
+                    ) CARTEIRA_5                                           
                 """;
         if (dataInicio != null && dataFim != null){
             sql = sql.replace("#PERIODOINICIAL#", " and aporte.DataRegistroCriacao >= '" + dataInicio + "'");
@@ -101,11 +113,13 @@ public class DashboardRepository {
             #JOIN#
             WHERE
                 1=1
+                AND aporte.MoedaId IS NULL -- Moeda não possui setor!
                 AND aporte.DataRegistroRemocao IS NULL
                 AND setor.ID in (SELECT ID FROM Setor WHERE TipoAtivoId = #TIPOATIVO#)
             GROUP BY setor.Descricao                
                 """;
-        if (tipoAtivo != TipoAtivoEnum.TITULO_PUBLICO)
+        if (tipoAtivo == TipoAtivoEnum.ACAO || tipoAtivo == TipoAtivoEnum.FUNDO_IMOBILIARIO ||
+                tipoAtivo == TipoAtivoEnum.BRAZILIAN_DEPOSITARY_RECEIPTS)
             sql = sql.replace("#JOIN#", """
                     INNER JOIN Acao acao ON  aporte.AcaoId = acao.Id
                     INNER JOIN Setor setor ON acao.SetorId = setor.Id

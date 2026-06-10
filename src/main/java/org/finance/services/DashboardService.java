@@ -56,7 +56,8 @@ public class DashboardService {
             var totalCarteira = aportes.getTotalAcoes()
                         .add(aportes.getTotalBDRs())
                         .add(aportes.getTotalFIIs())
-                        .add(aportes.getTotalTitulos());
+                        .add(aportes.getTotalTitulos())
+                        .add(aportes.getTotalMoedas());
             if (totalCarteira.compareTo(ZERO) > 0){
                 var porcentagemAcoes = aportes.getTotalAcoes().divide(totalCarteira, RoundingMode.HALF_EVEN)
                         .multiply(new BigDecimal(100));
@@ -66,8 +67,10 @@ public class DashboardService {
                         .multiply(new BigDecimal(100));
                 var porcentagemTitulos = aportes.getTotalTitulos().divide(totalCarteira, RoundingMode.HALF_EVEN)
                         .multiply(new BigDecimal(100));
+                var porcentagemMoedas = aportes.getTotalMoedas().divide(totalCarteira, RoundingMode.HALF_EVEN)
+                        .multiply(new BigDecimal(100));
                 response = mapper.toAportesTotalResponse(porcentagemAcoes, porcentagemFIIs,
-                        porcentagemBDRs, porcentagemTitulos);
+                        porcentagemBDRs, porcentagemTitulos, porcentagemMoedas);
             }
         }
         return response;
@@ -110,6 +113,7 @@ public class DashboardService {
         var aportesFIIsMensal = new ArrayList<AportesTipoAtivoMensalResponse>();
         var aportesBDRsMensal = new ArrayList<AportesTipoAtivoMensalResponse>();
         var aportesTituloPublicoMensal = new ArrayList<AportesTipoAtivoMensalResponse>();
+        var aportesMoedasMensal = new ArrayList<AportesTipoAtivoMensalResponse>();
         var response = AportesValorMensalResponse.builder().build();
 
         for (int mesPercorrido = primeiroMesPeriodo.getValue(); mesPercorrido <= ultimoMesPeriodo.getValue(); mesPercorrido++){
@@ -122,7 +126,7 @@ public class DashboardService {
             var aportes = obterAportesTotal(inicio, fim);
 
             if (aportes != null && nomeMesesCurtos != null){
-                BigDecimal[] todosAportes = { aportes.getTotalAcoes(), aportes.getTotalFIIs(), aportes.getTotalBDRs(), aportes.getTotalTitulos() };
+                BigDecimal[] todosAportes = { aportes.getTotalAcoes(), aportes.getTotalFIIs(), aportes.getTotalBDRs(), aportes.getTotalTitulos(), aportes.getTotalMoedas() };
                 var mesPesquisado = nomeMesesCurtos[mesPercorrido-1];
                 if (mesesPesquisados.stream().noneMatch(m -> m.equals(mesPesquisado)))
                     mesesPesquisados.add(mesPesquisado);
@@ -151,10 +155,16 @@ public class DashboardService {
                             .mes(mesPesquisado)
                             .totalAportado(aportes.getTotalTitulos().compareTo(ZERO) > 0 ? aportes.getTotalTitulos() : ZERO)
                             .build());
+
+                if (aportesMoedasMensal.stream().noneMatch(a -> a.getMes().equals(mesPesquisado)))
+                    aportesMoedasMensal.add(AportesTipoAtivoMensalResponse.builder()
+                            .mes(mesPesquisado)
+                            .totalAportado(aportes.getTotalMoedas().compareTo(ZERO) > 0 ? aportes.getTotalMoedas() : ZERO)
+                            .build());
             }
         }
         response = mapper.toAportesValorMensalResponse(mesesPesquisados, aportesAcoesMensal,
-                aportesFIIsMensal, aportesBDRsMensal, aportesTituloPublicoMensal);
+                aportesFIIsMensal, aportesBDRsMensal, aportesTituloPublicoMensal, aportesMoedasMensal);
         return response;
     }
 
@@ -165,6 +175,10 @@ public class DashboardService {
 
         if (tipoAtivoId != null)
             tipoAtivoEnum = TipoAtivoEnum.getById(tipoAtivoId);
+
+        //Moeda não possui setor!
+        if (tipoAtivoEnum == TipoAtivoEnum.MOEDA)
+            return response;
 
         var aportes = obterAportesTotal(null, null);
         var setores = dashboardRepository.obterSetoresFatiados(tipoAtivoEnum);
@@ -177,7 +191,7 @@ public class DashboardService {
             case TipoAtivoEnum.FUNDO_IMOBILIARIO -> aportes.getTotalFIIs();
             case TipoAtivoEnum.BRAZILIAN_DEPOSITARY_RECEIPTS -> aportes.getTotalBDRs();
             case TipoAtivoEnum.TITULO_PUBLICO -> aportes.getTotalTitulos();
-            case TipoAtivoEnum.MOEDA -> new BigDecimal("0.00");
+            default -> new BigDecimal("0.00");
         };
 
         if (totalPorAtivo.equals(ZERO))
@@ -198,6 +212,10 @@ public class DashboardService {
         if (tipoAtivoId != null)
             tipoAtivoEnum = TipoAtivoEnum.getById(tipoAtivoId);
 
+        //Moeda não possui setor!
+        if (tipoAtivoEnum == TipoAtivoEnum.MOEDA)
+            return response;
+
         var aportes = obterAportesTotal(null, null);
         var setores = setorService.obterSetoresTotalNotas(tipoAtivoEnum);
         if (setores != null && !setores.isEmpty() && aportes != null){
@@ -208,7 +226,7 @@ public class DashboardService {
                 case TipoAtivoEnum.FUNDO_IMOBILIARIO -> aportes.getTotalFIIs();
                 case TipoAtivoEnum.BRAZILIAN_DEPOSITARY_RECEIPTS -> aportes.getTotalBDRs();
                 case TipoAtivoEnum.TITULO_PUBLICO -> aportes.getTotalTitulos();
-                case TipoAtivoEnum.MOEDA -> new BigDecimal("0.00");
+                default -> new BigDecimal("0.00");
             };
 
             if (valorTotalPorAtivo.equals(ZERO))

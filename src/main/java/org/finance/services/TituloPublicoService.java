@@ -100,7 +100,7 @@ public class TituloPublicoService {
 
     public DetalharTituloPublicoResponse detalharTitulo(Integer id){
         TituloPublico tituloPublico = tituloPublicoRepository.findById(id.longValue());
-        if (tituloPublico == null)
+        if (tituloPublico == null || tituloPublico.getDataRegistroRemocao() != null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
         TipoAtivoEnum tipoAtivo = TipoAtivoEnum.TITULO_PUBLICO;

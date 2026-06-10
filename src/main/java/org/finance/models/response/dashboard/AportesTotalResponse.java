@@ -16,4 +16,5 @@ public class AportesTotalResponse {
     private BigDecimal porFIIs;
     private BigDecimal porBDRs;
     private BigDecimal porTitulos;
+    private BigDecimal porMoedas;
 }

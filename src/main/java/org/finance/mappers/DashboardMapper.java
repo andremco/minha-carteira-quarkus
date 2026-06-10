@@ -16,13 +16,14 @@ public interface DashboardMapper {
                                                       double lucroOuPerda, Boolean balancoPositivo);
     AportesValorMensalResponse toAportesValorMensalResponse(List<String> mesesPesquisados, List<AportesTipoAtivoMensalResponse> aportesAcoesMensal,
                                                        List<AportesTipoAtivoMensalResponse> aportesFIIsMensal, List<AportesTipoAtivoMensalResponse> aportesBDRsMensal,
-                                                       List<AportesTipoAtivoMensalResponse> aportesTituloPublicoMensal);
-    AportesTotalResponse toAportesTotalResponse(BigDecimal porAcoes, BigDecimal porFIIs, BigDecimal porBDRs, BigDecimal porTitulos);
+                                                       List<AportesTipoAtivoMensalResponse> aportesTituloPublicoMensal, List<AportesTipoAtivoMensalResponse> aportesMoedasMensal);
+    AportesTotalResponse toAportesTotalResponse(BigDecimal porAcoes, BigDecimal porFIIs, BigDecimal porBDRs, BigDecimal porTitulos, BigDecimal porMoedas);
 
     @Mapping(target = "porAcoes", source = "totalAcoes")
     @Mapping(target = "porFIIs", source = "totalFIIs")
     @Mapping(target = "porBDRs", source = "totalBDRs")
     @Mapping(target = "porTitulos", source = "totalTitulos")
+    @Mapping(target = "porMoedas", source = "totalMoedas")
     AportesTotalResponse toAportesTotalResponse(AportesTotalPorTipoAtivo aportes);
 
     @Mapping(target = "percentual", expression = "java(setores.getTotalAportado().doubleValue())")

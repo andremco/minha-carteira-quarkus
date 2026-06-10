@@ -20,6 +20,7 @@ import org.finance.models.request.moeda.EditarMoedaRequest;
 import org.finance.models.request.moeda.SalvarMoedaRequest;
 import org.finance.models.response.Paginado;
 import org.finance.models.response.ResponseApi;
+import org.finance.models.response.moeda.DetalharMoedaResponse;
 import org.finance.models.response.moeda.MoedaResponse;
 import org.finance.services.MoedaService;
 
@@ -48,7 +49,7 @@ public class MoedaResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ResponseApi<MoedaResponse> obter(@PathParam("id") Integer id){
+    public ResponseApi<DetalharMoedaResponse> obter(@PathParam("id") Integer id){
         return new ResponseApi<>(moedaService.detalharMoeda(id), new String[] {operacaoSucesso}, true);
     }
 

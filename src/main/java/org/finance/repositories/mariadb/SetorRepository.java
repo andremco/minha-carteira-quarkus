@@ -38,7 +38,8 @@ public class SetorRepository implements PanacheRepository<Setor> {
                 AND setor.ID in (SELECT ID FROM Setor WHERE TipoAtivoId = #TIPOATIVO#)
             GROUP BY setor.Descricao                
                 """;
-        if (tipoAtivo != TipoAtivoEnum.TITULO_PUBLICO)
+        if (tipoAtivo == TipoAtivoEnum.ACAO || tipoAtivo == TipoAtivoEnum.FUNDO_IMOBILIARIO ||
+                tipoAtivo == TipoAtivoEnum.BRAZILIAN_DEPOSITARY_RECEIPTS)
             sql = sql.replace("#TABELA#", "Acao");
         if (tipoAtivo == TipoAtivoEnum.TITULO_PUBLICO)
             sql = sql.replace("#TABELA#", "TituloPublico");

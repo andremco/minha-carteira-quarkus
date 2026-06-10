@@ -16,7 +16,8 @@ import java.math.BigDecimal;
                         @ColumnResult(name = "TOTAL_ACOES", type = BigDecimal.class),
                         @ColumnResult(name = "TOTAL_FIIS", type = BigDecimal.class),
                         @ColumnResult(name = "TOTAL_BDRS", type = BigDecimal.class),
-                        @ColumnResult(name = "TOTAL_TITULOS", type = BigDecimal.class)
+                        @ColumnResult(name = "TOTAL_TITULOS", type = BigDecimal.class),
+                        @ColumnResult(name = "TOTAL_MOEDAS", type = BigDecimal.class)
                 }
         )
 )
@@ -33,4 +34,6 @@ public class AportesTotalPorTipoAtivo {
     private BigDecimal totalBDRs;
     @Column(name = "TOTAL_TITULOS")
     private BigDecimal totalTitulos;
+    @Column(name = "TOTAL_MOEDAS")
+    private BigDecimal totalMoedas;
 }

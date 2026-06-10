@@ -12,6 +12,7 @@ import org.finance.models.request.moeda.EditarMoedaRequest;
 import org.finance.models.request.moeda.SalvarMoedaRequest;
 import org.finance.models.response.Paginado;
 import org.finance.models.response.coin.CoinResponse;
+import org.finance.models.response.moeda.DetalharMoedaResponse;
 import org.finance.models.response.moeda.MoedaResponse;
 import org.finance.repositories.mariadb.MoedaRepository;
 import org.finance.utils.CalculosCarteira;
@@ -48,10 +49,12 @@ public class MoedaService {
         if(existePorNome != 0 || existePorCodigo != 0)
             throw new NegocioException(apiConfigProperty.getRegistroJaExiste());
 
+        var coin = obterCotacao(codigo);
+
         var moeda = moedaMapper.toMoeda(request);
         moedaRepository.persist(moeda);
 
-        return moedaMapper.toMoedaResponse(moeda);
+        return moedaMapper.toMoedaResponse(moeda, coin.getPrecoDinamico());
     }
 
     public MoedaResponse editar(EditarMoedaRequest request) throws NegocioException {
@@ -74,6 +77,8 @@ public class MoedaService {
                 findPorCodigo != null && !Objects.equals(findPorCodigo.getId(), request.getId()))
             throw new NegocioException(apiConfigProperty.getRegistroJaExiste());
 
+        var coin = obterCotacao(codigo);
+
         if (request.getNome() != null)
             moeda.setNome(request.getNome());
         if (codigo != null)
@@ -84,15 +89,45 @@ public class MoedaService {
         moeda.setDataRegistroEdicao(LocalDateTime.now());
         moedaRepository.persist(moeda);
 
-        return moedaMapper.toMoedaResponse(moeda);
+        return moedaMapper.toMoedaResponse(moeda, coin.getPrecoDinamico());
     }
 
-    public MoedaResponse detalharMoeda(Integer id){
+    public DetalharMoedaResponse detalharMoeda(Integer id){
         Moeda moeda = moedaRepository.findById(id.longValue());
         if (moeda == null || moeda.getDataRegistroRemocao() != null)
             throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
 
-        return moedaMapper.toMoedaResponse(moeda);
+        var todasMoedas = moedaRepository.listAll();
+
+        var somaTodasNotasMoedas = todasMoedas.stream()
+                .mapToInt(Moeda::getNota)
+                .sum();
+
+        var coin = obterCotacao(moeda.getCodigo());
+
+        var aportes = dashboardService.obterAportesTotal(null, null);
+        var totalCarteira = aportes.getTotalMoedas().doubleValue();
+
+        var valorTotalCompras = aporteService.comprasRealizadas(moeda.getAportes());
+        var valorTotalVendas = aporteService.vendasRealizadas(moeda.getAportes());
+        var valorTotalAtivo = valorTotalCompras-valorTotalVendas;
+        var valorTotalAtivoAtual = aporteService.calcularValorTotalAtivoAtual(moeda.getAportes(), coin.getPrecoDinamico());
+        var carteiraIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(moeda.getNota(), somaTodasNotasMoedas);
+        var carteiraTenhoPorcento = calculosCarteira.calcularCarteiraTenhoQuociente(valorTotalAtivo, totalCarteira);
+        var quantoQueroTotal = calculosCarteira.calcularQuantoQuero(carteiraIdealPorcento, totalCarteira);
+        var quantoFaltaTotal = calculosCarteira.calcularQuantoFalta(quantoQueroTotal, valorTotalAtivo);
+        var quantidadeQueTenho = aporteService.calcularQuantidadeCompras(moeda.getAportes());
+        var quantidadeQueFaltaTotal = (int) Math.round(calculosCarteira.calcularQuantidadeQueFalta(quantoFaltaTotal, coin.getPrecoDinamico()));
+        var comprarOuAguardar = calculosCarteira.informarComprarOuAguardar(carteiraIdealPorcento, carteiraTenhoPorcento);
+        var lucroOuPerda = calculosCarteira.calcularLucroOuPerda(valorTotalAtivo, valorTotalAtivoAtual);
+
+        return moedaMapper.toDetalharMoedaResponse(moeda, coin.getPrecoDinamico(),
+                (carteiraIdealPorcento*100), (carteiraTenhoPorcento*100),
+                valorTotalAtivo, valorTotalAtivoAtual,
+                valorTotalCompras, valorTotalVendas,
+                quantoQueroTotal, quantoFaltaTotal,
+                quantidadeQueTenho, quantidadeQueFaltaTotal,
+                comprarOuAguardar, lucroOuPerda);
     }
 
     public void excluir(Integer id) throws NegocioException {
@@ -115,22 +150,20 @@ public class MoedaService {
                 .mapToInt(Moeda::getNota)
                 .sum();
         var aportes = dashboardService.obterAportesTotal(null, null);
-        var totalCarteira = aportes.getTotalTitulos().doubleValue();
+        var totalCarteira = aportes.getTotalMoedas().doubleValue();
 
         moedas.forEach(moeda -> {
-            var coin = coinService.obter(moeda.getCodigo());
-            if (coin == null)
-                throw new NegocioException(apiConfigProperty.getRegistroNaoEncontrado());
+            var coin = obterCotacao(moeda.getCodigo());
 
+            var quantidadeQueTenho = aporteService.calcularQuantidadeCompras(moeda.getAportes());
             var valorTotalAtivoAtual = aporteService.calcularValorTotalAtivoAtual(moeda.getAportes(), coin.getPrecoDinamico());
             var valorTotalAtivo = aporteService.calcularValorTotalAtivo(moeda.getAportes());
 
             var carteiraTenhoPorcento = calculosCarteira.calcularCarteiraTenhoQuociente(valorTotalAtivo, totalCarteira);
             var carteiraIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(moeda.getNota(), somaTodasNotasMoedas);
 
-            var lucroOuPerda = calculosCarteira.calcularLucroOuPerda(valorTotalAtivo, valorTotalAtivoAtual);
             var comprarOuAguardar = calculosCarteira.informarComprarOuAguardar(carteiraIdealPorcento, carteiraTenhoPorcento);
-            var quantidadeQueTenho = aporteService.calcularQuantidadeCompras(moeda.getAportes());
+            var lucroOuPerda = calculosCarteira.calcularLucroOuPerda(valorTotalAtivo, valorTotalAtivoAtual);
 
             response.add(moedaMapper.toMoedaResponse(moeda, coin.getPrecoDinamico(), quantidadeQueTenho, valorTotalAtivoAtual, comprarOuAguardar, lucroOuPerda));
         });
