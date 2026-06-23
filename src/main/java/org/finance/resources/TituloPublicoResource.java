@@ -22,6 +22,7 @@ public class TituloPublicoResource {
     TituloPublicoService service;
     @ConfigProperty(name = "operacao.realizado.com.sucesso")
     String operacaoSucesso;
+    
     @POST
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)

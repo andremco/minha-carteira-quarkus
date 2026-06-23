@@ -21,10 +21,11 @@ public interface MoedaMapper {
 
     @Mapping(target = "quantidade", ignore = true)
     @Mapping(target = "lucroOuPerda", ignore = true)
+    @Mapping(target = "precoDinamico", ignore = true)
     @Mapping(target = "comprarOuAguardar", ignore = true)
     @Mapping(target = "valorTotalAtivoAtual", ignore = true)
     @Mapping(target = "dataRegistro", source = "moeda.dataRegistroCriacao")
-    MoedaResponse toMoedaResponse(Moeda moeda, double precoDinamico);
+    MoedaResponse toMoedaResponse(Moeda moeda);
 
     @Mapping(target = "dataRegistro", source = "moeda.dataRegistroCriacao")
     @Mapping(target = "quantidade", source = "quantidadeQueTenho")

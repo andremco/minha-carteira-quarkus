@@ -5,7 +5,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.finance.configs.ApiConfigProperty;
 import org.finance.exceptions.NegocioException;
-import org.finance.mappers.CoinMapper;
 import org.finance.mappers.MoedaMapper;
 import org.finance.models.data.mariadb.entities.Moeda;
 import org.finance.models.request.moeda.EditarMoedaRequest;
@@ -49,12 +48,10 @@ public class MoedaService {
         if(existePorNome != 0 || existePorCodigo != 0)
             throw new NegocioException(apiConfigProperty.getRegistroJaExiste());
 
-        var coin = obterCotacao(codigo);
-
         var moeda = moedaMapper.toMoeda(request);
         moedaRepository.persist(moeda);
 
-        return moedaMapper.toMoedaResponse(moeda, coin.getPrecoDinamico());
+        return moedaMapper.toMoedaResponse(moeda);
     }
 
     public MoedaResponse editar(EditarMoedaRequest request) throws NegocioException {
@@ -77,8 +74,6 @@ public class MoedaService {
                 findPorCodigo != null && !Objects.equals(findPorCodigo.getId(), request.getId()))
             throw new NegocioException(apiConfigProperty.getRegistroJaExiste());
 
-        var coin = obterCotacao(codigo);
-
         if (request.getNome() != null)
             moeda.setNome(request.getNome());
         if (codigo != null)
@@ -89,7 +84,7 @@ public class MoedaService {
         moeda.setDataRegistroEdicao(LocalDateTime.now());
         moedaRepository.persist(moeda);
 
-        return moedaMapper.toMoedaResponse(moeda, coin.getPrecoDinamico());
+        return moedaMapper.toMoedaResponse(moeda);
     }
 
     public DetalharMoedaResponse detalharMoeda(Integer id){

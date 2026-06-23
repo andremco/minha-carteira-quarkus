@@ -22,7 +22,7 @@ public class DominioService {
     @Inject
     DominioMapper mapper;
     public List<DominioResponse> tipoAtivos(){
-        var tipoAtivos = tipoAtivoRepository.findAll().list();
+        var tipoAtivos = tipoAtivoRepository.find("id != ?1", TipoAtivoEnum.MOEDA.getId()).list();
         return mapper.toTipoAtivoDominiosResponse(tipoAtivos);
     }
     public List<DominioResponse> setores(Integer tipoAtivo){
