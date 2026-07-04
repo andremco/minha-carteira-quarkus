@@ -52,8 +52,11 @@ public class SetorService {
     }
 
     public SetorResponse editar(EditarSetorRequest request) throws NegocioException {
-        if (request.getDescricao() == null && request.getTipoAtivoId() == null)
+        if (request.getDescricao() == null || request.getTipoAtivoId() == null)
             throw new NegocioException(apiConfigProperty.getSetorParamsInsuficiente());
+
+        if (request.getTipoAtivoId() == TipoAtivoEnum.MOEDA.getId())
+            throw new NegocioException(apiConfigProperty.getSetorNaoPodeSerCriado());
 
         Setor setor = setorRepository.findById(request.getId().longValue());
         if (setor == null)

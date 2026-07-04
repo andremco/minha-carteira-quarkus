@@ -52,6 +52,7 @@ public class DashboardService {
     public AportesTotalResponse obterAportesPorcentagemTotal(){
         var response = AportesTotalResponse.builder().build();
         var aportes = obterAportesTotal(null, null);
+
         if (aportes!= null){
             var totalCarteira = aportes.getTotalAcoes()
                         .add(aportes.getTotalBDRs())
@@ -79,8 +80,10 @@ public class DashboardService {
     public AportesTotalResponse obterAportesValorTotal(){
         var response = AportesTotalResponse.builder().build();
         var aportes = obterAportesTotal(null, null);
-        if (aportes != null)
+        if (aportes != null){
             response = mapper.toAportesTotalResponse(aportes);
+        }
+            
         return response;
     }
 

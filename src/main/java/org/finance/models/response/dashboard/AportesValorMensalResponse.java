@@ -17,4 +17,5 @@ public class AportesValorMensalResponse {
     private List<AportesTipoAtivoMensalResponse> aportesFIIsMensal;
     private List<AportesTipoAtivoMensalResponse> aportesBDRsMensal;
     private List<AportesTipoAtivoMensalResponse> aportesTituloPublicoMensal;
+    private List<AportesTipoAtivoMensalResponse> aportesMoedasMensal;
 }

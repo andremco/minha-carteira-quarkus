@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Mapper(componentModel = "cdi", imports = {LocalDateTime.class})
+@Mapper(componentModel = "jakarta-cdi", imports = {LocalDateTime.class})
 public interface DominioMapper {
     DominioResponse toDominioResponse(Setor setor);
     List<DominioResponse> toSetorDominiosResponse(List<Setor> setores);
