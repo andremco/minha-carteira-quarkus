@@ -282,7 +282,7 @@ public class AporteService {
         return totalCarteiraAtualizado;
     }
 
-    public void validarVendasAportes(List<Aporte> aportes, int quantidadesAVender, double precoVenda){
+    public void validarVendasAportes(List<Aporte> aportes, double quantidadesAVender, double precoVenda){
         var totalVenda = quantidadesAVender * precoVenda;
         if ((aportes == null || aportes.isEmpty()) && totalVenda > 0)
             throw new NegocioException(apiConfigProperty.getAporteVendaNaoPermitida());
@@ -295,18 +295,18 @@ public class AporteService {
         }
     }
 
-    public Integer calcularQuantidadeCompras(List<Aporte> aportes){
+    public double calcularQuantidadeCompras(List<Aporte> aportes){
         if(aportes.isEmpty())
-            return 0;
-        var quantidadeComprasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'C' && a.getDataRegistroRemocao() == null).mapToInt(Aporte::getQuantidade).sum();
-        var quantidadeVendasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'V' && a.getDataRegistroRemocao() == null).mapToInt(Aporte::getQuantidade).sum();
+            return 0.0;
+        var quantidadeComprasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'C' && a.getDataRegistroRemocao() == null).mapToDouble(Aporte::getQuantidade).sum();
+        var quantidadeVendasRealizadas = aportes.stream().filter(a -> a.getMovimentacao() == 'V' && a.getDataRegistroRemocao() == null).mapToDouble(Aporte::getQuantidade).sum();
 
         return quantidadeComprasRealizadas - quantidadeVendasRealizadas;
     }
 
     public double calcularValorTotalAtivo(List<Aporte> aportes){
         if(aportes.isEmpty())
-            return 0;
+            return 0.0;
         return comprasRealizadas(aportes)-vendasRealizadas(aportes);
     }
 

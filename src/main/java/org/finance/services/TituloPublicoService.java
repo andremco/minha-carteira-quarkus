@@ -6,7 +6,6 @@ import jakarta.inject.Inject;
 import org.finance.configs.ApiConfigProperty;
 import org.finance.exceptions.NegocioException;
 import org.finance.mappers.TituloPublicoMapper;
-import org.finance.models.data.mariadb.entities.Acao;
 import org.finance.models.data.mariadb.entities.Setor;
 import org.finance.models.data.mariadb.entities.TituloPublico;
 import org.finance.models.enums.TipoAtivoEnum;
@@ -15,12 +14,8 @@ import org.finance.models.request.tituloPublico.SalvarTituloPublicoRequest;
 import org.finance.models.response.Paginado;
 import org.finance.models.response.tituloPublico.DetalharTituloPublicoResponse;
 import org.finance.models.response.tituloPublico.TituloPublicoResponse;
-import org.finance.repositories.mariadb.AcaoRepository;
-import org.finance.repositories.mariadb.DashboardRepository;
-import org.finance.repositories.mariadb.SetorRepository;
 import org.finance.repositories.mariadb.TituloPublicoRepository;
 import org.finance.utils.CalculosCarteira;
-import org.finance.utils.Formatter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -122,8 +117,8 @@ public class TituloPublicoService {
         var quantoQueroTotal = calculosCarteira.calcularQuantoQuero(carteiraIdealPorcento, totalCarteira);
         var quantoFaltaTotal = calculosCarteira.calcularQuantoFalta(quantoQueroTotal, valorTotalAtivo);
         var precoParaCalculoQuantoFalta = precoMedio == 0 ? tituloPublico.getPrecoInicial() : precoMedio;
-        var quantidadeQueTenho = (int) Math.round(valorTotalAtivo / precoParaCalculoQuantoFalta);
-        var quantidadeQueFaltaTotal = (int) Math.round(calculosCarteira.calcularQuantidadeQueFalta(quantoFaltaTotal, precoParaCalculoQuantoFalta));
+        var quantidadeQueTenho = (double) Math.round(valorTotalAtivo / precoParaCalculoQuantoFalta);
+        var quantidadeQueFaltaTotal = (double) Math.round(calculosCarteira.calcularQuantidadeQueFalta(quantoFaltaTotal, precoParaCalculoQuantoFalta));
         var lucroOuPerda = tituloPublico.getValorRendimento() != null ? tituloPublico.getValorRendimento() : 0;
         var comprarOuAguardar = calculosCarteira.informarComprarOuAguardar(carteiraIdealPorcento, carteiraTenhoPorcento);
 
@@ -142,7 +137,7 @@ public class TituloPublicoService {
         var valorTotalAtivo = aporteService.calcularValorTotalAtivo(tituloPublico.getAportes());
         var precoMedio = calculosCarteira.calcularPrecoMedioAportes(tituloPublico.getAportes());
         var precoParaCalculoQuantoFalta = precoMedio == 0 ? tituloPublico.getPrecoInicial() : precoMedio;
-        var quantidade = (int) Math.round(valorTotalAtivo / precoParaCalculoQuantoFalta);
+        var quantidade = (double) Math.round(valorTotalAtivo / precoParaCalculoQuantoFalta);
 
         if (quantidade > 0)
             throw new NegocioException(apiConfigProperty.getTituloNaoPodeSerExcluido());
@@ -173,7 +168,7 @@ public class TituloPublicoService {
             var carteiraTenhoPorcento = calculosCarteira.calcularCarteiraTenhoQuociente(valorTotalAtivo, totalCarteira);
             var precoMedio = calculosCarteira.calcularPrecoMedioAportes(titulo.getAportes());
             var precoParaCalculoQuantoFalta = precoMedio == 0 ? titulo.getPrecoInicial() : precoMedio;
-            var quantidadeQueTenho = (int) Math.round(valorTotalAtivo / precoParaCalculoQuantoFalta);
+            var quantidadeQueTenho = (double) Math.round(valorTotalAtivo / precoParaCalculoQuantoFalta);
             var comprarOuAguardar = calculosCarteira.informarComprarOuAguardar(carteiraIdealPorcento, carteiraTenhoPorcento);
             var lucroOuPerda = titulo.getValorRendimento() != null ? titulo.getValorRendimento() : 0;
 

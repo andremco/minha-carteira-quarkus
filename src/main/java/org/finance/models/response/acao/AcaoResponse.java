@@ -14,7 +14,7 @@ public class AcaoResponse {
     private String razaoSocial;
     private String ticker;
     private Integer nota;
-    private Integer quantidade;
+    private double quantidade;
     private double precoDinamico;
     private double lucroOuPerda;
     private String comprarOuAguardar;

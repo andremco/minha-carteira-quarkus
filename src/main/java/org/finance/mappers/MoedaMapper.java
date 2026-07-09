@@ -29,7 +29,7 @@ public interface MoedaMapper {
 
     @Mapping(target = "dataRegistro", source = "moeda.dataRegistroCriacao")
     @Mapping(target = "quantidade", source = "quantidadeQueTenho")
-    MoedaResponse toMoedaResponse(Moeda moeda, double precoDinamico, Integer quantidadeQueTenho, double valorTotalAtivoAtual,
+    MoedaResponse toMoedaResponse(Moeda moeda, double precoDinamico, double quantidadeQueTenho, double valorTotalAtivoAtual,
                                   String comprarOuAguardar, double lucroOuPerda);
 
     @Mapping(target = "nome", source = "moeda.nome")
@@ -41,7 +41,7 @@ public interface MoedaMapper {
                                                  double valorTotalAtivo, double valorTotalAtivoAtual,
                                                  double valorTotalCompras, double valorTotalVendas,
                                                  double quantoQueroTotal, double quantoFaltaTotal,
-                                                 Integer quantidadeQueTenho, Integer quantidadeQueFaltaTotal,
+                                                 double quantidadeQueTenho, double quantidadeQueFaltaTotal,
                                                  String comprarOuAguardar, double lucroOuPerda);
 
     List<MoedaResponse> toMoedasResponse(List<Moeda> moedas);

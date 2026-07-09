@@ -19,7 +19,7 @@ public class EditarAporteRequest {
     @Positive(message = "{campo.preco.valor.invalido}")
     private Double preco;
     @Positive(message = "{campo.quantidade.valor.invalido}")
-    private Integer quantidade;
+    private Double quantidade;
     @Pattern(regexp = "[CV]", message = "{campo.movimentacao.valor.invalido}")
     private String movimentacao;
 }

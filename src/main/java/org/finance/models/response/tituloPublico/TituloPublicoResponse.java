@@ -2,7 +2,6 @@ package org.finance.models.response.tituloPublico;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.finance.models.response.dominio.DominioResponse;
 import org.finance.models.response.setor.SetorResponse;
 
 @Getter
@@ -19,7 +18,7 @@ public class TituloPublicoResponse {
     private double precoInicial;
     private Double valorRendimento;
     private Integer nota;
-    private Integer quantidade;
+    private double quantidade;
     private double lucroOuPerda;
     private String comprarOuAguardar;
     private String dataRegistro;

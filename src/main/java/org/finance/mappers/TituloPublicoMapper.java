@@ -54,7 +54,7 @@ public interface TituloPublicoMapper {
     @Mapping(target = "valorRendimento", source = "tituloPublico.valorRendimento")
     @Mapping(target = "quantidade", source = "quantidadeQueTenho")
     TituloPublicoResponse toTituloPublicoResponse(TituloPublico tituloPublico, double precoMedio,
-                                                  Integer quantidadeQueTenho, double valorTotalAtivo, double valorTotalAtivoAtual,
+                                                  double quantidadeQueTenho, double valorTotalAtivo, double valorTotalAtivoAtual,
                                                   String comprarOuAguardar, double lucroOuPerda);
 
     @Mapping(target = "descricao", source = "tituloPublico.descricao")
@@ -66,7 +66,7 @@ public interface TituloPublicoMapper {
                                                          double carteiraIdealPorcento, double carteiraTenhoPorcento,
                                                          double valorTotalCompras, double valorTotalVendas,
                                                          double valorTotalAtivo, double valorTotalAtivoAtual, double quantoQueroTotal, double quantoFaltaTotal,
-                                                         Integer quantidadeQueTenho, Integer quantidadeQueFaltaTotal, String comprarOuAguardar, double lucroOuPerda);
+                                                         double quantidadeQueTenho, double quantidadeQueFaltaTotal, String comprarOuAguardar, double lucroOuPerda);
 
     List<TituloPublicoResponse> toTitulosPublicoResponse(List<TituloPublico> titulos);
 }

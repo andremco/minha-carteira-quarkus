@@ -14,7 +14,7 @@ public class MoedaResponse {
     public String nome;
     public String codigo;
     public String nota;
-    private Integer quantidade;
+    private double quantidade;
     public double precoDinamico;
     private double lucroOuPerda;
     private String comprarOuAguardar;

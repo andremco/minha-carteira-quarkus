@@ -19,7 +19,7 @@ public class Aporte {
     @NotNull
     private double preco;
     @NotNull
-    private Integer quantidade;
+    private double quantidade;
     @NotNull
     private char movimentacao;
     @NotNull

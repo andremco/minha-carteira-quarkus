@@ -130,7 +130,7 @@ public class AcaoService {
         var quantoQueroTotal = calculosCarteira.calcularQuantoQuero(carteiraIdealPorcento, totalCarteira.doubleValue());
         var quantoFaltaTotal = calculosCarteira.calcularQuantoFalta(quantoQueroTotal, valorTotalAtivo);
         var quantidadeQueTenho = aporteService.calcularQuantidadeCompras(acao.getAportes());
-        var quantidadeQueFaltaTotal = (int) Math.round(calculosCarteira.calcularQuantidadeQueFalta(quantoFaltaTotal, ticker.getPrecoDinamico()));
+        var quantidadeQueFaltaTotal = (double) Math.round(calculosCarteira.calcularQuantidadeQueFalta(quantoFaltaTotal, ticker.getPrecoDinamico()));
         var comprarOuAguardar = calculosCarteira.informarComprarOuAguardar(carteiraIdealPorcento, carteiraTenhoPorcento);
         var lucroOuPerda = calculosCarteira.calcularLucroOuPerda(valorTotalAtivo, valorTotalAtivoAtual);
 

@@ -19,5 +19,5 @@ public class DetalharMoedaResponse extends MoedaResponse{
     private double carteiraTenhoPorcento;
     private double quantoQueroTotal;
     private double quantoFaltaTotal;
-    private int quantidadeQueFaltaTotal;
+    private double quantidadeQueFaltaTotal;
 }

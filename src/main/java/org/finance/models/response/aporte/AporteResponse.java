@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.finance.models.response.acao.AcaoResponse;
 import org.finance.models.response.tituloPublico.TituloPublicoResponse;
+import org.finance.models.response.moeda.MoedaResponse;
 
 @Getter
 @Setter
@@ -15,9 +16,9 @@ public class AporteResponse {
     private Integer id;
     private AcaoResponse acao;
     private TituloPublicoResponse tituloPublico;
-
+    private MoedaResponse moeda;
     private double preco;
-    private Integer quantidade;
+    private double quantidade;
     private String movimentacao;
     private String dataRegistro;
 }

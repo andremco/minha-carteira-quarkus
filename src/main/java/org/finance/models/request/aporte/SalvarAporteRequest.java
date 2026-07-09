@@ -19,7 +19,7 @@ public class SalvarAporteRequest {
     private Double preco;
     @NotNull(message = "{campo.quantidade.nao.informado}")
     @Positive(message = "{campo.quantidade.valor.invalido}")
-    private Integer quantidade;
+    private Double quantidade;
     @NotNull(message = "{campo.movimentacao.nao.informado}")
     @Pattern(regexp = "[CV]", message = "{campo.movimentacao.valor.invalido}")
     private String movimentacao;

@@ -1,6 +1,5 @@
 package org.finance.services;
 
-import com.arjuna.ats.jta.exceptions.NotImplementedException;
 import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

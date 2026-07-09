@@ -42,7 +42,7 @@ public interface AcaoMapper {
 
     @Mapping(target = "dataRegistro", source = "acao.dataRegistroCriacao")
     @Mapping(target = "quantidade", source = "quantidadeQueTenho")
-    AcaoResponse toAcaoResponse(Acao acao, double precoDinamico, Integer quantidadeQueTenho, double valorTotalAtivoAtual,
+    AcaoResponse toAcaoResponse(Acao acao, double precoDinamico, double quantidadeQueTenho, double valorTotalAtivoAtual,
                                 String comprarOuAguardar, double lucroOuPerda, String urlIconAtivo);
 
     @Mapping(target = "razaoSocial", source = "acao.razaoSocial")
@@ -55,7 +55,7 @@ public interface AcaoMapper {
                                                 double valorTotalAtivo, double valorTotalAtivoAtual,
                                                 double valorTotalCompras, double valorTotalVendas,
                                                 double quantoQueroTotal, double quantoFaltaTotal,
-                                                Integer quantidadeQueTenho, Integer quantidadeQueFaltaTotal,
+                                                double quantidadeQueTenho, double quantidadeQueFaltaTotal,
                                                 String comprarOuAguardar, double lucroOuPerda);
 
     List<AcaoResponse> toAcoesResponse(List<Acao> acoes);
