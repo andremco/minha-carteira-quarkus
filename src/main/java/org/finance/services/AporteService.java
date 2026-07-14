@@ -98,7 +98,7 @@ public class AporteService {
 
         //Validar venda para ativo de moeda!!
         if (moeda != null && request.getMovimentacao().equalsIgnoreCase("V")){
-            var aportes = aporteRepository.find("tituloPublico.id", request.getMoedaId()).list();
+            var aportes = aporteRepository.find("moeda.id", request.getMoedaId()).list();
             validarVendasAportes(aportes, request.getQuantidade(), request.getPreco());
         }
 
