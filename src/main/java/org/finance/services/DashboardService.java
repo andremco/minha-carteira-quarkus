@@ -59,15 +59,15 @@ public class DashboardService {
                         .add(aportes.getTotalTitulos())
                         .add(aportes.getTotalMoedas());
             if (totalCarteira.compareTo(ZERO) > 0){
-                var porcentagemAcoes = aportes.getTotalAcoes().divide(totalCarteira, RoundingMode.HALF_EVEN)
+                                var porcentagemAcoes = aportes.getTotalAcoes().divide(totalCarteira, RoundingMode.DOWN)
                         .multiply(new BigDecimal(100));
-                var porcentagemBDRs = aportes.getTotalBDRs().divide(totalCarteira, RoundingMode.HALF_EVEN)
+                var porcentagemBDRs = aportes.getTotalBDRs().divide(totalCarteira, RoundingMode.DOWN)
                         .multiply(new BigDecimal(100));
-                var porcentagemFIIs = aportes.getTotalFIIs().divide(totalCarteira, RoundingMode.HALF_EVEN)
+                var porcentagemFIIs = aportes.getTotalFIIs().divide(totalCarteira, RoundingMode.DOWN)
                         .multiply(new BigDecimal(100));
-                var porcentagemTitulos = aportes.getTotalTitulos().divide(totalCarteira, RoundingMode.HALF_EVEN)
+                var porcentagemTitulos = aportes.getTotalTitulos().divide(totalCarteira, RoundingMode.DOWN)
                         .multiply(new BigDecimal(100));
-                var porcentagemMoedas = aportes.getTotalMoedas().divide(totalCarteira, RoundingMode.HALF_EVEN)
+                var porcentagemMoedas = aportes.getTotalMoedas().divide(totalCarteira, RoundingMode.DOWN)
                         .multiply(new BigDecimal(100));
                 response = mapper.toAportesTotalResponse(porcentagemAcoes, porcentagemFIIs,
                         porcentagemBDRs, porcentagemTitulos, porcentagemMoedas);
@@ -200,7 +200,8 @@ public class DashboardService {
             return response;
 
         for(var setor : setores){
-            var fatiaSetor = setor.getTotalAportado().divide(totalPorAtivo, RoundingMode.HALF_EVEN).multiply(new BigDecimal(100));
+            var fatiaSetor = setor.getTotalAportado().divide(totalPorAtivo, RoundingMode.DOWN).multiply(new BigDecimal(100));
+            fatiaSetor = fatiaSetor.setScale(0, RoundingMode.DOWN);
             setor.setTotalAportado(fatiaSetor);
         }
 
@@ -237,8 +238,11 @@ public class DashboardService {
             for (var setor : setores){
                 var setorIdealPorcento = calculosCarteira.calcularCarteiraIdealQuociente(setor.getTotalNotasAtivos(), somaNotasAtivos);
                 var calcularQuantoQueroSetor = calculosCarteira.calcularQuantoQuero(setorIdealPorcento, valorTotalPorAtivo.doubleValue());
-                var porcentagemPraAportar = calcularQuantoQueroSetor/valorTotalPorAtivo.doubleValue();
-                porcentagemPraAportar = Math.round(porcentagemPraAportar * 100.0);
+                                var porcentagemPraAportar = BigDecimal.valueOf(calcularQuantoQueroSetor)
+                                        .multiply(new BigDecimal("100"))
+                                        .divide(valorTotalPorAtivo, 4, RoundingMode.DOWN)
+                                        .setScale(0, RoundingMode.DOWN)
+                                        .doubleValue();
                 response.add(mapper.toSetoresFatiadoResponse(setor.getSetor(), porcentagemPraAportar));
             }
         }
